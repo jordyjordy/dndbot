@@ -17,7 +17,6 @@ bot.on('ready', () => {
 
 bot.on('message', msg => {
   const args = msg.content.split(/ +/);
-  console.info(args)
   const command = args.shift().toLocaleLowerCase();
   console.info('Called command:' + command);
 

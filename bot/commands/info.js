@@ -8,8 +8,15 @@ module.exports = {
             msg.channel.send("Please specify what you want information about, for example type `?info Villads`")
             return
         }
-        console.log(args[0])
-        axios.get(process.env.SERVER_IP+ `/item/name?name=${args[0]}`).then(function(response){
+        var query = ""
+        for(i = 0; i < args.length; i++) {
+            query += args[i]
+            if(i < args.length-1) {
+                query += " "
+            }
+        }
+        console.log(query)
+        axios.get(process.env.SERVER_IP+ `/item/name?name=${query}`).then(function(response){
             console.log(response.data[0])
             if(response.data.length > 0){
                 var resultString = ``
