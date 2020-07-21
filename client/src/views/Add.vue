@@ -23,10 +23,6 @@ export default {
         }
     },
     methods: {
-        async getItem(id) {
-            var temp = await api.getItemById(id)
-            this.item = temp
-        },
         async saveItem() {
             console.log(this.item.details)
             console.log("yay")
@@ -34,10 +30,7 @@ export default {
             this.$router.push('/list')
 
         }
-    }, beforeMount() {
-        this.getItem(this.id)
     }
-
 }
 </script>
 
