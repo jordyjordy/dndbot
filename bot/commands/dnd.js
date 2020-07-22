@@ -18,12 +18,12 @@ module.exports= {
         console.log("hey")
         switch (diff) {
             case 0:
-                msg.channel.send('DnD is today!')
-                msg.channel.send(`Specifically in ${hours} hours and ${minutes} minutes!`)
+                msg.channel.send(`OMG OMG OMG AAAAAAAAAAH DND IS TODAY!\nONLY ${hours} HOURS AND ${minutes} MINUTES REMAINING!`)
+                msg.channel.send(`WEEEEEEEEEEEEEEEEEEEEEEEEEEEE`)
                 break;
             case 1:
-                msg.channel.send('DnD is tomorrow!');
-                msg.channel.send(`Specifically in ${hours + 24*days} hours and ${minutes} minutes!`)
+                msg.channel.send(`OMG DND IS TOMORROW!\nITS IN ONLY ${hours + 24*days} HOURS AND ${minutes} MINUTES!`);
+                msg.channel.send(`AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH`)
                 break;
             case 2:
             case 3:
