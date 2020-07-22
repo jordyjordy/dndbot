@@ -2,7 +2,7 @@ const axios = require('axios')
 
 module.exports = {
     name: '?info',
-    description: 'info!',
+    description: 'Provides info about characters!',
     execute(msg,args) {
         if(args.length == 0) {
             msg.channel.send("Please specify what you want information about, for example type `?info Villads`")

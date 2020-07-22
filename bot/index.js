@@ -2,13 +2,13 @@ require('dotenv').config();
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
-const botCommands = require('./commands')
+var botCommands = require('./commands')
 const TOKEN = process.env.TOKEN;
 
 Object.keys(botCommands).map(key => {
   bot.commands.set(botCommands[key].name,botCommands[key])
 })
-
+botCommands = Object.entries(botCommands)
 bot.login(TOKEN);
 
 bot.on('ready', () => {
@@ -20,7 +20,18 @@ bot.on('message', msg => {
   const command = args.shift().toLocaleLowerCase();
   console.info('Called command:' + command);
 
-  if(!bot.commands.has(command)) return;
+  if(!bot.commands.has(command)) {
+    if(command != "?help") {
+      return;
+    }
+    var string = "Possible commands:\n ?help: This command. \n"
+    for(i = 0; i < botCommands.length; i++) {
+      string += botCommands[i][1].name + ": " + botCommands[i][1].description + '\n';
+    }
+    msg.channel.send(string)
+    console.log("message sent?")
+    return
+  } 
 
   try{
     bot.commands.get(command).execute(msg,args);

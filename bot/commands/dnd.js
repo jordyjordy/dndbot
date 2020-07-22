@@ -1,7 +1,7 @@
 
 module.exports= {
     name:'?dnd',
-    description:'dnd!',
+    description:'Gives time until the next session!',
     execute(msg,args) {
         console.log("HI!")
         var now = new Date();
