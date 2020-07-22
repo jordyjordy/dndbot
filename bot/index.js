@@ -24,7 +24,7 @@ bot.on('message', msg => {
     if(command != "?help") {
       return;
     }
-    var string = "Possible commands:\n ?help: This command. \n"
+    var string = "Possible commands:\n?help: This command. \n"
     for(i = 0; i < botCommands.length; i++) {
       string += botCommands[i][1].name + ": " + botCommands[i][1].description + '\n';
     }
