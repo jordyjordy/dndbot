@@ -14,6 +14,9 @@ const itemSchema = mongoose.Schema({
     },
     details: {
         type: String
+    },
+    edit: {
+        type: String
     }
 })
 itemSchema.pre("save",async function(next) {

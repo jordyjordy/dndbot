@@ -19,7 +19,8 @@ export default {
                 name: "",
                 type: "",
                 details: "",
-            }
+            },
+            validated : false
         }
     },
     methods: {
