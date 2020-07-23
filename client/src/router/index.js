@@ -25,6 +25,11 @@ Vue.use(VueRouter)
     component: () => import("../views/Add.vue")
   },
   {
+    path: '/authenticate',
+    name: 'Authentication',
+    component: () => import('../views/PassCode.vue')
+  },
+  {
       path: '/*',
       name: "leftover",
       component: Vue.component("page-not-found", {

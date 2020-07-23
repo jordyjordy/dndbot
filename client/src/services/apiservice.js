@@ -24,7 +24,7 @@ export default {
     saveItem: async function(item) {
         const url = ip + "/item/update"
         try{
-            const result = await axios.put(url, {item})
+            const result = await axios.put(url, {item},{headers: {token:localStorage.getItem('passcode')}})
             return true
         } catch (err) {
             return false
@@ -34,7 +34,7 @@ export default {
     createItem: async function(item) {
         const url = ip + "/item/add"
         try{
-            const result = await axios.post(url, {item})
+            const result = await axios.post(url, {item},{headers: {token:localStorage.getItem('passcode')}})
             return true
         } catch(err) {
             return false
@@ -43,7 +43,7 @@ export default {
     deleteItem: async function(id) {
         const url = ip + '/item/delete?id='+id
         try{
-            const result = await axios.delete(url)
+            const result = await axios.delete(url,{headers: {token:localStorage.getItem('passcode')}})
             return true
         } catch(err) {
             return false
@@ -56,6 +56,26 @@ export default {
             return result.data
         } catch(err) {
             return []
+        }
+    },
+    validateToken: async function(token) {
+        const url = ip + "/token/validate?token=" + token
+        try{
+            const result = await axios.get(url)
+            console.log(result.data)
+            return result.data
+        } catch (err) {
+            return false
+        }
+
+    },
+    clearToken: async function(token) {
+        const url = ip + '/token/clear?token=' + token
+        try{
+            const result = await axios.delete(url)
+            return result.data
+        } catch(err) {
+            return false
         }
     }
 }

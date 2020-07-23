@@ -1,8 +1,7 @@
-const jwt = require("jsonwebtoken")
-const User = require("../model/user")
+const Item = require('../model/token')
 module.exports = async (req, res, next) => {
-    console.log("VALIDATING")
     //retrieve possible tokens
+    console.log(req.headers.token)
     const token = req.headers.token
     try  {
         //check if a token exists
@@ -11,13 +10,14 @@ module.exports = async (req, res, next) => {
             throw new Error("no valid tokens present")
         } else {
             //decode the token
-            const decoded = await jwt.verify(token, process.env.SECRET);
-            req.userData = decoded;
-            console.log("VALIDATED")
+            const info = await Item.findByToken(token);
+            console.log(info)
+            req.user = info.discord_id
+            console.log(req.user)
             next()
         }
     } catch (err) {
-        console.log("VALIDATION FAILED")
+        console.log(err)
         res.status(401).json("Authentication Failed")
     }
 }

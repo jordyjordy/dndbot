@@ -21,9 +21,10 @@ router.get('/id', async(req,res) => {
     res.status(200).json(result)
 })
 
-router.put('/update', async(req,res) => {
+router.put('/update',auth, async(req,res) => {
     try{
         req.body.item.name_lower = req.body.item.name.toLowerCase()
+        req.body.item.edit = req.user
         await Item.findByIdAndUpdate(req.body.item._id,req.body.item)
         res.status(201).send("success")
     } catch (err) {
@@ -41,16 +42,14 @@ router.get('/search', async(req,res) => {
 })
 
 
-router.post('/add',async(req,res) => {
+router.post('/add',auth,async(req,res) => {
     try{ 
-        console.log("creating item")
         const temp = req.body.item
-        console.log('1')
-        console.log(req.body)
         const item = new Item({
-            name:temp.name,
-            type:temp.type,
-            details:temp.details
+            name: temp.name,
+            type: temp.type,
+            details: temp.details,
+            edit: req.user
         })
         const result = await item.save()
         res.status(201).send("success")
@@ -60,7 +59,7 @@ router.post('/add',async(req,res) => {
     }
 })
 
-router.delete("/delete", async(req,res) => {
+router.delete("/delete",auth, async(req,res) => {
     try{
         await Item.findByIdAndDelete(req.query.id)
         res.status(300).send("success")
