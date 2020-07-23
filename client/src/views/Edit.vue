@@ -3,8 +3,8 @@
       Name:<input v-model="item.name"><br>
       Type:<input v-model="item.type"><br><br>
       <textarea v-model="item.details"></textarea><br>
-      <button @click="saveItem()">Save</button>
-      <button @click="deleteItem()">Delete</button>
+      <button @click="saveItem()" v-if="validated">Save</button>
+      <button @click="deleteItem()" v-if="validated">Delete</button>
   </div>
 
 </template>
@@ -20,7 +20,8 @@ export default {
                 type: "temp",
                 details: "temp",
             },
-            loaded: false
+            loaded: false,
+            validated: false
         }
     },
     methods: {
@@ -33,8 +34,12 @@ export default {
             console.log(this.item.details)
             if(this.loaded) {
                 console.log("yay")
-                await api.saveItem(this.item)
-                this.$router.push('/list')
+                if(await api.saveItem(this.item)){
+                    this.$router.push('/list')
+                } else {
+                    alert("something went wrong with saving, your token probably timed out. Sorry bro.")
+                }
+                
             }
 
         },
@@ -45,8 +50,14 @@ export default {
                 this.$router.push('/list')
             }
         }
-    }, beforeMount() {
+    },async beforeMount() {
         this.getItem(this.id)
+        if(localStorage.getItem("passcode")!== null) {
+            this.validated = await api.validateToken(localStorage.getItem("passcode"))
+        } else {
+            this.validated = false
+        }
+        
     }
 
 }
