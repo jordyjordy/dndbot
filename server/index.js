@@ -16,7 +16,7 @@ mongoose.connect(process.env.DATABASE_URL).then(() => {
     console.log("Connected to database!")
 
 })
-const port = 3010
+const port = 5000
 app.use(cors())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
