@@ -8,7 +8,7 @@
       </div>  
       <div id="listcontainer">
         <div class="itemcard" v-for="item in items" :key="item._id" @click="loadItem(item._id)">
-            <div class="cardheader"><h1>{{item.name}}</h1><h2>type: {{item.type}}</h2><h3>edited by: {{item.edit}}</h3></div>
+            <div class="cardheader"><div class="headerbox"><h1>{{item.name}}</h1></div><h2>type: {{item.type}}</h2><div class="editbox"><h3>edited by: {{item.edit}}</h3></div></div>
             <div class="details">
               <p>{{item.details}}</p>
           </div>
@@ -97,6 +97,8 @@ body{
 
 }
 .cardheader{
+  position: relative;
+  text-align: left;
   overflow: auto;
   background-color: rgb(40, 100, 230);
   color:white;
@@ -104,24 +106,35 @@ body{
   margin:0px;
 }
 h1{
-  padding-left:20px;
-  margin:5px;
-  float:left;
+  font-size:25px;
+  align-content: left;
+  padding-top:5px;
+  padding-left:10px;
+  margin:0px;
 }
 h2{
   font-size: 19px;
-  padding-top:14px;
-  padding-left:30px;
+  padding-top:5px;
+  padding-left:12px;
   margin:0px;
-  float:left;
 }
 h3{
+  position: relative;
   font-size:13px;
   float:right;
   margin:0px;
   padding-bottom:0px;
   padding-top:30px;
 }
+.editbox{
+  position: absolute;
+  top:1em;
+  right:2px;
+}
 
+.headerbox{
+  max-height:2em;
+  overflow: hidden;
+}
 </style>
 
