@@ -40,8 +40,5 @@ module.exports= {
                 break;
 
         }
-        if(msg.author.username == 'itsjustjohn'){
-            msg.author.send('John John John, you of all people should really know when the next session is happening!')
-        }
     },
 };
