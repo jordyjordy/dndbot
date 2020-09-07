@@ -13,7 +13,7 @@ bot.login(TOKEN);
 
 bot.on('ready', () => {
   bot.user.setUsername("D&D Bot")
-  bot.user.setPresence("D&D")
+  bot.user.setActivity("D&D")
   console.info(`Logged in as ${bot.user.tag}!`);
 });
 
