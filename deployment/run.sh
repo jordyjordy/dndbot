@@ -22,5 +22,5 @@ echo $CLIENTPORT
 echo $SERVERPORT
 export SERVERPORT=$SERVERPORT
 export CLIENTPORT=$CLIENTPORT
-docker-compose down
-docker-compose up -d
+docker-compose --project-name dndbot down
+docker-compose --project-name dndbot up -d
