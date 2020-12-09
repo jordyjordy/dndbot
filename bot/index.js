@@ -18,7 +18,7 @@ bot.on('ready', () => {
 });
 
 bot.on('message', msg => {
-  if (message.channel.type === "dm") return;
+  if (msg.channel.type === "dm") return;
   const args = msg.content.split(/ +/);
   const command = args.shift().toLocaleLowerCase();
   console.info('Called command:' + command);
