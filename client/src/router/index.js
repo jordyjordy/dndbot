@@ -4,7 +4,7 @@ import Home from '../views/Home.vue'
 
 Vue.use(VueRouter)
 
-  const routes = [
+const routes = [
   {
     path: '/list',
     name: 'List',
@@ -17,7 +17,7 @@ Vue.use(VueRouter)
     path: '/edit/:id',
     name: 'Edit',
     component: () => import('../views/Edit.vue'),
-    props:true
+    props: true
   },
   {
     path: '/add',
@@ -30,15 +30,20 @@ Vue.use(VueRouter)
     component: () => import('../views/PassCode.vue')
   },
   {
-      path: '/*',
-      name: "leftover",
-      component: Vue.component("page-not-found", {
-        template: "",
-        created: function() {
-          this.$router.push("/list")
-        }
-      })
-      
+    path: '/sessions',
+    name: "Session Scheduling",
+    component: () => import('../views/Schedule.vue')
+  },
+  {
+    path: '/*',
+    name: "leftover",
+    component: Vue.component("page-not-found", {
+      template: "",
+      created: function () {
+        this.$router.push("/list")
+      }
+    })
+
   }
 ]
 
