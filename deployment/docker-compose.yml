@@ -2,7 +2,7 @@ version: '3'
 services:
   server:
     container_name: "dndbot-server"
-    image: dndbot-server:latest
+    image: dndbot-server
     env_file: ".env"
     deploy: 
       restart_policy:
@@ -13,7 +13,7 @@ services:
       - "${SERVERPORT}:5000"
   bot:
     container_name: "dndbot-bot"
-    image: dndbot-bot:latest
+    image: dndbot-bot
     env_file: ".env"
     deploy:
       restart_policy:
@@ -22,7 +22,7 @@ services:
         window: 120s
   client:
     container_name: "dndbot-client"
-    image: dndbot-client:latest
+    image: dndbot-client
     env_file: ".env"
     deploy:
       restart_policy:
