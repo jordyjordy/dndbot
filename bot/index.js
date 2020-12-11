@@ -25,14 +25,22 @@ bot.on('message', msg => {
 
   if (!bot.commands.has(command)) {
     if (command != "?help") {
-      return;
+      if (command[0] != "?") {
+        return
+      }
+      if (!isNaN(command[1])) {
+        bot.commands.get("?roll").execute(msg, args)
+      } else {
+        bot.commands.get("?info").execute(msg, args)
+      }
+      return
     }
     var string = "Possible commands:\n?help: This command. \n"
     for (i = 0; i < botCommands.length; i++) {
       string += botCommands[i][1].name + ": " + botCommands[i][1].description + '\n';
     }
     msg.channel.send(string)
-    console.log("message sent?")
+
     return
   }
 
