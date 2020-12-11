@@ -3,26 +3,32 @@ const axios = require('axios')
 module.exports = {
     name: '?info',
     description: 'Provides info about characters!',
-    execute(msg,args) {
-        if(args.length == 0) {
+    execute(msg, args) {
+        console.log(args)
+        if (!msg.content.includes("?info")) {
+            var str = msg.content.split(/\s/)[0]
+            args.push(str.substring(1, str.length - 1))
+        }
+        console.log(args)
+        if (args.length == 0) {
             msg.channel.send("Please specify what you want information about, for example type `?info Villads`")
             return
         }
         var query = ""
-        for(i = 0; i < args.length; i++) {
+        for (i = 0; i < args.length; i++) {
             query += args[i]
-            if(i < args.length-1) {
+            if (i < args.length - 1) {
                 query += " "
             }
         }
         console.log(query)
-        axios.get(process.env.SERVER_IP+ `/item/name?name=${query}`).then(function(response){
+        axios.get(process.env.SERVER_IP + `/item/name?name=${query}`).then(function (response) {
             console.log(response.data[0])
-            if(response.data.length > 0){
+            if (response.data.length > 0) {
                 var resultString = ``
-                for(i = 0; i < response.data.length; i++) {
+                for (i = 0; i < response.data.length; i++) {
                     resultString += `**Name:** ${response.data[i].name} **Type:** ${response.data[i].type} \n \n${response.data[i].details}\n`
-                    if(i+1 < response.data.length) {
+                    if (i + 1 < response.data.length) {
                         resultString += "----------------------------------------\n"
                     }
                 }
