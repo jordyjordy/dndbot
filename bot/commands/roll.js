@@ -1,7 +1,3 @@
-const { createCanvas, registerFont } = require('canvas')
-const { randomInt } = require('crypto')
-registerFont('./fonts/VERDANA.TTF', { family: 'Verdana' })
-const fs = require('fs')
 module.exports = {
     name: '?roll',
     description: 'Roll dice in the discord chat',
