@@ -29,30 +29,27 @@ module.exports = {
         console.log(bonus)
         for (var i = 0; i < dicecount; i++) {
             var roll = Math.ceil(Math.random() * dicefaces)
-            if (!isNaN(bonus)) {
-                roll += bonus
-            }
             results.push(roll)
         }
         var resultString = "```csharp\n#" + str + ":\n"
         if (isNaN(bonus)) {
             bonus = 0
         }
-
-        var highest = Math.max(...results)
-        var lowest = Math.min(...results)
-        var sum = results.reduce(sumFunc)
+        var highest = Math.max(...results) + bonus
+        var lowest = Math.min(...results) + bonus
+        var sum = results.reduce(sumFunc) + bonus
         if (results.length > 1) {
             resultString +=
-                "highest:" + highest + "\n" +
-                "lowest:" + lowest + "\n" +
-                "sum:" + sum + "\n"
-        } else {
-            resultString += "result:" + highest + "\n"
-        }
+                "highest:" + highest + " (" + (highest - bonus) + (bonus >= 0 ? "+" : "") + bonus + ")" + "\n" +
+                "lowest:" + lowest + " (" + (lowest - bonus) + (bonus >= 0 ? "+" : "") + bonus + ")" + "\n" +
+                "sum:" + sum + " ("
+            results.forEach(x => { resultString += x + "+" })
+            resultString = resultString.substring(0, resultString.length - 1)
+            resultString += ')' + (bonus >= 0 ? "+" : "") + bonus + '```'
 
-        results.forEach(x => { resultString += x + "(" + (x - bonus) + (bonus >= 0 ? "+" : "-") + bonus + ") " })
-        resultString += '```'
+        } else {
+            resultString += "result:" + highest + " (" + (highest - bonus) + (bonus >= 0 ? "+" : "") + bonus + ")" + "```"
+        }
         msg.channel.send(resultString)
     }
 }
