@@ -1,4 +1,4 @@
-version: '3'
+version: '3.9'
 services:
   server:
     container_name: "dndbot-server"
@@ -6,9 +6,10 @@ services:
     env_file: ".env"
     deploy: 
       restart_policy:
-        condition: any
-        delay: 10s
-        window: 120s
+        condition: on-failure
+        delay: 10s 
+        window: 60s
+        max_attempts: 10
     ports:
       - "${SERVERPORT}:5000"
   bot:
@@ -17,17 +18,19 @@ services:
     env_file: ".env"
     deploy:
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 10s 
-        window: 120s
+        window: 60s
+        max_attempts: 10
   client:
     container_name: "dndbot-client"
     image: dndbot-client
     env_file: ".env"
     deploy:
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 10s 
-        window: 120s
+        window: 60s
+        max_attempts: 10
     ports:
       - "${CLIENTPORT}:80"
