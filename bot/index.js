@@ -55,7 +55,7 @@ bot.on('message', msg => {
 
 const rule = new schedule.RecurrenceRule()
 rule.hour = 18
-rule.minute = 45
+rule.minute = 56
 rule.tz = 'Europe/Amsterdam'
 
 const job = schedule.scheduleJob(rule, async function () {
@@ -69,7 +69,7 @@ const job = schedule.scheduleJob(rule, async function () {
       }
     }
   });
-  if (dndDay = Infinity) {
+  if (dndDay === Infinity) {
     var channel = bot.channels.find(ch => ch.name == 'dnd-stuff')
     channel.send(`Don't forget to enter new dates on the dndbot website!`)
   } else {
