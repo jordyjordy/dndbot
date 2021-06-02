@@ -54,8 +54,8 @@ bot.on('message', msg => {
 });
 
 const rule = new schedule.RecurrenceRule()
-rule.hour = 18
-rule.minute = 56
+rule.hour = 9
+rule.minute = 0
 rule.tz = 'Europe/Amsterdam'
 
 const job = schedule.scheduleJob(rule, async function () {
