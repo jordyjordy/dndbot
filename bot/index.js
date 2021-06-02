@@ -4,6 +4,8 @@ const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 var botCommands = require('./commands')
 const TOKEN = process.env.TOKEN;
+const schedule = require("node-schedule")
+const axios = require('axios')
 
 Object.keys(botCommands).map(key => {
   bot.commands.set(botCommands[key].name, botCommands[key])
@@ -50,3 +52,32 @@ bot.on('message', msg => {
     msg.reply('there was an error trying to execute that command')
   }
 });
+
+const rule = new schedule.RecurrenceRule()
+rule.hour = 18
+rule.minute = 45
+rule.tz = 'Europe/Amsterdam'
+
+const job = schedule.scheduleJob(rule, async function () {
+  var sessions = await axios.get(process.env.SERVER_IP + `/sessions`)
+  var dndDay = Infinity;
+  const nowTime = new Date().getTime()
+  sessions.data.forEach(day => {
+    if (nowTime < day.date) {
+      if (day.date - nowTime < dndDay - nowTime) {
+        dndDay = day.date;
+      }
+    }
+  });
+  if (dndDay = Infinity) {
+    var channel = bot.channels.find(ch => ch.name == 'dnd-stuff')
+    channel.send(`Don't forget to enter new dates on the dndbot website!`)
+  } else {
+    var date = new Date(dndDay)
+    if (date.getDate() == new Date().getDate()) {
+      var channel = bot.channels.find(ch => ch.name == 'dnd-stuff')
+      channel.send(`OMG OMG OMG AAAAAAAAAAH DND IS TODAY!`)
+      channel.send(`WEEEEEEEEEEEEEEEEEEEEEEEEEEEE`)
+    }
+  }
+})
