@@ -4,8 +4,10 @@ WORKDIR /app/client
 
 RUN apk add python make g++ --no-cache
 
-COPY package*.json ./
-
+COPY package-lock.json ./
+COPY package.json ./
+RUN ls
+RUN pwd
 RUN npm install
 
 COPY . .
@@ -13,8 +15,7 @@ COPY . .
 RUN npm run build
 
 FROM nginx:alpine as production-stage
-
-COPY ./.nginx/nginx.conf /etc/nginx/nginx.conf
+COPY /.nginx/nginx.conf /etc/nginx/nginx.conf
 RUN rm -rf /usr/share/nginx/html/*
 
 COPY --from=build-stage /app/client/dist /usr/share/nginx/html
