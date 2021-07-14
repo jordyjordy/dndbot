@@ -9,6 +9,7 @@ export default {
         const url = ip + "/item/list"
         try {
             const result = await axios.get(url)
+            console.log(result)
             return result.data
         } catch (err) {
             return []
