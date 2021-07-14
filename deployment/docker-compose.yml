@@ -2,7 +2,7 @@ version: '3'
 services:
   server:
     container_name: "dndbot-server"
-    image: dndbot-server
+    image: registry.jvdt.dev:5001/jordyjordy/dndbot-server
     env_file: ".env"
     deploy: 
       restart_policy:
@@ -12,9 +12,11 @@ services:
         max_attempts: 10
     ports:
       - "${SERVERPORT}:5000"
+    labels:
+      - "com.centurylinklabs.watchtower.scope=dndbot"
   bot:
     container_name: "dndbot-bot"
-    image: dndbot-bot
+    image: registry.jvdt.dev:5001/jordyjordy/dndbot-bot
     env_file: ".env"
     deploy:
       restart_policy:
@@ -22,9 +24,11 @@ services:
         delay: 10s 
         window: 60s
         max_attempts: 10
+      labels:
+        - "com.centurylinklabs.watchtower.scope=dndbot"
   client:
     container_name: "dndbot-client"
-    image: dndbot-client
+    image: registry.jvdt.dev:5001/jordyjordy/dndbot-client
     env_file: ".env"
     deploy:
       restart_policy:
@@ -34,3 +38,12 @@ services:
         max_attempts: 10
     ports:
       - "${CLIENTPORT}:80"
+    labels:
+      - "com.centurylinklabs.watchtower.scope=dndbot"
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30 --scope myscope
+    labels:
+      - "com.centurylinklabs.watchtower.scope=dndbot"
