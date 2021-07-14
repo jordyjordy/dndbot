@@ -47,6 +47,7 @@ jobs:
         name: Build and push bot
         uses: docker/build-push-action@v2
         with:
+          context: ./bot
           tags: registry.jvdt.dev:5001/jordyjordy/dndbot-bot:latest
           push: true
           file: ./bot/Dockerfile

@@ -6,8 +6,6 @@ RUN apk add python make g++ --no-cache
 
 COPY package-lock.json ./
 COPY package.json ./
-RUN ls
-RUN pwd
 RUN npm install
 
 COPY . .
