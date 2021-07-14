@@ -17,27 +17,26 @@
 </template>
 
 <script>
-import Calendar from "v-calendar/lib/components/calendar.umd";
-import DatePicker from "v-calendar/lib/components/date-picker.umd";
+import { Calendar, DatePicker } from "v-calendar";
 import api from "../services/apiservice";
 export default {
   components: {
     Calendar,
-    DatePicker,
+    DatePicker
   },
   data() {
     return {
       days: [],
-      selectedid: -1,
+      selectedid: -1
     };
   },
   computed: {
     dates() {
-      return this.days.map((day) => day.date);
+      return this.days.map(day => day.date);
     },
     attributes() {
-      return this.dates.map((day) => ({ highlight: true, dates: day }));
-    },
+      return this.dates.map(day => ({ highlight: true, dates: day }));
+    }
   },
   methods: {
     closePicker() {
@@ -47,11 +46,12 @@ export default {
     selectDate(id) {
       this.selectedid = id;
     },
-    dayClicked(day) {
-      var id = this.days.findIndex((d) => d.id === day.id);
+    async dayClicked(day) {
+      var id = this.days.findIndex(d => d.id === day.id);
       if (id < 0) {
         this.days.push({ id: day.id, date: day.date });
-        api.addDate(this.days[this.days.length - 1]);
+        var newid = await api.addDate(this.days[this.days.length - 1]);
+        this.days[this.days.length - 1]._id = newid;
         id = this.days.length - 1;
       }
       if (this.selectedid >= 0) {
@@ -62,14 +62,14 @@ export default {
     removeDate() {
       api.removeDate(this.days.splice(this.selectedid, 1)[0]);
       this.selectedid = -1;
-    },
+    }
   },
   async beforeMount() {
     var res = await api.getDates();
     if (res) {
       this.days = res;
     }
-  },
+  }
 };
 </script>
 

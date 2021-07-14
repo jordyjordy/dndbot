@@ -1,7 +1,7 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue'
-
+const app = createApp({})
 const routes = [
   {
     path: '/list',
@@ -35,7 +35,7 @@ const routes = [
   {
     path: '/*',
     name: "leftover",
-    component: Vue.component("page-not-found", {
+    component: app.component("page-not-found", {
       template: "",
       created: function () {
         this.$router.push("/list")
