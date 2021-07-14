@@ -53,14 +53,16 @@ jobs:
           file: ./bot/Dockerfile
       -
         name: Build and push client
-        uses: docker/build-push-action@v2
         env:
           VUE_APP_SERVER_IP: https://dndbotserver.jordyvandertang.nl:5000
+        uses: docker/build-push-action@v2
         with:
           context: ./client
           tags: registry.jvdt.dev:5001/jordyjordy/dndbot-client:latest
           push: true
-          file: ./client/Dockerfile      
+          file: ./client/Dockerfile  
+          env:
+            VUE_APP_SERVER_IP: https://dndbotserver.jordyvandertang.nl:5000    
       -
         name: Build and push server
         uses: docker/build-push-action@v2

@@ -44,7 +44,6 @@ export default {
   },
   methods: {
     async getItems() {
-      console.log("hi");
       var result = await api.getItems();
       result.sort(function (a, b) {
         return ("" + a.name).localeCompare(b.name);
