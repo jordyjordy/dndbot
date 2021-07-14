@@ -42,7 +42,6 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASS }}  
 #           username: ${{ github.repository_owner }}
 #           password: ${{ secrets.GITHUB_TOKEN }}
-          
       -
         name: Build and push bot
         uses: docker/build-push-action@v2
@@ -51,6 +50,10 @@ jobs:
           tags: registry.jvdt.dev:5001/jordyjordy/dndbot-bot:latest
           push: true
           file: ./bot/Dockerfile
+      - name: Create env file
+        run: | 
+          touch ./client/.env
+          echo VUE_APP_SERVER_IP = ${{secrets.VUE_APP_SERVER_IP}} >> ./client/.env
       -
         name: Build and push client
         env:
@@ -60,9 +63,7 @@ jobs:
           context: ./client
           tags: registry.jvdt.dev:5001/jordyjordy/dndbot-client:latest
           push: true
-          file: ./client/Dockerfile  
-          env:
-            VUE_APP_SERVER_IP: https://dndbotserver.jordyvandertang.nl:5000    
+          file: ./client/Dockerfile   
       -
         name: Build and push server
         uses: docker/build-push-action@v2
