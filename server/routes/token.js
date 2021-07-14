@@ -5,8 +5,6 @@ const e = require('express')
 
 
 router.get('/', async (req, res) => {
-    console.log('token request')
-    console.log(req)
     const result = await Token.generateToken(req.query.user)
     res.status(200).json({ result })
 })
@@ -14,7 +12,6 @@ router.get('/', async (req, res) => {
 router.get('/validate', async (req, res) => {
     try {
         const token = await Token.findOne({ token: req.query.token })
-        console.log(token)
         if (token == null) {
             res.status(200).json(false)
         } else {
