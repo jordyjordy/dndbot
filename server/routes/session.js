@@ -5,7 +5,6 @@ const Session = require('../model/session')
 
 router.get('/', async (req, res) => {
     const result = await Session.find()
-    console.log(result)
     res.status(200).json(result)
 
 })
@@ -14,9 +13,8 @@ router.post('/add', auth, async (req, res) => {
     try {
         const date = new Session(req.body.day)
         await date.save()
-        res.status(201).send("success")
+        res.status(201).json({ date: date })
     } catch (err) {
-        console.log(err)
         res.status(400).send("something went wrong")
     }
 
@@ -24,8 +22,9 @@ router.post('/add', auth, async (req, res) => {
 
 router.put('/update', auth, async (req, res) => {
     try {
-        console.log(req.body)
-        await Session.findByIdAndUpdate(req.body.day._id, req.body.day)
+        var day = await Session.findByIdAndUpdate(req.body.day._id, req.body.day)
+        day.date = req.body.day.date
+        day.save()
         res.status(200).send("succes")
     } catch (err) {
         console.log(err)
