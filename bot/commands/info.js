@@ -4,12 +4,10 @@ module.exports = {
     name: '?info',
     description: 'Provides info about characters!',
     execute(msg, args) {
-        console.log(args)
         if (!msg.content.includes("?info")) {
             var str = msg.content.split(/\s/)[0]
             args.push(str.substring(1, str.length - 1))
         }
-        console.log(args)
         if (args.length == 0) {
             msg.channel.send("Please specify what you want information about, for example type `?info Villads`")
             return
@@ -21,9 +19,7 @@ module.exports = {
                 query += " "
             }
         }
-        console.log(query)
         axios.get(process.env.SERVER_IP + `/item/name?name=${query}`).then(function (response) {
-            console.log(response.data[0])
             if (response.data.length > 0) {
                 var resultString = ``
                 for (i = 0; i < response.data.length; i++) {

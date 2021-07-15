@@ -1,7 +1,6 @@
 const Item = require('../model/token')
 module.exports = async (req, res, next) => {
     //retrieve possible tokens
-    console.log(req.headers.token)
     const token = req.headers.token
     try {
         //check if a token exists
