@@ -92,7 +92,7 @@ body {
   max-height: 8.4em;
   max-width: 30em;
   border-style: solid;
-  border-radius: 2px;
+  border-radius: 10px;
   border-color: rgb(102, 102, 102);
   border-width: 1px;
   box-shadow: 2px 3px 12px -4px rgba(43, 43, 43, 0.75);
