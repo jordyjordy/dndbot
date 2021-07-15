@@ -9,7 +9,6 @@ module.exports = {
             console.log(err)
         }
 
-        console.log(str)
         var split = str.split(/\s|d|\+|\-/)
         var multiplier = 0;
         try {
@@ -26,7 +25,6 @@ module.exports = {
         var dicecount = split[0]
         var dicefaces = split[1]
         var bonus = split[2] * multiplier
-        console.log(bonus)
         for (var i = 0; i < dicecount; i++) {
             var roll = Math.ceil(Math.random() * dicefaces)
             results.push(roll)
