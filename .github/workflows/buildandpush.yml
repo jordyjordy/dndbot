@@ -24,23 +24,6 @@ jobs:
       - 
         name: Check out
         uses: actions/checkout@v2
-      -
-        name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          # list of Docker images to use as base name for tags
-          images: |
-            registry.jvdt.dev:5001/jordyjordy/dndbot-bot
-          # generate Docker tags based on the following events/attributes
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
       - 
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -61,8 +44,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./bot
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: registry.jvdt.dev:5001/jordyjordy/dndbot-bot:latest
           push: true
           file: ./bot/Dockerfile
       - name: Create env file
@@ -70,56 +52,20 @@ jobs:
           touch ./client/.env
           echo VUE_APP_SERVER_IP = ${{secrets.VUE_APP_SERVER_IP}} >> ./client/.env
       -
-        name: Docker meta
-        id: meta2
-        uses: docker/metadata-action@v3
-        with:
-          # list of Docker images to use as base name for tags
-          images: |
-            registry.jvdt.dev:5001/jordyjordy/dndbot-client
-          # generate Docker tags based on the following events/attributes
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
-      -
         name: Build and push client
         env:
           VUE_APP_SERVER_IP: https://dndbotserver.jordyvandertang.nl:5000
         uses: docker/build-push-action@v2
         with:
           context: ./client
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: registry.jvdt.dev:5001/jordyjordy/dndbot-client:latest
           push: true
           file: ./client/Dockerfile   
-      -
-        name: Docker meta
-        id: meta3
-        uses: docker/metadata-action@v3
-        with:
-          # list of Docker images to use as base name for tags
-          images: |
-            registry.jvdt.dev:5001/jordyjordy/dndbot-server
-          # generate Docker tags based on the following events/attributes
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
       -
         name: Build and push server
         uses: docker/build-push-action@v2
         with:
           context: ./server
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: registry.jvdt.dev:5001/jordyjordy/dndbot-server:latest
           push: true
           file: ./server/Dockerfile
