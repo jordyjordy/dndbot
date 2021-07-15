@@ -61,7 +61,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./bot
-          tags: ${{ steps.meta.output.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           file: ./bot/Dockerfile
@@ -94,7 +94,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./client
-          tags: ${{ steps.meta.output.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           file: ./client/Dockerfile   
@@ -120,7 +120,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./server
-          tags: ${{ steps.meta.output.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           file: ./server/Dockerfile
