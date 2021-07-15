@@ -44,6 +44,6 @@ services:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 30 --scope myscope
+    command: --interval 30 --scope dndbot
     labels:
       - "com.centurylinklabs.watchtower.scope=dndbot"

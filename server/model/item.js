@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const itemSchema = mongoose.Schema({
-    name:  {
+    name: {
         type: String,
         require: [true, "We need a name to find this, silly!"]
     },
@@ -19,14 +19,13 @@ const itemSchema = mongoose.Schema({
         type: String
     }
 })
-itemSchema.pre("save",async function(next) {
-    console.log("lowercasing!")
+itemSchema.pre("save", async function (next) {
     const item = this;
     item.name_lower = item.name.toLowerCase()
     next()
 })
 itemSchema.statics.findByName = async (name) => {
-    const item = await Item.find({name_lower: { $regex:name.toLowerCase(), $options: 'i'}})
+    const item = await Item.find({ name_lower: { $regex: name.toLowerCase(), $options: 'i' } })
     return item;
 }
 
