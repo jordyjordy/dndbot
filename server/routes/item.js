@@ -10,9 +10,7 @@ router.get('/list', async (req, res) => {
 })
 
 router.get('/name', async (req, res) => {
-    console.log(req.query.name)
     const result = await Item.findByName(req.query.name)
-    console.log(result)
     res.status(200).json(result)
 })
 

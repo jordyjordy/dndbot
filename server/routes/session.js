@@ -34,8 +34,6 @@ router.put('/update', auth, async (req, res) => {
 
 router.delete('/delete', auth, async (req, res) => {
     try {
-        console.log("removing session");
-        console.log(req.query);
         await Session.findOneAndRemove({ id: req.query.id })
         res.status(200).send("success")
     } catch (err) {
