@@ -8,7 +8,7 @@ module.exports = {
             var str = msg.content.split(/\s/)[0]
             args.push(str.substring(1, str.length - 1))
         }
-        console.log(args)
+
         if (args.length == 0) {
             msg.channel.send("Please specify what you want information about, for example type `?info Villads`")
             return

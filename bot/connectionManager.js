@@ -17,19 +17,18 @@ var ConnectionManager = {
         return connection;
     },
     async playSong(id) {
+        if(connection.status === 4) {
+            return false
+        }
         if(!isNaN(id)) {
-            console.log('is a number?')
             try{
                 const num = parseInt(id)
                 if(num >= 0 && num < queue.length) {
-                    console.log('starting song: '+num)
                     return await startSong(num)
                 } else {
                     return false
                 }
             } catch(err) {
-                console.log(err)
-                console.log("err caught?")
                 return false
             }
         }
@@ -47,7 +46,6 @@ var ConnectionManager = {
             updateQueueMessage()
             return true
         }).catch((err) => {
-            console.log(err)
             return false
         })
     },
@@ -55,6 +53,9 @@ var ConnectionManager = {
         return currentsong
     },
     async nextSong() {
+        if(connection.status === 4) {
+            return false
+        }
        currentsong++;
         if(currentsong < queue.length) {
             return await startSong(currentsong)
@@ -64,6 +65,9 @@ var ConnectionManager = {
         return false
     },
     async previousSong() {
+        if(connection.status === 4) {
+            return false
+        }
         currentsong--;
         if(currentsong >= 0) {
             return await startSong(currentsong)
@@ -78,8 +82,11 @@ var ConnectionManager = {
         updateQueueMessage() 
     },
     async play() {
+        if(connection.status === 4) {
+            return false
+        }
         if(dispatcher !== undefined) {
-            console.log("resuming")
+
             try{
                 await dispatcher.resume()
                 updateQueueMessage() 
@@ -107,8 +114,6 @@ var ConnectionManager = {
         return {queue:queue,currentsong:currentsong}
     }, removeSong(id) {
         try {
-            console.log(currentsong +"," + id)
-            console.log(typeof currentsong +"," + typeof id)
             if(currentsong === id && dispatcher !== undefined) {
                 if(!dispatcher.paused) {
                     return false
@@ -139,11 +144,13 @@ var ConnectionManager = {
             return dispatcher.paused
         }
         return true
+    },
+    clearDispatcher() {
+        dispatcher = undefined
     }
 }
 
 async function startSong(id) {
-    console.log('starting song '+ id)
     currentsong = id
     try{
         if(!connection) {
@@ -152,7 +159,7 @@ async function startSong(id) {
         if(dispatcher !== undefined) dispatcher.destroy()
         dispatcher = await connection.play(await ytdldisc(queue[id].url),{ type: 'opus' })
     } catch(err) {
-        console.log(err)
+
         queue.splice(id,1)
         return false
     }
