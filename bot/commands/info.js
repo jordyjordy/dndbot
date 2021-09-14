@@ -8,6 +8,7 @@ module.exports = {
             var str = msg.content.split(/\s/)[0]
             args.push(str.substring(1, str.length - 1))
         }
+        console.log(args)
         if (args.length == 0) {
             msg.channel.send("Please specify what you want information about, for example type `?info Villads`")
             return
@@ -19,21 +20,25 @@ module.exports = {
                 query += " "
             }
         }
-        axios.get(process.env.SERVER_IP + `/item/name?name=${query}`).then(function (response) {
-            if (response.data.length > 0) {
-                var resultString = ``
-                for (i = 0; i < response.data.length; i++) {
-                    resultString += `**Name:** ${response.data[i].name} **Type:** ${response.data[i].type} \n \n${response.data[i].details}\n`
-                    if (i + 1 < response.data.length) {
-                        resultString += "----------------------------------------\n"
+        try {
+            axios.get(process.env.SERVER_IP + `/item/name?name=${query}`).then(function (response) {
+                if (response.data.length > 0) {
+                    var resultString = ``
+                    for (i = 0; i < response.data.length; i++) {
+                        resultString += `**Name:** ${response.data[i].name} **Type:** ${response.data[i].type} \n \n${response.data[i].details}\n`
+                        if (i + 1 < response.data.length) {
+                            resultString += "----------------------------------------\n"
+                        }
                     }
-                }
-                msg.channel.send(resultString)
+                    msg.channel.send(resultString)
 
-            } else {
-                msg.channel.send("No information was found with that name")
-            }
-        })
+                } else {
+                    msg.channel.send("No information was found with that name")
+                }
+            })
+        } catch(err) {
+            console.log(err.message)
+        }
 
     }
 };
