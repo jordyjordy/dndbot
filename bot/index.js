@@ -18,13 +18,14 @@ bot.on('ready', () => {
   bot.user.setActivity("D&D")
   console.info(`Logged in as ${bot.user.tag}!`);
 });
-
 bot.on('message', msg => {
+
+  if(msg.content === "?") {
+    return
+  }
   if (msg.channel.type === "dm") return;
   const args = msg.content.split(/ +/);
   const command = args.shift().toLocaleLowerCase();
-  console.info('Called command:' + command);
-
   if (!bot.commands.has(command)) {
     if (command != "?help") {
       if (command[0] != "?") {
@@ -45,7 +46,6 @@ bot.on('message', msg => {
 
     return
   }
-
   try {
     bot.commands.get(command).execute(msg, args);
   } catch (error) {

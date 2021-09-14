@@ -10,8 +10,12 @@ router.get('/list', async (req, res) => {
 })
 
 router.get('/name', async (req, res) => {
+    try {
     const result = await Item.findByName(req.query.name)
     res.status(200).json(result)
+    } catch(err) {
+        res.status(200).json({})
+    }
 })
 
 router.get('/id', async (req, res) => {
