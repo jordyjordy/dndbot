@@ -4,7 +4,8 @@ module.exports = {
     description: 'Join an audio channel and play a song',
     async execute(msg, args) {
         let {voice} = msg.member
-        if(connectionManager.getConnection() === undefined) {
+        if(connectionManager.getConnection() === undefined || connectionManager.getConnection().status === 4) {
+            connectionManager.clearDispatcher()
             var connection = await voice.channel.join()
             await connectionManager.setConnection(connection)
         }
@@ -15,8 +16,6 @@ module.exports = {
             msg.delete({timeout:100})
             return
         }
-        
-        console.log("huh")
         if(!voice || !voice.channel) {
             msg.reply("You must be in a voice channel!")
             msg.delete({timeout:100})
