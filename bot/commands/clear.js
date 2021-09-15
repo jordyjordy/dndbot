@@ -1,7 +1,7 @@
 connectionManager = require('../connectionManager')
 module.exports = {
     name: '?clear',
-    description: 'Join an audio channel and play a song',
+    description: 'Clears a song (number) or all songs ("all") from the queue',
     async execute(msg, args) {
 
         if(args[0] === "all") {

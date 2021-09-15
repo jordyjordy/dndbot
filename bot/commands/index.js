@@ -11,5 +11,6 @@ module.exports = {
   Loop: require('./loop'),
   Disconnect: require('./disconnect'),
   NextSong: require('./nextsong'),
-  PrevSong: require('./prevsong')
+  PrevSong: require('./prevsong'),
+  Replay: require("./replay")
 };

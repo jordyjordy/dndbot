@@ -5,6 +5,7 @@ var dispatcher;
 var currentsong;
 var queue = []
 var queueMessage;
+var queueChannel;
 var loop = false;
 var ConnectionManager = {
     setConnection(con) {
@@ -136,7 +137,8 @@ var ConnectionManager = {
         if(queueMessage) {
             queueMessage.delete({timeout:100})
         }
-        queueMessage = msg;
+        queueChannel = msg.channel
+        queueMessage = msg
     },
     toggleLoop() {
         loop = !loop
@@ -153,6 +155,9 @@ var ConnectionManager = {
     },
     clearDispatcher() {
         dispatcher = undefined
+    },
+    async replay() {
+        await startSong(currentsong)
     }
 }
 
@@ -183,10 +188,13 @@ async function startSong(id) {
 
 async function updateQueueMessage() {
     if(queueMessage) {
+        queueMessage.delete({timer:0})
+    }
+    if(queueChannel) {
         var response = "**Paused: " + ConnectionManager.getPaused() + ", LoopOne: " + loop + "**\n" 
         if(queue.length === 0) {
             response += "The queue is empty!"
-            queueMessage.edit(response)
+            queueChannel.send(response)
             return
         }
         for(var i = 0; i < queue.length;i++) {
@@ -196,7 +204,7 @@ async function updateQueueMessage() {
                 response +=  i + ": " + queue[i].name + " \n"
             }     
         }
-        queueMessage.edit(response)
+        queueMessage = await queueChannel.send(response)
     }
 }
 module.exports=ConnectionManager
