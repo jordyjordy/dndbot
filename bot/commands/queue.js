@@ -13,7 +13,6 @@ module.exports = {
             msg.delete({timeout:100})
             return
         }
-        var response = ""
         for(var i = 0; i < queue.length;i++) {
             if(i == currentsong) {
                 response += "**" + i + ": " + queue[i].name + "**" + " \n"  
