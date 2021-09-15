@@ -8,5 +8,6 @@ module.exports = {
   Queue : require('./queue'),
   AddSong: require('./addsong'),
   Clear: require('./clear'),
-  Loop: require('./loop')
+  Loop: require('./loop'),
+  Disconnect: require('./disconnect')
 };
