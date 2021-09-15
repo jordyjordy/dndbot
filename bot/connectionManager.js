@@ -11,6 +11,9 @@ var ConnectionManager = {
         connection = con;
     },
     clearConnection() {
+        if(dispatcher) dispatcher.destroy()
+        if(connection) connection.disconnect()
+        dispatcher = undefined
         connection = undefined
     },
     getConnection() {
