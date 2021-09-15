@@ -1,7 +1,7 @@
 connectionManager = require('../connectionManager')
 module.exports = {
     name: '?queue',
-    description: 'Join an audio channel and play a song',
+    description: 'Display the queue message',
     async execute(msg, args) {
         var {queue, currentsong} = await connectionManager.getQueue()
         var loop = connectionManager.getLoop()

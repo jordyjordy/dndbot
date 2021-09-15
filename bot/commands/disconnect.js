@@ -1,7 +1,7 @@
 connectionManager = require('../connectionManager')
 module.exports = {
     name: '?disconnect',
-    description: 'Join an audio channel and play a song',
+    description: 'Disconnect from an audio channel',
     async execute(msg, args) {
       connectionManager.clearConnection();
       msg.delete({timeout:100})

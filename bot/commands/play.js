@@ -1,7 +1,7 @@
 connectionManager = require('../connectionManager')
 module.exports = {
     name: '?play',
-    description: 'Join an audio channel and play a song',
+    description: 'Join audio channel and start playing a specific song (youtube url or queue number), or unpause (no params)',
     async execute(msg, args) {
         let {voice} = msg.member
         if(!voice || !voice.channel) {
@@ -25,7 +25,5 @@ module.exports = {
         if(!connectionManager.playSong(args[0])) {
             msg.channel.send("something went wrong, possibly you entered a bad url or number")
         }
-        msg.delete({timeout:100})
     }
-    
 }
