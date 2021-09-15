@@ -10,10 +10,7 @@ module.exports = {
         if(queue.length === 0) {
             response += "The queue is empty!"
             connectionManager.setQueueMessage(await msg.channel.send(response))
-            return
-        }
-        if(queue.length === 0) {
-            
+            msg.delete({timeout:100})
             return
         }
         var response = ""
@@ -25,5 +22,6 @@ module.exports = {
             }     
         }
         connectionManager.setQueueMessage(await msg.channel.send(response))
+        msg.delete({timeout:100})
     }
 }

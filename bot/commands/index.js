@@ -9,5 +9,7 @@ module.exports = {
   AddSong: require('./addsong'),
   Clear: require('./clear'),
   Loop: require('./loop'),
-  Disconnect: require('./disconnect')
+  Disconnect: require('./disconnect'),
+  NextSong: require('./nextsong'),
+  PrevSong: require('./prevsong')
 };
