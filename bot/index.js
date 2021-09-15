@@ -38,9 +38,9 @@ bot.on('message', msg => {
       }
       return
     }
-    var string = "Possible commands: ```\n?help: This command.\n"
+    var string = "Possible commands: ```javascript\n?help// This command.\n"
     for (i = 0; i < botCommands.length; i++) {
-      string += botCommands[i][1].name + ": " + botCommands[i][1].description + '\n';
+      string += botCommands[i][1].name + "// " + botCommands[i][1].description + '\n';
     }
     string += "```"
     msg.channel.send(string)
