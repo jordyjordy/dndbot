@@ -133,6 +133,9 @@ var ConnectionManager = {
         return true
     },
     setQueueMessage(msg) {
+        if(queueMessage) {
+            queueMessage.delete({timeout:100})
+        }
         queueMessage = msg;
     },
     toggleLoop() {
