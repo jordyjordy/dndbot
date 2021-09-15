@@ -44,9 +44,13 @@ var ConnectionManager = {
         })
         return await res
     },
-    queueSong(url) {
+    queueSong(url,pos=queue.length) {
         return ytdl.getBasicInfo(url).then((info) => {
-            queue.push({url:url,name:info.videoDetails.title})
+            if(pos < queue.length) {
+                queue.splice(pos,0,{url:url,name:info.videoDetails.title})
+            } else {
+                queue.push({url:url,name:info.videoDetails.title})
+            }
             updateQueueMessage()
             return true
         }).catch((err) => {
