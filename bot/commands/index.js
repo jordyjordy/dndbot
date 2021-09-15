@@ -4,13 +4,13 @@ module.exports = {
   Passcode: require('./passcode'),
   Roll: require('./roll'),
   Play: require('./play'),
-  Pause: require('./pause'),
-  Queue : require('./queue'),
   AddSong: require('./addsong'),
   Clear: require('./clear'),
+  Queue : require('./queue'),
+  Pause: require('./pause'),
   Loop: require('./loop'),
-  Disconnect: require('./disconnect'),
   NextSong: require('./nextsong'),
   PrevSong: require('./prevsong'),
-  Replay: require("./replay")
+  Replay: require("./replay"),
+  Disconnect: require('./disconnect')
 };
