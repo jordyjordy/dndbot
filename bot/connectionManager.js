@@ -20,7 +20,7 @@ var ConnectionManager = {
         return connection;
     },
     async playSong(id) {
-        if(connection.status === 4) {
+        if(!connection || connection.status === 4) {
             return false
         }
         if(!isNaN(id)) {
@@ -56,7 +56,7 @@ var ConnectionManager = {
         return currentsong
     },
     async nextSong() {
-        if(connection.status === 4) {
+        if(!connection || connection.status === 4) {
             return false
         }
        currentsong++;
@@ -68,7 +68,7 @@ var ConnectionManager = {
         return false
     },
     async previousSong() {
-        if(connection.status === 4) {
+        if(!connection || connection.status === 4) {
             return false
         }
         currentsong--;
