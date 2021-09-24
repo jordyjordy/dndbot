@@ -88,9 +88,9 @@ body {
   max-width: 100vw;
 }
 .itemcard {
-  min-height: 10vh;
-  max-height: 8.4em;
-  max-width: 30em;
+  height: 8.4em;
+  width: 30em;
+  max-width: 95vw;
   border-style: solid;
   border-radius: 2px;
   border-color: rgb(102, 102, 102);

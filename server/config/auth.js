@@ -1,4 +1,4 @@
-const Item = require('../model/token')
+const Token = require('../model/token')
 module.exports = async (req, res, next) => {
     //retrieve possible tokens
     const token = req.headers.token
@@ -8,8 +8,9 @@ module.exports = async (req, res, next) => {
             throw new Error("no valid tokens present")
         } else {
             //decode the token
-            const info = await Item.findByToken(token);
+            const info = await Token.findByToken(token);
             req.user = info.discord_id
+            req.server = info.server_id
             next()
         }
     } catch (err) {

@@ -7,7 +7,7 @@ module.exports = {
     execute(msg, args) {
         var now = new Date();
         const nowTime = now.getTime()
-        axios.get(process.env.SERVER_IP + `/sessions`).then(function (response) {
+        axios.get(process.env.SERVER_IP + `/sessions?server=${msg.guild.id}`).then(function (response) {
             var dndDay = Infinity;
             response.data.forEach(day => {
                 if (nowTime < day.date) {

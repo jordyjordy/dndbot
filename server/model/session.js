@@ -9,6 +9,10 @@ const sessionSchema = mongoose.Schema({
     date: {
         type: Number,
         require: [true, "we cant have a date without a date!"]
+    },
+    server: {
+        type: String,
+        require: [true, "we need this linked to a server"],
     }
 })
 
