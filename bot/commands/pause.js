@@ -3,8 +3,13 @@ module.exports = {
     name: '?pause',
     description: 'Pause song playback',
     async execute(msg, args) {
-        connectionManager.pause()
-        msg.delete({timeout:100})
+        try{
+            connectionManager.pause()
+            msg.delete({timeout:100})
+        } catch(err) {
+            console.log(err)
+        }
+        
     }
     
 }

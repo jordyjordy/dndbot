@@ -3,8 +3,13 @@ module.exports = {
     name: '?ps',
     description: 'Play the previous song in the queue',
     async execute(msg, args) {
-        connectionManager.nextSong()
-        msg.delete({timeout:100})
+        try{
+            connectionManager.nextSong()
+            msg.delete({timeout:100})
+        } catch(err) {
+            console.log(err)
+        }
+        
     }
     
 }

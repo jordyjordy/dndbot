@@ -48,12 +48,16 @@ var ConnectionManager = {
         return ytdl.getBasicInfo(url).then((info) => {
             if(pos < queue.length) {
                 queue.splice(pos,0,{url:url,name:info.videoDetails.title})
+                if(pos < currentsong) {
+                    currentsong++
+                }
             } else {
                 queue.push({url:url,name:info.videoDetails.title})
             }
             updateQueueMessage()
             return true
         }).catch((err) => {
+            console.log(err)
             return false
         })
     },
@@ -61,27 +65,35 @@ var ConnectionManager = {
         return currentsong
     },
     async nextSong() {
-        if(!connection || connection.status === 4) {
-            return false
-        }
-       currentsong++;
-        if(currentsong < queue.length) {
-            return await startSong(currentsong)
-        } else if(queue.length > 0) {
-            return await startSong(0)
+        try{
+            if(!connection || connection.status === 4) {
+                return false
+            }
+        currentsong++;
+            if(currentsong < queue.length) {
+                return await startSong(currentsong)
+            } else if(queue.length > 0) {
+                return await startSong(0)
+            }
+        } catch(err) {
+            console.log(err)
         }
         return false
     },
     async previousSong() {
-        if(!connection || connection.status === 4) {
-            return false
-        }
-        currentsong--;
-        if(currentsong >= 0) {
-            return await startSong(currentsong)
-        } else if(queue.length > 0) {
-            currentsong = queue.length-1
-            return await startSong(currentsong)
+        try{
+            if(!connection || connection.status === 4) {
+                return false
+            }
+            currentsong--;
+            if(currentsong >= 0) {
+                return await startSong(currentsong)
+            } else if(queue.length > 0) {
+                currentsong = queue.length-1
+                return await startSong(currentsong)
+            }
+        } catch(err) {
+            console.log(err)
         }
         return false
     },
@@ -90,22 +102,26 @@ var ConnectionManager = {
         updateQueueMessage() 
     },
     async play() {
-        if(connection.status === 4) {
-            return false
-        }
-        if(dispatcher !== undefined) {
-
-            try{
-                await dispatcher.resume()
-                updateQueueMessage() 
-            } catch(err) {
-                console.log(err)
+        try{
+            if(connection.status === 4) {
+                return false
             }
-            return
-        } else if(queue.length !== 0 && currentsong >= 0 && currentsong < queue.length) {
-            return await startSong(currentsong)
-        } else if(currentsong === undefined && queue.length > 0) {
-            return await startSong(0)
+            if(dispatcher !== undefined) {
+
+                try{
+                    await dispatcher.resume()
+                    updateQueueMessage() 
+                } catch(err) {
+                    console.log(err)
+                }
+                return
+            } else if(queue.length !== 0 && currentsong >= 0 && currentsong < queue.length) {
+                return await startSong(currentsong)
+            } else if(currentsong === undefined && queue.length > 0) {
+                return await startSong(0)
+            }
+        } catch(err) {
+            console.log(err)
         }
 
     },
