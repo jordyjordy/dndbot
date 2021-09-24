@@ -4,7 +4,7 @@ module.exports = {
     description: 'Play the next song in the queue',
     async execute(msg, args) {
         try {
-            connectionManager.nextSong()
+            connectionManager.nextSong(msg.guild.id)
             msg.delete({timeout:100})
         } catch(err) {
             console.log(err)

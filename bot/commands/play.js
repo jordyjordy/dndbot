@@ -10,20 +10,21 @@ module.exports = {
                 msg.delete({timeout:100})
                 return
             }
-            if(connectionManager.getConnection() === undefined || connectionManager.getConnection().status === 4) {
-                connectionManager.clearDispatcher()
+            if(connectionManager.getConnection(msg.guild.id) === undefined || connectionManager.getConnection(msg.guild.id).status === 4) {
+                console.log('connecting to voice channel')
+                connectionManager.clearDispatcher(msg.guild.id)
                 var connection = await voice.channel.join()
-                await connectionManager.setConnection(connection)
+                await connectionManager.setConnection(msg.guild.id,connection)
             }
             if(args.length == 0) {
-                if(!connectionManager.play()) {
+                if(!connectionManager.play(msg.guild.id)) {
                     msg.channel.send("Can not play a song, are you sure there is something in the queue?")     
                 }
                 msg.delete({timeout:100})
                 return
             }
 
-            if(!connectionManager.playSong(args[0])) {
+            if(!connectionManager.playSong(msg.guild.id,args[0])) {
                 msg.channel.send("something went wrong, possibly you entered a bad url or number")
             }
         } catch(err) {

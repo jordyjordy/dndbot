@@ -3,7 +3,7 @@ module.exports = {
     name: '?loop',
     description: 'Toggle Looping the current song',
     async execute(msg, args) {
-        connectionManager.toggleLoop()
+        connectionManager.toggleLoop(msg.guild.id)
         msg.delete({timeout:100})
     }
     
