@@ -4,6 +4,7 @@ module.exports = {
     description: 'Display the queue message',
     async execute(msg, args) {
         try{
+            console.log(msg.guild.id)
             var {queue, currentsong} = await connectionManager.getQueue(msg.guild.id)
             var loop = connectionManager.getLoop(msg.guild.id)
             var paused = connectionManager.getPaused(msg.guild.id)

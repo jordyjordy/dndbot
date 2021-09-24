@@ -4,7 +4,13 @@ auth = require('../config/auth')
 const Session = require('../model/session')
 
 router.get('/', async (req, res) => {
-    const result = await Session.find()
+    const result = await Session.find({server:req.query.server})
+    res.status(200).json(result)
+
+})
+
+router.get('/list',auth, async (req, res) => {
+    const result = await Session.find({server:req.server})
     res.status(200).json(result)
 
 })
@@ -12,8 +18,10 @@ router.get('/', async (req, res) => {
 router.post('/add', auth, async (req, res) => {
     try {
         const date = new Session(req.body.day)
+        console.log('hi')
+        date.server = req.server
         await date.save()
-        res.status(201).json({ date: date })
+        res.status(201).json({ date: date, server: req.server })
     } catch (err) {
         res.status(400).send("something went wrong")
     }

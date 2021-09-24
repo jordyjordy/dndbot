@@ -21,7 +21,7 @@ module.exports = {
             }
         }
         try {
-            axios.get(process.env.SERVER_IP + `/item/name?name=${query}`).then(function (response) {
+            axios.get(process.env.SERVER_IP + `/item/name?name=${query}&server=${msg.guild.id}`).then(function (response) {
                 if (response.data.length > 0) {
                     var resultString = ``
                     for (i = 0; i < response.data.length; i++) {
