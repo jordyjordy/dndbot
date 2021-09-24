@@ -4,13 +4,13 @@ module.exports = {
     description: 'Display the queue message',
     async execute(msg, args) {
         try{
-            var {queue, currentsong} = await connectionManager.getQueue()
-            var loop = connectionManager.getLoop()
-            var paused = connectionManager.getPaused()
+            var {queue, currentsong} = await connectionManager.getQueue(msg.guild.id)
+            var loop = connectionManager.getLoop(msg.guild.id)
+            var paused = connectionManager.getPaused(msg.guild.id)
             var response = "**Paused: " + paused +  ", LoopOne: " + loop + "**\n" 
             if(queue.length === 0) {
                 response += "The queue is empty!"
-                connectionManager.setQueueMessage(await msg.channel.send(response))
+                connectionManager.setQueueMessage(msg.guild.id,await msg.channel.send(response))
                 msg.delete({timeout:100})
                 return
             }
@@ -21,7 +21,7 @@ module.exports = {
                     response +=  i + ": " + queue[i].name + " \n"
                 }     
             }
-            connectionManager.setQueueMessage(await msg.channel.send(response))
+            connectionManager.setQueueMessage(msg.guild.id,await msg.channel.send(response))
             msg.delete({timeout:100})
         } catch(err) {
             console.log(err)

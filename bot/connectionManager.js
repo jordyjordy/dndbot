@@ -1,34 +1,40 @@
 const ytdldisc = require('ytdl-core-discord')
 const ytdl = require('ytdl-core');
-var connection;
-var dispatcher;
-var currentsong;
-var queue = []
-var queueMessage;
-var queueChannel;
-var loop = false;
+var connections = {}
+var dispatchers = {};
+var currentsong = {};
+var queues = {}
+var queueMessages = {};
+var queueChannels = {};
+var loop = {};
 var ConnectionManager = {
-    setConnection(con) {
-        connection = con;
+    setConnection(server,con) {
+        connections[server] = con
     },
-    clearConnection() {
-        if(dispatcher) dispatcher.destroy()
-        if(connection) connection.disconnect()
-        dispatcher = undefined
-        connection = undefined
+    clearConnection(server) {
+        if(dispatchers[server]) dispatchers[server].destroy()
+        if(connections[server]) connections[server].disconnect()
+        delete dispatchers[server]
+        delete connections[server]
     },
-    getConnection() {
-        return connection;
+    getConnection(server) {
+        return connections[server];
     },
-    async playSong(id) {
-        if(!connection || connection.status === 4) {
+    async playSong(server,id) {
+        if(!queues[server]) {
+            queues[server] = []
+        }
+        if(!currentsong[server]) {
+            currentsong[server] = 0
+        }
+        if(!connections[server] || connections[server].status === 4) {
             return false
         }
         if(!isNaN(id)) {
             try{
                 const num = parseInt(id)
                 if(num >= 0 && num < queue.length) {
-                    return await startSong(num)
+                    return await startSong(server, num)
                 } else {
                     return false
                 }
@@ -36,195 +42,206 @@ var ConnectionManager = {
                 return false
             }
         }
-        queue.push({url:id,name:""})
-        var res =  startSong(queue.length-1)
+        queues[server].push({url:id,name:""})
+        var res =  startSong(server,queues[server].length-1)
         ytdl.getBasicInfo(id).then((info) => {
-
-            queue[queue.length-1].name = info.videoDetails.title
+            queues[server][queues[server].length-1].name = info.videoDetails.title
         })
         return await res
     },
-    queueSong(url,pos=queue.length) {
+    queueSong(server,url,pos=queue.length) {
         return ytdl.getBasicInfo(url).then((info) => {
-            if(pos < queue.length) {
-                queue.splice(pos,0,{url:url,name:info.videoDetails.title})
-                if(pos < currentsong) {
-                    currentsong++
+            if(pos < queues[server].length) {
+                queues[server].splice(pos,0,{url:url,name:info.videoDetails.title})
+                if(pos < currentsong[server]) {
+                    currentsong[server]++
                 }
             } else {
-                queue.push({url:url,name:info.videoDetails.title})
+                queues[server].push({url:url,name:info.videoDetails.title})
             }
-            updateQueueMessage()
+            updateQueueMessage(server)
             return true
         }).catch((err) => {
             console.log(err)
             return false
         })
     },
-    currentSong() {
-        return currentsong
+    currentSong(server) {
+        return currentsong[server]
     },
-    async nextSong() {
+    async nextSong(server) {
         try{
-            if(!connection || connection.status === 4) {
+            if(!connections[server] || connections[server].status === 4) {
                 return false
             }
-        currentsong++;
-            if(currentsong < queue.length) {
-                return await startSong(currentsong)
-            } else if(queue.length > 0) {
-                return await startSong(0)
+        currentsong[server]++;
+            if(currentsong[server] < queues[server].length) {
+                return await startSong(server,currentsong[server])
+            } else if(queues[server].length > 0) {
+                return await startSong(server,0)
             }
         } catch(err) {
             console.log(err)
         }
         return false
     },
-    async previousSong() {
+    async previousSong(server) {
         try{
-            if(!connection || connection.status === 4) {
+            if(!connections[server] || connections[server].status === 4) {
                 return false
             }
-            currentsong--;
-            if(currentsong >= 0) {
-                return await startSong(currentsong)
-            } else if(queue.length > 0) {
-                currentsong = queue.length-1
-                return await startSong(currentsong)
+            currentsong[server]--;
+            if(currentsong[server] >= 0) {
+                return await startSong(server, currentsong[server])
+            } else if(queues[server].length > 0) {
+                currentsong[server] = queues[server].length-1
+                return await startSong(server, currentsong[server])
             }
         } catch(err) {
             console.log(err)
         }
         return false
     },
-    pause() {
-        dispatcher.pause()
-        updateQueueMessage() 
+    pause(server) {
+        dispatchers[server].pause()
+        updateQueueMessage(server) 
     },
-    async play() {
+    async play(server) {
         try{
-            if(connection.status === 4) {
+            if(connections[server].status === 4) {
                 return false
             }
-            if(dispatcher !== undefined) {
+            if(dispatchers[server] !== undefined) {
 
                 try{
-                    await dispatcher.resume()
-                    updateQueueMessage() 
+                    await dispatchers[server].resume()
+                    updateQueueMessage(server) 
                 } catch(err) {
                     console.log(err)
                 }
                 return
-            } else if(queue.length !== 0 && currentsong >= 0 && currentsong < queue.length) {
-                return await startSong(currentsong)
-            } else if(currentsong === undefined && queue.length > 0) {
-                return await startSong(0)
+            } else if(queues[server].length !== 0 && currentsong[server] >= 0 && currentsong[server] < queues[server].length) {
+                return await startSong(server, currentsong[server])
+            } else if(currentsong[server] === undefined && queues[server].length > 0) {
+                return await startSong(server, 0)
             }
         } catch(err) {
             console.log(err)
         }
 
     },
-    clearQueue() {
-        queue = []
-        if(dispatcher !== undefined) {
-            dispatcher.destroy()
-            dispatcher = undefined;
+    clearQueue(server) {
+        queues[server] = []
+        if(dispatchers[server] !== undefined) {
+            dispatchers[server].destroy()
+            delete dispatchers[server]
         }
-        updateQueueMessage()
+        updateQueueMessage(server)
         return true
     },
-    getQueue() {
-        return {queue:queue,currentsong:currentsong}
-    }, removeSong(id) {
+    getQueue(server) {
+        if(!queues[server]) {
+            queues[server] = []
+        }
+        if(!currentsong[server]) {
+            currentsong[server] = 0
+        }
+        return {queue:queues[server],currentsong:currentsong[server]}
+    },
+    removeSong(server, id) {
         try {
-            if(currentsong === id && dispatcher !== undefined) {
-                if(!dispatcher.paused) {
+            if(currentsong[server] === id && dispatchers[server] !== undefined) {
+                if(!dispatchers[server].paused) {
                     return false
                 } else {
-                    dispatcher.destroy()
-                    dispatcher = undefined
+                    dispatchers[server].destroy()
+                    delete dispatchers[server]
                 }
             }
         }  catch(err) {
             return false
         }
-        queue.splice(id,1)
-        updateQueueMessage() 
+        queues[server].splice(id,1)
+        updateQueueMessage(server) 
         return true
     },
-    setQueueMessage(msg) {
-        if(queueMessage) {
-            queueMessage.delete({timeout:100})
+    setQueueMessage(server,msg) {
+        if(queueMessages[server]) {
+            queueMessages[server].delete({timeout:100})
         }
-        queueChannel = msg.channel
-        queueMessage = msg
+        queueChannels[server] = msg.channel
+        queueMessages[server] = msg
     },
-    toggleLoop() {
-        loop = !loop
-        updateQueueMessage() 
+    toggleLoop(server) {
+        loop[server] = !loop[server]
+        updateQueueMessage(server) 
     },
-    getLoop() {
-        return loop;
+    getLoop(server) {
+        return loop[server]?true:false;
     },
-    getPaused() {
-        if(dispatcher !== undefined) {
-            return dispatcher.paused
+    getPaused(server) {
+        console.log('getting pause info')
+        if(dispatchers[server] !== undefined) {
+            return dispatchers[server].paused
         }
         return true
     },
-    clearDispatcher() {
-        dispatcher = undefined
+    clearDispatcher(server) {
+        delete dispatchers[server]
     },
-    async replay() {
-        await startSong(currentsong)
+    async replay(server) {
+        await startSong(server, currentsong[server])
     }
 }
 
-async function startSong(id) {
-    currentsong = id
+async function startSong(server,id) {
+    currentsong[server] = id
     try{
-        if(!connection) {
+        if(!connections[server]) {
             return false
         }
-        if(dispatcher !== undefined) dispatcher.destroy()
-        dispatcher = await connection.play(await ytdldisc(queue[id].url),{ type: 'opus' })
+        if(dispatchers[server] !== undefined) {
+            dispatchers[server].destroy()
+            delete dispatchers[server]
+        }
+        dispatchers[server] = await connections[server].play(await ytdldisc(queues[server][id].url),{ type: 'opus' })
     } catch(err) {
-
-        queue.splice(id,1)
+        console.log(err)
+        queues[server].splice(id,1)
         return false
     }
-    updateQueueMessage()
-    dispatcher.on('finish',() => {
+    updateQueueMessage(server)
+    dispatchers[server].on('finish',() => {
         if(loop) {
-            ConnectionManager.playSong(currentsong)
+            ConnectionManager.playSong(server, currentsong[server])
         } else {
-            ConnectionManager.nextSong()
+            ConnectionManager.nextSong(server)
         }
         
     })
     return true
 }
 
-async function updateQueueMessage() {
-    if(queueMessage) {
-        queueMessage.delete({timer:0})
+async function updateQueueMessage(server) {
+    if(queueMessages[server]) {
+        queueMessages[server].delete({timer:0})
+        delete queueMessages[server]
     }
-    if(queueChannel) {
-        var response = "**Paused: " + ConnectionManager.getPaused() + ", LoopOne: " + loop + "**\n" 
-        if(queue.length === 0) {
+    if(queueChannels[server]) {
+        var response = "**Paused: " + ConnectionManager.getPaused(server) + ", LoopOne: " + ConnectionManager.getLoop(server) + "**\n" 
+        if(queues[server].length === 0) {
             response += "The queue is empty!"
-            queueChannel.send(response)
+            queueChannels[server].send(response)
             return
         }
-        for(var i = 0; i < queue.length;i++) {
-            if(i == currentsong) {
-                response += "**" + i + ": " + queue[i].name + "**" + " \n"  
+        for(var i = 0; i < queues[server].length;i++) {
+            if(i == currentsong[server]) {
+                response += "**" + i + ": " + queues[server][i].name + "**" + " \n"  
             } else {
-                response +=  i + ": " + queue[i].name + " \n"
+                response +=  i + ": " + queues[server][i].name + " \n"
             }     
         }
-        queueMessage = await queueChannel.send(response)
+        queueMessages[server] = await queueChannels[server].send(response)
     }
 }
 module.exports=ConnectionManager
