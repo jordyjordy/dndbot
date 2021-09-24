@@ -5,14 +5,14 @@ module.exports = {
     async execute(msg, args) {
         try{
             if(args[0] === "all") {
-                if(!connectionManager.clearQueue()) {
+                if(!connectionManager.clearQueue(msg.guild.id)) {
                     msg.channel.send("Something went wrong clearing the queue")
                 }
             } else if(args.length > 0) {
                 try {
                     var id = parseInt(args[0])
                     console.log(id +"," + typeof id)
-                    if(!connectionManager.removeSong(id)) {
+                    if(!connectionManager.removeSong(msg.guild.id,id)) {
                         msg.channel.send("The song you are trying to remove is currently being played, or does not exist!")
                     }
                 } catch(err) {

@@ -9,10 +9,12 @@ tokenSchema = mongoose.Schema({
     },
     iat: {
         type: Number
+    },
+    server_id: {
+        type: String
     }
 
 })
-
 
 tokenSchema.statics.findByToken = async (token) => {
     const result = await Token.findOne({ token: token })
@@ -24,7 +26,7 @@ tokenSchema.statics.findByToken = async (token) => {
     return result
 }
 
-tokenSchema.statics.generateToken = async (user) => {
+tokenSchema.statics.generateToken = async (user,server) => {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     var tokenid = ''
     const charlength = characters.length
@@ -36,6 +38,7 @@ tokenSchema.statics.generateToken = async (user) => {
     const token = new Token({
         token: tokenid,
         discord_id: user,
+        server_id: server,
         iat: time
     })
     await token.save()

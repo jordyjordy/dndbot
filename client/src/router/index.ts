@@ -30,7 +30,7 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/list',
+    redirect: '/authenticate',
   }
 ]
 
