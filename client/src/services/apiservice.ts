@@ -8,7 +8,7 @@ export default {
     getItems: async function () {
         const url = ip + "/item/list"
         try {
-            const result = await axios.get(url)
+            const result = await axios.get(url,{ headers: { token: localStorage.getItem('passcode') } })
             return result.data
         } catch (err) {
             return []
@@ -17,7 +17,7 @@ export default {
     getItemById: async function (id: Number) {
         const url = ip + "/item/id?id=" + id
         try {
-            const result = await axios.get(url)
+            const result = await axios.get(url,{ headers: { token: localStorage.getItem('passcode') } })
             return result.data
         } catch (err) {
             return {}
@@ -54,7 +54,7 @@ export default {
     searchItems: async function (terms: String) {
         const url = ip + "/item/search?name=" + terms
         try {
-            const result = await axios.get(url)
+            const result = await axios.get(url,{ headers: { token: localStorage.getItem('passcode') } })
             return result.data
         } catch (err) {
             return []
@@ -63,7 +63,7 @@ export default {
     validateToken: async function (token: String) {
         const url = ip + "/token/validate?token=" + token
         try {
-            const result = await axios.get(url)
+            const result = await axios.get(url,{ headers: { token: localStorage.getItem('passcode') } })
             return result.data
         } catch (err) {
             return false
@@ -73,16 +73,16 @@ export default {
     clearToken: async function (token: String) {
         const url = ip + '/token/clear?token=' + token
         try {
-            const result = await axios.delete(url)
+            const result = await axios.delete(url,{ headers: { token: localStorage.getItem('passcode') } })
             return result.data
         } catch (err) {
             return false
         }
     },
     getDates: async function (token: String) {
-        const url = ip + '/sessions'
+        const url = ip + '/sessions/list'
         try {
-            const result = await axios.get(url)
+            const result = await axios.get(url,{ headers: { token: localStorage.getItem('passcode') } })
             if (result.data) {
                 if (result.data) {
                     return result.data.map((day: { id: Number, date: Date }) => {

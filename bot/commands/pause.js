@@ -4,7 +4,7 @@ module.exports = {
     description: 'Pause song playback',
     async execute(msg, args) {
         try{
-            connectionManager.pause()
+            connectionManager.pause(msg.guild.id)
             msg.delete({timeout:100})
         } catch(err) {
             console.log(err)
