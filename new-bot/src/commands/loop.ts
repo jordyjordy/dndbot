@@ -1,0 +1,32 @@
+import {getConnectionContainer} from "../connectionManager"
+import { SlashCommandBuilder } from '@discordjs/builders'
+import { CommandInteraction } from "discord.js"
+import { LoopEnum } from "../utils/loop"
+import { updateInterface } from "../utils/interface"
+const data = new SlashCommandBuilder()
+    .setName('loop')
+    .setDescription('Set looping kind (none, one, all)')
+    .addSubcommand(command => command.setName('none').setDescription("stop all looping"))
+    .addSubcommand(command => command.setName('all').setDescription("loop all"))
+    .addSubcommand(command => command.setName('one').setDescription("loop one song"))
+
+export const execute = async function(msg:CommandInteraction):Promise<void> {
+    const connectionManager = await getConnectionContainer(msg)
+    const toggle = msg.options.getSubcommand()
+    let option = LoopEnum.NONE
+    switch(toggle) {
+        case "one":
+            option = LoopEnum.ONE
+            break;
+        case "all":
+            option = LoopEnum.ALL
+            break
+        default:
+            option = LoopEnum.NONE
+            break
+    }
+    connectionManager.toggleLoop(msg.guild.id,option)
+    updateInterface(msg,connectionManager)
+}
+
+export const Command = {info:data,command:execute}
