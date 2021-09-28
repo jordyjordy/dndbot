@@ -1,8 +1,6 @@
 FROM node:16-alpine
 
-WORKDIR /app/newbot
-
-RUN apk add python make g++ --no-cache
+WORKDIR /app/new-bot
 
 COPY package*.json ./
 
