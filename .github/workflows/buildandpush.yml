@@ -52,6 +52,14 @@ jobs:
           touch ./client/.env
           echo VUE_APP_SERVER_IP = ${{secrets.VUE_APP_SERVER_IP}} >> ./client/.env
       -
+        name: Build and push newbot
+        uses: docker/build-push-action@v2
+        with:
+          context: ./new-bot
+          tags: registry.jvdt.dev:5001/jordyjordy/dndbot-newbot:latest
+          push: true
+          file: ./new-bot/Dockerfile
+      -
         name: Build and push client
         env:
           VUE_APP_SERVER_IP: https://dndbotserver.jordyvandertang.nl:5000
