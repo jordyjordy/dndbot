@@ -26,6 +26,18 @@ services:
         max_attempts: 10
       labels:
         - "com.centurylinklabs.watchtower.scope=dndbot"
+  bot:
+    container_name: "dndbot-newbot"
+    image: registry.jvdt.dev:5001/jordyjordy/dndbot-newbot
+    env_file: ".env"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s 
+        window: 60s
+        max_attempts: 10
+      labels:
+        - "com.centurylinklabs.watchtower.scope=dndbot"
   client:
     container_name: "dndbot-client"
     image: registry.jvdt.dev:5001/jordyjordy/dndbot-client
