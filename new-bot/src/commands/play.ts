@@ -23,16 +23,16 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
             if(!connectionManager.play()) {
                 msg.editReply("Can not play a song, are you sure there is something in the queue?")     
             } else {
-                updateInterface(msg,connectionManager)
+                updateInterface(connectionManager,msg)
             }
             return
         }
         if(!await connectionManager.playSong(args[0])) {
             msg.editReply("something went wrong, possibly you entered a bad url or number")
-            updateInterface(msg,connectionManager,true)
+            updateInterface(connectionManager,msg,true)
         } else {
             await msg.editReply("You are playing: " + args[0])
-            updateInterface(msg,connectionManager,true)
+            updateInterface(connectionManager,msg,true)
         }
     } catch(err) {
         console.log(err)

@@ -10,7 +10,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
     const connectionManager = await getConnectionContainer(msg)
     try{
         await connectionManager.previousSong()
-        updateInterface(msg,connectionManager)
+        updateInterface(connectionManager,msg,false,false,true)
     } catch(err) {
         console.log(err)
     }
