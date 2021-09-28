@@ -13,7 +13,8 @@ import {Command as prevsong} from './prevsong'
 import {Command as replay} from './replay'
 import {Command as disconnect} from './disconnect'
 import {Command as resume} from "./resume"
+import {Command as shuffle} from "./shuffle"
 
-export const Commands = [dnd,info,passcode,roll,play,addsong,clear,queue,pause,loop,nextsong,prevsong,replay,disconnect,resume]
+export const Commands = [dnd,info,passcode,roll,play,addsong,clear,queue,pause,loop,nextsong,prevsong,replay,disconnect,resume, shuffle]
 
 export const RegisterCommands = Commands.map(command => command.info.toJSON())

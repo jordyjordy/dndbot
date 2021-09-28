@@ -25,8 +25,11 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
             option = LoopEnum.NONE
             break
     }
-    connectionManager.toggleLoop(msg.guild.id,option)
-    updateInterface(msg,connectionManager)
+    if(option !== LoopEnum.NONE) {
+        connectionManager.shuffle = false
+    }
+    connectionManager.toggleLoop(option)
+    updateInterface(connectionManager,msg,false,false,true)
 }
 
 export const Command = {info:data,command:execute}

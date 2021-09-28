@@ -11,23 +11,20 @@ const data = new SlashCommandBuilder()
     .addStringOption(option => option.setName('index').setDescription("index of song to remove")))
 
 export const execute = async function(msg:CommandInteraction):Promise<void> {
-    const args = Array.from(msg.options.data.values()).map(entry => entry.value.toString())
+    const args = msg.options.getSubcommand()
     const connectionManager = await getConnectionContainer(msg)
     try{
-        if(args[0] === "all") {
+        if(args === "all") {
             if(!connectionManager.clearQueue()) {
                 msg.editReply("Something went wrong clearing the queue")
             }
-        } else if(args.length > 0) {
-            try {
-                if(!connectionManager.removeSong(args[0])) {
-                    msg.editReply("The song you are trying to remove is currently being played, or does not exist!")
-                }
-            } catch(err) {
-                msg.editReply("Something went wrong clearing this item from the queue")
+        } else if(args) {
+            const val = msg.options.getString('index')
+            if(!connectionManager.removeSong(val)) {
+                msg.editReply("The song you are trying to remove is currently being played, or does not exist!")
             }
         }
-        updateInterface(msg,connectionManager)
+        updateInterface(connectionManager,msg,false,false,true)
     } catch(err) {
         console.log(err)
     }

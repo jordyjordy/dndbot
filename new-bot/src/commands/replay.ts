@@ -8,9 +8,12 @@ const data = new SlashCommandBuilder()
    
 export const execute = async function(msg:CommandInteraction):Promise<void> {
     const connectionManager = await getConnectionContainer(msg)
+    if(!connectionManager.isConnected()) {
+        await connectionManager.connect(msg)
+    }
     try{
         await connectionManager.replay()
-        updateInterface(msg,connectionManager)
+        updateInterface(connectionManager,msg,false,false,true)
     } catch(err) {
         console.log(err)
     }

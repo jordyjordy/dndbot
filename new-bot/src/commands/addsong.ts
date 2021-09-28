@@ -20,8 +20,8 @@ const execute = async function(msg:CommandInteraction):Promise<void> {
                 msg.editReply("something went wrong, possibly you entered a bad url.")
             }
         }
-        await msg.editReply("You queued:" + args[0])
-        updateInterface(msg,connectionManager)
+        await msg.editReply("You queued: " + args[0])
+        updateInterface(connectionManager,msg,true)
     } catch(err) {
         console.log(err)
     }

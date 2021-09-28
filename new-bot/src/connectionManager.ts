@@ -1,15 +1,16 @@
 import { VoiceConnection, createAudioResource, AudioPlayer, VoiceConnectionStatus, AudioPlayerStatus, joinVoiceChannel, createAudioPlayer } from '@discordjs/voice';
-import { CommandInteraction, Message } from 'discord.js';
+import { CommandInteraction, Interaction, Message } from 'discord.js';
 import ytdl from 'ytdl-core-discord'
 import { LoopEnum } from './utils/loop';
 import { client } from "."
+import { updateInterface } from './utils/interface';
 const connectionContainers:connectionMap = {}
 
 type connectionMap = {
     [key:string]:ConnectionContainer
 }
 
-export async function getConnectionContainer(interaction:CommandInteraction):Promise<ConnectionContainer> {
+export async function getConnectionContainer(interaction:Interaction):Promise<ConnectionContainer> {
     const server = interaction.guild.id
     if(connectionContainers[server]){
         return connectionContainers[server]
@@ -41,25 +42,31 @@ export class ConnectionContainer {
     audioPlayer:AudioPlayer
     queueMessage:Message
     playing:boolean
-
+    shuffle:boolean
     constructor() {
         this.loop = LoopEnum.NONE
         this.queue = []
         this.currentsong = 0
         this.playing = false
+        this.shuffle = false
     }
 
     isConnected():boolean {
         return this.connection && this.connection.state.status !== VoiceConnectionStatus.Disconnected
     }
 
-    async connect(interaction:CommandInteraction):Promise<boolean> {
+    async connect(interaction:Interaction):Promise<boolean> {
+        console.log("connecting")
         const user = interaction.member.user.id
         const guild = client.guilds.cache.get(interaction.guildId)
         const member = guild.members.cache.get(user)
         const {voice} = member
         if(!voice || !voice.channel) {
-            interaction.editReply("You must be in a voice channel!")
+            if(interaction instanceof CommandInteraction)
+                interaction.editReply("You must be in a voice channel!")
+            else {
+                interaction.channel.send("You must be in a voice channel!")
+            }
             return false
         }
         try {
@@ -68,8 +75,7 @@ export class ConnectionContainer {
                 guildId: interaction.guildId,
                 adapterCreator: guild.voiceAdapterCreator
             })
-            this.audioPlayer = createAudioPlayer()
-            this.connection.subscribe(this.audioPlayer)
+            this.#prepareAudioPlayer()
             return true
         } catch(err) {
             return false
@@ -129,15 +135,12 @@ export class ConnectionContainer {
             }
             return true
         }).catch((err) => {
+            console.log('err in queueSong()')
             console.log(err)
             return false
         })
     }
 
-    currentSong():number {
-        return this.currentsong
-    }
-    
     async nextSong():Promise<boolean> {
         try{
             if(!this.isConnected()) {
@@ -150,6 +153,7 @@ export class ConnectionContainer {
                 return await this.#startSong(0)
             }
         } catch(err) {
+            console.log('err in nextSong()')
             console.log(err)
         }
         return false
@@ -168,15 +172,17 @@ export class ConnectionContainer {
                 return await this.#startSong(this.currentsong)
             }
         } catch(err) {
+            console.log('err in previousSong()')
             console.log(err)
         }
         return false
     }
 
     pause():void {
+        this.playing = false
         this.audioPlayer.pause()
     }
-
+    
     async play():Promise<boolean> {
         try{
             if(!this.isConnected()) {
@@ -189,6 +195,7 @@ export class ConnectionContainer {
                     this.playing = true
                     return true
                 } catch(err) {
+                    console.log('err in play()')
                     console.log(err)
                 }
                 return false
@@ -202,12 +209,15 @@ export class ConnectionContainer {
                 return res
             }
         } catch(err) {
+            console.log('err2 in play()')
             console.log(err)
         }
     }
 
     clearQueue():boolean {
         this.queue = []
+        this.currentsong = 0
+        this.playing = false
         if(this.audioPlayer !== undefined) {
             this.audioPlayer.stop()
         }
@@ -232,33 +242,95 @@ export class ConnectionContainer {
             return false
         }
     }
-    setQueueMessage(server:string,msg:Message):void {
-        if(this.queueMessage) {
-            this.queueMessage.delete()
-        }
-        this.queueMessage = msg
-    }
-    toggleLoop(server:string,value:LoopEnum):void {
+    toggleLoop(value:LoopEnum):void {
         this.loop = value
+        this.shuffle = false
 
     }
+    toggleShuffle(value:boolean):void {
+        this.shuffle = value
+    }
     async replay():Promise<void> {
-        await this.#startSong(this.currentsong)
+        this.#startSong(this.currentsong)
     }
 
     async #startSong(id:number):Promise<boolean> {
         this.currentsong = id
+        if(!this.audioPlayer) {
+            this.#prepareAudioPlayer()
+        }
         try{
             if(!this.connection || !this.audioPlayer) {
+                this.playing = false
                 return false
             }
             const audiosource = createAudioResource(await ytdl(this.queue[id].url))
             this.audioPlayer.play(audiosource)
+            this.playing = true
         } catch(err) {
+            console.log(id)
+            console.log('err in startSong()')
             console.log(err)
+            this.playing = false
             this.queue.splice(id,1)
             return false
         }
         return true
+    }
+    #prepareAudioPlayer():void {
+        if(!this.isConnected()) {
+            return
+        }
+        this.audioPlayer = createAudioPlayer()
+        this.audioPlayer.on(AudioPlayerStatus.Idle,()=> {
+            if(this.playing) {
+                if(this.shuffle) {
+                    let num = Math.floor(Math.random() * this.queue.length-1.01)
+                    if(num < 0) num = 0
+                    if (num >= this.queue.length -1) num = this.queue.length-2
+                    if(num >= this.currentsong) num++
+                    updateInterface(this,undefined,false,false,true)
+                    this.#startSong(num)
+                } else {
+                    switch(this.loop) {
+                        case LoopEnum.ALL:
+                            console.log('all')
+                            if(this.currentsong >= this.queue.length-1) {
+                                this.currentsong = 0
+                            } else {
+                                this.currentsong++
+                            }
+                            break
+                        case LoopEnum.NONE:
+                            console.log('none')
+                            if(this.currentsong >= this.queue.length-1) {
+                                this.playing = false
+                                return
+                            } else {
+                                this.currentsong++
+                            }
+                            break
+                        default:
+                            console.log('one')
+                            //do nothing
+                            break
+                    }
+                    updateInterface(this,undefined,false,false,true)
+                    this.#startSong(this.currentsong)
+                }
+            } else {
+                this.audioPlayer.stop()
+            }
+        })
+        this.audioPlayer.on('error',async () => {
+            console.log('error occured, remaking audio player')
+            setTimeout(() => {
+                this.audioPlayer = createAudioPlayer()
+                this.connection.subscribe(this.audioPlayer)
+                this.#prepareAudioPlayer()
+                this.play()
+            }, 500)
+        })
+        this.connection.subscribe(this.audioPlayer)
     }
 }

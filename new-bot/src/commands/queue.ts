@@ -9,7 +9,7 @@ const data = new SlashCommandBuilder()
 export const execute = async function(msg:CommandInteraction):Promise<void> {
     const connectionManager = await getConnectionContainer(msg)
     try{
-        updateInterface(msg,connectionManager)
+        updateInterface(connectionManager,msg)
     } catch(err) {
         console.log(err)
     }
