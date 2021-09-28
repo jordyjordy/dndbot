@@ -1,6 +1,7 @@
 import registerSlashCommands from "./registerSlashCommands";
 import dotenv from "dotenv";
 import { Client, Intents } from 'discord.js'
+
 import { Commands } from "./commands";
 import interfaceCommands, {Play} from "./interfaceCommands"
 
@@ -11,9 +12,7 @@ export const client:Client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents
 client.on('ready',async () => {
     console.log('ready')
     const servers = client.guilds.cache.map(guild => guild.id)
-    if(process.env.REGISTER_COMMANDS && parseInt(process.env.REGISTER_COMMANDS) !== 0) {
-        registerSlashCommands(servers)
-    }
+    registerSlashCommands(servers)
 })
 
 client.on('interactionCreate', async interaction => {
