@@ -44,4 +44,4 @@ client.on('error', () => {
     console.log('an actual error occured?')
 })
 
-client.login(process.env.TOKEN)
+client.login(process.env.BOT_TOKEN)
