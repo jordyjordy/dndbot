@@ -2,7 +2,7 @@ version: '3'
 services:
   server:
     container_name: "dndbot-server"
-    image: registry.jvdt.dev:5001/jordyjordy/dndbot-server
+    image: dndbot-server
     env_file: ".env"
     deploy: 
       restart_policy:
@@ -16,7 +16,7 @@ services:
       - "com.centurylinklabs.watchtower.scope=dndbot"
   bot:
     container_name: "dndbot-bot"
-    image: registry.jvdt.dev:5001/jordyjordy/dndbot-bot
+    image: dndbot-bot
     env_file: ".env"
     deploy:
       restart_policy:
@@ -28,7 +28,7 @@ services:
         - "com.centurylinklabs.watchtower.scope=dndbot"
   newbot:
     container_name: "dndbot-newbot"
-    image: registry.jvdt.dev:5001/jordyjordy/dndbot-newbot
+    image: dndbot-newbot
     env_file: ".env"
     deploy:
       restart_policy:
@@ -40,7 +40,7 @@ services:
         - "com.centurylinklabs.watchtower.scope=dndbot"
   client:
     container_name: "dndbot-client"
-    image: registry.jvdt.dev:5001/jordyjordy/dndbot-client
+    image: dndbot-client
     env_file: ".env"
     deploy:
       restart_policy:
