@@ -7,10 +7,10 @@ const data = new SlashCommandBuilder()
     .setName('dnd')
     .setDescription('Gives time until the next session!')
 
-const execute = function(msg:CommandInteraction):void {
+const execute = async function(msg:CommandInteraction):Promise<void> {
     const now = new Date();
     const nowTime = now.getTime()
-    axios.get(process.env.SERVER_IP + `/sessions?server=${msg.guild.id}`).then(function (response) {
+    axios.get(process.env.SERVER_IP + `/sessions?server=${msg.guild.id}`).then(async function (response) {
         let dndDay = Infinity;
         response.data.forEach(day => {
             if (nowTime < day.date) {
@@ -20,7 +20,7 @@ const execute = function(msg:CommandInteraction):void {
             }
         });
         if (dndDay == Infinity) {
-            msg.editReply(`There is currently no planned date for the next session!`)
+            await msg.editReply(`There is currently no planned date for the next session!`)
             return
         }
         const difference = dndDay - nowTime;
@@ -38,18 +38,18 @@ const execute = function(msg:CommandInteraction):void {
         switch (diff) {
             case 0:
                 if (difference <= 0) {
-                    msg.editReply(`DND IS NOW, WHAT ARE YOU WAITING FOR GO PLAY!`)
+                    await msg.editReply(`DND IS NOW, WHAT ARE YOU WAITING FOR GO PLAY!`)
                 } else {
-                    msg.editReply(`OMG OMG OMG AAAAAAAAAAH DND IS TODAY!\nONLY ${hours} HOURS AND ${minutes} MINUTES REMAINING!`)
+                    await msg.editReply(`OMG OMG OMG AAAAAAAAAAH DND IS TODAY!\nONLY ${hours} HOURS AND ${minutes} MINUTES REMAINING!`)
                 }
-                msg.followUp(`WEEEEEEEEEEEEEEEEEEEEEEEEEEEE`)
+                await msg.followUp(`WEEEEEEEEEEEEEEEEEEEEEEEEEEEE`)
                 break;
             case 1:
-                msg.editReply(`OMG DND IS TOMORROW!\nITS IN ONLY ${hours + 24 * days} HOURS AND ${minutes} MINUTES!`);
-                msg.followUp(`AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH`)
+                await msg.editReply(`OMG DND IS TOMORROW!\nITS IN ONLY ${hours + 24 * days} HOURS AND ${minutes} MINUTES!`);
+                await msg.followUp(`AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH`)
                 break;
             default:
-                msg.editReply(`DnD is in ${days} days, ${hours} hours and ${minutes} minutes!`)
+                await msg.editReply(`DnD is in ${days} days, ${hours} hours and ${minutes} minutes!`)
                 break;
         }
     })
