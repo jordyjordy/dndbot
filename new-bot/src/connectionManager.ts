@@ -1,9 +1,10 @@
 import { VoiceConnection, createAudioResource, AudioPlayer, VoiceConnectionStatus, AudioPlayerStatus, joinVoiceChannel, createAudioPlayer } from '@discordjs/voice';
-import { CommandInteraction, Interaction, Message } from 'discord.js';
+import { CommandInteraction, Interaction, Message, Options } from 'discord.js';
 import ytdl from 'ytdl-core-discord'
 import { LoopEnum } from './utils/loop';
 import { client } from "."
 import { updateInterface } from './utils/interface';
+// import youtubedl from 'youtube-dl-exec'
 const connectionContainers:connectionMap = {}
 
 type connectionMap = {
@@ -43,12 +44,14 @@ export class ConnectionContainer {
     queueMessage:Message
     playing:boolean
     shuffle:boolean
+    crashed:boolean
     constructor() {
         this.loop = LoopEnum.NONE
         this.queue = []
         this.currentsong = 0
         this.playing = false
         this.shuffle = false
+        this.crashed = false
     }
 
     isConnected():boolean {
@@ -264,6 +267,8 @@ export class ConnectionContainer {
                 this.playing = false
                 return false
             }
+            // const info = await youtubedl(this.queue[id].url)
+            // console.log(info)
             const audiosource = createAudioResource(await ytdl(this.queue[id].url))
             this.audioPlayer.play(audiosource)
             this.playing = true
@@ -282,19 +287,19 @@ export class ConnectionContainer {
             return
         }
         this.audioPlayer = createAudioPlayer()
-        this.audioPlayer.on(AudioPlayerStatus.Idle,()=> {
+        this.audioPlayer.on(AudioPlayerStatus.Idle,async ()=> {
+            
             if(this.playing) {
                 if(this.shuffle) {
                     let num = Math.floor(Math.random() * this.queue.length-1.01)
                     if(num < 0) num = 0
                     if (num >= this.queue.length -1) num = this.queue.length-2
                     if(num >= this.currentsong) num++
+                    await this.#startSong(num)
                     updateInterface(this,undefined,false,false,true)
-                    this.#startSong(num)
                 } else {
                     switch(this.loop) {
                         case LoopEnum.ALL:
-                            console.log('all')
                             if(this.currentsong >= this.queue.length-1) {
                                 this.currentsong = 0
                             } else {
@@ -302,33 +307,40 @@ export class ConnectionContainer {
                             }
                             break
                         case LoopEnum.NONE:
-                            console.log('none')
                             if(this.currentsong >= this.queue.length-1) {
                                 this.playing = false
+                                this.audioPlayer.stop()
                                 return
                             } else {
                                 this.currentsong++
                             }
                             break
                         default:
-                            console.log('one')
                             //do nothing
                             break
                     }
+                    await this.#startSong(this.currentsong)
                     updateInterface(this,undefined,false,false,true)
-                    this.#startSong(this.currentsong)
                 }
             } else {
                 this.audioPlayer.stop()
             }
         })
-        this.audioPlayer.on('error',async () => {
+        this.audioPlayer.on('error',async (err) => {
+            if(this.crashed) {
+                return
+            }
+            this.crashed = true
+            console.log(err)
             console.log('error occured, remaking audio player')
+            console.log(this.audioPlayer.state.status)
             setTimeout(() => {
+                this.audioPlayer.unpause()
                 this.audioPlayer = createAudioPlayer()
                 this.connection.subscribe(this.audioPlayer)
                 this.#prepareAudioPlayer()
                 this.play()
+                this.crashed = false
             }, 500)
         })
         this.connection.subscribe(this.audioPlayer)

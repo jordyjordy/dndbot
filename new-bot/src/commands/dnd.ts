@@ -42,7 +42,7 @@ const execute = function(msg:CommandInteraction):void {
                 } else {
                     msg.editReply(`OMG OMG OMG AAAAAAAAAAH DND IS TODAY!\nONLY ${hours} HOURS AND ${minutes} MINUTES REMAINING!`)
                 }
-                msg.editReply(`WEEEEEEEEEEEEEEEEEEEEEEEEEEEE`)
+                msg.followUp(`WEEEEEEEEEEEEEEEEEEEEEEEEEEEE`)
                 break;
             case 1:
                 msg.editReply(`OMG DND IS TOMORROW!\nITS IN ONLY ${hours + 24 * days} HOURS AND ${minutes} MINUTES!`);
