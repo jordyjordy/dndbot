@@ -7,6 +7,7 @@ const data = new SlashCommandBuilder()
     .setDescription('Pause song playback')
  
 export const execute = async function(msg:CommandInteraction):Promise<void> {
+    await msg.deferReply();
     const connectionManager = await getConnectionContainer(msg)
     try{
         connectionManager.pause()

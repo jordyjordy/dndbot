@@ -7,6 +7,7 @@ const data = new SlashCommandBuilder()
     .setDescription('Play the next song in the queue')
  
 export const execute = async function(msg:CommandInteraction):Promise<void> {
+    await msg.deferReply();
     const connectionManager = await getConnectionContainer(msg)
     try {
         await connectionManager.nextSong()

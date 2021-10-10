@@ -11,6 +11,7 @@ const data = new SlashCommandBuilder()
     .addStringOption(option => option.setName('index').setDescription("index of song to remove")))
 
 export const execute = async function(msg:CommandInteraction):Promise<void> {
+    await msg.deferReply();
     const args = msg.options.getSubcommand()
     const connectionManager = await getConnectionContainer(msg)
     try{

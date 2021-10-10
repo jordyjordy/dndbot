@@ -1,16 +1,17 @@
 import axios from 'axios'
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js';
-
+import { reply } from '../utils/messageReply';
 const data = new SlashCommandBuilder()
     .setName('info')
     .setDescription('Provides info about characters!')
     .addStringOption(option => option.setName('query').setDescription('Enter a name or part of a name'))
 
-export const execute = function(msg:CommandInteraction):void {
+export const execute = async function(msg:CommandInteraction):Promise<void> {
+    await msg.deferReply();
     const args = Array.from(msg.options.data.values()).map(entry => entry.value.toString())
     if (args.length == 0) {
-        msg.editReply("Please specify what you want information about, for example type `?info Villads`")
+        reply(msg, "Please specify what you want information about, for example type `?info Villads`")
         return
     }
     let query = ""
@@ -30,10 +31,10 @@ export const execute = function(msg:CommandInteraction):void {
                         resultString += "----------------------------------------\n"
                     }
                 }
-                msg.editReply(resultString)
+                reply(msg, resultString)
 
             } else {
-                msg.editReply("No information was found with that name")
+                reply(msg, "No information was found with that name")
             }
         })
     } catch(err) {

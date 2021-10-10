@@ -6,7 +6,8 @@ const data = new SlashCommandBuilder()
     .setDescription('Roll dice in the discord chat')
     .addStringOption(option => option.setName('dice').setDescription('Specify what to roll'))
 
-export const execute = function(msg:CommandInteraction):void {
+export const execute = async function(msg:CommandInteraction):Promise<void> {
+    await msg.deferReply();
     const args = Array.from(msg.options.data.values()).map(entry => entry.value.toString())
     const str = args[0]
     const split = str.split(/\s|d|\+|-/)

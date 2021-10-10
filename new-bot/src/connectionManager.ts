@@ -149,7 +149,15 @@ export class ConnectionContainer {
             if(!this.isConnected()) {
                 return false
             }
-            this.currentsong++;
+            if(this.shuffle) {
+                let num = Math.floor(Math.random() * this.queue.length-1.01)
+                if(num < 0) num = 0
+                if (num >= this.queue.length -1) num = this.queue.length-2
+                if(num >= this.currentsong) num++
+                this.currentsong = num;
+            } else {
+                this.currentsong++;
+            }
             if(this.currentsong < this.queue.length) {
                 return await this.#startSong(this.currentsong)
             } else if(this.queue.length > 0) {
@@ -183,16 +191,17 @@ export class ConnectionContainer {
 
     pause():void {
         this.playing = false
-        this.audioPlayer.pause()
+        if (this.audioPlayer)
+            this.audioPlayer.pause()
     }
     
     async play():Promise<boolean> {
         try{
-            if(!this.isConnected()) {
+            if (!this.isConnected()) {
                 this.playing = false
                 return false
             }
-            if(this.audioPlayer !== undefined && this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
+            if (this.audioPlayer !== undefined && this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
                 try{
                     await this.audioPlayer.unpause()
                     this.playing = true
@@ -202,11 +211,11 @@ export class ConnectionContainer {
                     console.log(err)
                 }
                 return false
-            } else if(this.queue.length !== 0 && this.currentsong >= 0 && this.currentsong < this.queue.length) {
+            } else if (this.queue.length !== 0 && this.currentsong >= 0 && this.currentsong < this.queue.length) {
                 const res = await this.#startSong(this.currentsong)
                 this.playing = res
                 return res
-            } else if(this.currentsong === undefined && this.queue.length > 0) {
+            } else if (this.currentsong === undefined && this.queue.length > 0) {
                 const res = await this.#startSong( 0)
                 this.playing = res
                 return res
@@ -221,7 +230,7 @@ export class ConnectionContainer {
         this.queue = []
         this.currentsong = 0
         this.playing = false
-        if(this.audioPlayer !== undefined) {
+        if (this.audioPlayer !== undefined) {
             this.audioPlayer.stop()
         }
         return true
@@ -232,8 +241,8 @@ export class ConnectionContainer {
 
     removeSong(id:string):boolean {
         try {
-            if(this.currentsong === parseInt(id)) {
-                if(this.audioPlayer.state.status !== (AudioPlayerStatus.Paused||AudioPlayerStatus.Idle)) {
+            if (this.currentsong === parseInt(id)) {
+                if (this.audioPlayer.state.status !== (AudioPlayerStatus.Paused||AudioPlayerStatus.Idle)) {
                     return false
                 } else {
                     this.audioPlayer.stop()
@@ -259,11 +268,12 @@ export class ConnectionContainer {
 
     async #startSong(id:number):Promise<boolean> {
         this.currentsong = id
-        if(!this.audioPlayer) {
+        this.currentsong = this.currentsong % this.queue.length;
+        if (!this.audioPlayer) {
             this.#prepareAudioPlayer()
         }
         try{
-            if(!this.connection || !this.audioPlayer) {
+            if (!this.connection || !this.audioPlayer) {
                 this.playing = false
                 return false
             }
@@ -283,14 +293,14 @@ export class ConnectionContainer {
         return true
     }
     #prepareAudioPlayer():void {
-        if(!this.isConnected()) {
+        if (!this.isConnected()) {
             return
         }
         this.audioPlayer = createAudioPlayer()
         this.audioPlayer.on(AudioPlayerStatus.Idle,async ()=> {
             
-            if(this.playing) {
-                if(this.shuffle) {
+            if (this.playing) {
+                if (this.shuffle) {
                     let num = Math.floor(Math.random() * this.queue.length-1.01)
                     if(num < 0) num = 0
                     if (num >= this.queue.length -1) num = this.queue.length-2
@@ -300,14 +310,14 @@ export class ConnectionContainer {
                 } else {
                     switch(this.loop) {
                         case LoopEnum.ALL:
-                            if(this.currentsong >= this.queue.length-1) {
+                            if (this.currentsong >= this.queue.length-1) {
                                 this.currentsong = 0
                             } else {
                                 this.currentsong++
                             }
                             break
                         case LoopEnum.NONE:
-                            if(this.currentsong >= this.queue.length-1) {
+                            if (this.currentsong >= this.queue.length-1) {
                                 this.playing = false
                                 this.audioPlayer.stop()
                                 return
@@ -327,7 +337,7 @@ export class ConnectionContainer {
             }
         })
         this.audioPlayer.on('error',async (err) => {
-            if(this.crashed) {
+            if (this.crashed) {
                 return
             }
             this.crashed = true

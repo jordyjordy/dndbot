@@ -18,7 +18,6 @@ client.on('ready',async () => {
 client.on('interactionCreate', async interaction => {
     
     if(interaction.isCommand()) {
-        await interaction.deferReply();
         try{
             Commands.forEach(command => {
                 if(command.info.name === interaction.commandName) {
@@ -42,6 +41,11 @@ client.on('interactionCreate', async interaction => {
 
 client.on('error', () => {
     console.log('an actual error occured?')
+})
+
+client.on('guildCreate', async guild => {
+    console.log('registering slash commands on new server')
+    registerSlashCommands([guild.id])
 })
 
 client.login(process.env.BOT_TOKEN)

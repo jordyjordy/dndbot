@@ -7,6 +7,7 @@ const data = new SlashCommandBuilder()
     .setDescription('Restart the current song') 
    
 export const execute = async function(msg:CommandInteraction):Promise<void> {
+    await msg.deferReply();
     const connectionManager = await getConnectionContainer(msg)
     if(!connectionManager.isConnected()) {
         await connectionManager.connect(msg)

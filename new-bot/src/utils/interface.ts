@@ -2,16 +2,9 @@ import { AudioPlayerStatus } from "@discordjs/voice"
 import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageSelectMenu, TextBasedChannels } from "discord.js"
 import { ConnectionContainer } from "../connectionManager"
 import { LoopEnum } from "./loop"
+import { reply, deleteReply } from '../utils/messageReply';
 
 export async function updateInterface(connectionContainer:ConnectionContainer,msg?:CommandInteraction ,newmsg=false,removeOld=true,edit=false):Promise<void> {
-    let channel: TextBasedChannels
-    if(!msg) {
-        if(!connectionContainer.queueMessage) return
-        channel = connectionContainer.queueMessage.channel
-        newmsg = true
-    } else {
-        channel = msg.channel
-    }
     if(connectionContainer.queueMessage && removeOld) {
         if(!connectionContainer.queueMessage.deleted) {
             try{
@@ -22,32 +15,43 @@ export async function updateInterface(connectionContainer:ConnectionContainer,ms
         }
         connectionContainer.queueMessage = undefined
     }
-    const response = generateText(connectionContainer)
-    
-
-    const selectrow = generateSelectRow(connectionContainer)
-    const components = []
-    if(connectionContainer.queue.length > 0) {
-        components.push(selectrow)
-    }
-    components.push(genererateButtonRow(connectionContainer))
-    components.push(generateSecondaryButtonRow(connectionContainer))
-    components.push(generateTeriaryButtonRow())
-    if(edit) {
-        if(!newmsg) {
-            await msg.deleteReply()
-        }
-        connectionContainer.queueMessage.edit({content:response, components: components})
-        return
-    }
-    if(newmsg) {
-        connectionContainer.queueMessage = await channel.send({content:response, components: components})
-    } else {
-        await msg.editReply({content:response, components: components})
-        connectionContainer.queueMessage = await msg.fetchReply() as Message
-    }
+    sendQueueMessage(connectionContainer,msg,getMessageContent(connectionContainer),newmsg,edit)
         
 }
+
+async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:CommandInteraction, message, newmsg, edit) {
+    let channel: TextBasedChannels
+    console.log("going to send a message")
+    if(!msg) {
+        if(!connectionContainer.queueMessage) return
+        channel = connectionContainer.queueMessage.channel
+        newmsg = true
+    } else {
+        channel = msg.channel
+    }
+    try{
+        console.log('going to send a message3')
+        if(edit) {
+            if(!newmsg && connectionContainer.queueMessage) {
+                deleteReply(msg)
+                connectionContainer.queueMessage.edit(message)
+            } else {
+                reply(msg,message)
+            }
+            return
+        }
+        if (newmsg) {
+            console.log("going to send a message2")
+            connectionContainer.queueMessage = await channel.send(message)
+        } else {  
+            connectionContainer.queueMessage = await reply(msg, message) as Message;
+        }
+    } catch(err) {
+        console.log
+    }
+}
+
+
 
 function getLoopIcon(connectionContainer:ConnectionContainer):string {
     if(connectionContainer.shuffle) {
@@ -65,18 +69,6 @@ function getLoopIcon(connectionContainer:ConnectionContainer):string {
 
 function generateText(connectionContainer:ConnectionContainer) {
     let response = ""
-    // if(!connectionContainer.queue || connectionContainer.queue.length === 0) {
-    //     response += "The queue is empty!\n"
-    // }
-    // else {
-    //     for(let i = 0; i < connectionContainer.queue.length;i++) {
-    //         if(i == connectionContainer.currentsong) {
-    //             response += "**" + i + ": " + connectionContainer.queue[i].name + "**" + "\n"  
-    //         } else {
-    //             response +=  i + ": " + connectionContainer.queue[i].name + "\n"
-    //         }     
-    //     }
-    // }
     response += "**Status: " + (connectionContainer.playing?':arrow_forward:':':pause_button:') +
     " PlayStyle: " + getLoopIcon(connectionContainer) + "**\n" 
     return response

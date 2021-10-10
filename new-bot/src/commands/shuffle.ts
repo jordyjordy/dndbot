@@ -9,6 +9,7 @@ const data = new SlashCommandBuilder()
     .addSubcommand(command => command.setName('off').setDescription("stop shuffling"))
 
 export const execute = async function(msg:CommandInteraction):Promise<void> {
+    await msg.deferReply();
     const connectionManager = await getConnectionContainer(msg)
     const toggle = msg.options.getSubcommand()
     const bool = toggle === "on"?true:false
