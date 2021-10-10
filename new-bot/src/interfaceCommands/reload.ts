@@ -12,7 +12,7 @@ export const execute = async function(msg:MessageComponentInteraction):Promise<v
         updateInterface(connectionManager,undefined,true,true)
         await msg.deleteReply()
     } catch(err) {
-        console.log(err)
+        console.error(err)
     }
 }
 

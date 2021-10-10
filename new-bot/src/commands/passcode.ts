@@ -11,7 +11,7 @@ export const execute = function(msg:CommandInteraction):void {
     axios.get(process.env.SERVER_IP + `/token?user=${msg.member.user.username}&server=${msg.guild.id}`).then(function (response) {
         reply(msg, {content:"Your private code is: `" + response.data.result + "`. It's valid for 3 hours!", ephemeral: true})
     }).catch((err) => {
-        console.log(err)
+        console.error(err)
     })
 }
 

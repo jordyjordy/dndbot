@@ -11,7 +11,6 @@ module.exports = {
                 return
             }
             if(connectionManager.getConnection(msg.guild.id) === undefined || connectionManager.getConnection(msg.guild.id).status === 4) {
-                console.log('connecting to voice channel')
                 connectionManager.clearDispatcher(msg.guild.id)
                 var connection = await voice.channel.join()
                 await connectionManager.setConnection(msg.guild.id,connection)
@@ -28,7 +27,7 @@ module.exports = {
                 msg.channel.send("something went wrong, possibly you entered a bad url or number")
             }
         } catch(err) {
-            console.log(err)
+            console.error(err)
         }
     }
 }

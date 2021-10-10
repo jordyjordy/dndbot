@@ -13,7 +13,7 @@ export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
         connectionManager.playing = false
         await msg.update(getMessageContent(connectionManager))
     } catch(err) {
-      console.log(err)
+      console.error(err)
     }
 }
 

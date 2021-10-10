@@ -15,7 +15,7 @@ export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
         }
         await msg.update(getMessageContent(connectionManager))
     } catch(err) {
-        console.log(err)
+        console.error(err)
     }
 }
 

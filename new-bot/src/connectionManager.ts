@@ -59,7 +59,6 @@ export class ConnectionContainer {
     }
 
     async connect(interaction:Interaction):Promise<boolean> {
-        console.log("connecting")
         const user = interaction.member.user.id
         const guild = client.guilds.cache.get(interaction.guildId)
         const member = guild.members.cache.get(user)
@@ -120,7 +119,6 @@ export class ConnectionContainer {
             return await res
         } catch(err) {
             delete this.queue[-1]
-            console.log('could not load song, removing from queue')
             return false
         }
     }
@@ -138,8 +136,7 @@ export class ConnectionContainer {
             }
             return true
         }).catch((err) => {
-            console.log('err in queueSong()')
-            console.log(err)
+            console.error(err)
             return false
         })
     }
@@ -164,8 +161,7 @@ export class ConnectionContainer {
                 return await this.#startSong(0)
             }
         } catch(err) {
-            console.log('err in nextSong()')
-            console.log(err)
+            console.error(err)
         }
         return false
     }
@@ -183,8 +179,7 @@ export class ConnectionContainer {
                 return await this.#startSong(this.currentsong)
             }
         } catch(err) {
-            console.log('err in previousSong()')
-            console.log(err)
+            console.error(err)
         }
         return false
     }
@@ -207,8 +202,7 @@ export class ConnectionContainer {
                     this.playing = true
                     return true
                 } catch(err) {
-                    console.log('err in play()')
-                    console.log(err)
+                    console.error(err)
                 }
                 return false
             } else if (this.queue.length !== 0 && this.currentsong >= 0 && this.currentsong < this.queue.length) {
@@ -221,8 +215,7 @@ export class ConnectionContainer {
                 return res
             }
         } catch(err) {
-            console.log('err2 in play()')
-            console.log(err)
+            console.error(err)
         }
     }
 
@@ -277,15 +270,11 @@ export class ConnectionContainer {
                 this.playing = false
                 return false
             }
-            // const info = await youtubedl(this.queue[id].url)
-            // console.log(info)
             const audiosource = createAudioResource(await ytdl(this.queue[id].url))
             this.audioPlayer.play(audiosource)
             this.playing = true
         } catch(err) {
-            console.log(id)
-            console.log('err in startSong()')
-            console.log(err)
+            console.error(err)
             this.playing = false
             this.queue.splice(id,1)
             return false
@@ -341,9 +330,7 @@ export class ConnectionContainer {
                 return
             }
             this.crashed = true
-            console.log(err)
-            console.log('error occured, remaking audio player')
-            console.log(this.audioPlayer.state.status)
+            console.error(err)
             setTimeout(() => {
                 this.audioPlayer.unpause()
                 this.audioPlayer = createAudioPlayer()

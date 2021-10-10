@@ -2,7 +2,7 @@ import {getConnectionContainer} from "../connectionManager"
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from "discord.js"
 import { updateInterface } from "../utils/interface"
-import { reply, deleteReply } from "../utils/messageReply"
+import { reply } from "../utils/messageReply"
 const data = new SlashCommandBuilder()
     .setName('addsong')
     .setDescription('Adds a song to the music queue, optional param to indicate the index')
@@ -25,7 +25,7 @@ const execute = async function(msg:CommandInteraction):Promise<void> {
         await reply(msg, "You queued: " + args[0])
         updateInterface(connectionManager,msg,true)
     } catch(err) {
-        console.log(err)
+        console.error(err)
     }
 }
 

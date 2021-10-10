@@ -37,7 +37,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
             updateInterface(connectionManager,msg,true)
         }
     } catch(err) {
-        console.log(err)
+        console.error(err)
     }
 }
 

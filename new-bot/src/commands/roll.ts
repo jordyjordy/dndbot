@@ -19,7 +19,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
             multiplier -= 1
         }
     } catch (err) {
-        console.log(err)
+        console.error(err)
     }
     try {
         const results = []

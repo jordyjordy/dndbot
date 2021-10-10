@@ -6,7 +6,7 @@ module.exports = {
         try {
             str = str.replace(/\?roll|\s|\?/g, '')
         } catch (err) {
-            console.log(err)
+            console.error(err)
         }
 
         var split = str.split(/\s|d|\+|\-/)
@@ -18,7 +18,7 @@ module.exports = {
                 multiplier -= 1
             }
         } catch (err) {
-            console.log(err)
+            console.error(err)
         }
 
         var results = []

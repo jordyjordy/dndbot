@@ -62,7 +62,7 @@ var ConnectionManager = {
             updateQueueMessage(server)
             return true
         }).catch((err) => {
-            console.log(err)
+            console.error(err)
             return false
         })
     },
@@ -81,7 +81,7 @@ var ConnectionManager = {
                 return await startSong(server,0)
             }
         } catch(err) {
-            console.log(err)
+            console.error(err)
         }
         return false
     },
@@ -98,7 +98,7 @@ var ConnectionManager = {
                 return await startSong(server, currentsong[server])
             }
         } catch(err) {
-            console.log(err)
+            console.error(err)
         }
         return false
     },
@@ -117,7 +117,7 @@ var ConnectionManager = {
                     await dispatchers[server].resume()
                     updateQueueMessage(server) 
                 } catch(err) {
-                    console.log(err)
+                    console.error(err)
                 }
                 return
             } else if(queues[server].length !== 0 && currentsong[server] >= 0 && currentsong[server] < queues[server].length) {
@@ -126,7 +126,7 @@ var ConnectionManager = {
                 return await startSong(server, 0)
             }
         } catch(err) {
-            console.log(err)
+            console.error(err)
         }
 
     },
@@ -180,7 +180,6 @@ var ConnectionManager = {
         return loop[server]?true:false;
     },
     getPaused(server) {
-        console.log('getting pause info')
         if(dispatchers[server] !== undefined) {
             return dispatchers[server].paused
         }
@@ -206,7 +205,7 @@ async function startSong(server,id) {
         }
         dispatchers[server] = await connections[server].play(await ytdldisc(queues[server][id].url),{ type: 'opus' })
     } catch(err) {
-        console.log(err)
+        console.error(err)
         queues[server].splice(id,1)
         return false
     }

@@ -13,7 +13,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
         connectionManager.pause()
         updateInterface(connectionManager,msg,false,false,true)
     } catch(err) {
-        console.log(err)
+        console.error(err)
     }
 }
 

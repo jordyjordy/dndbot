@@ -19,7 +19,7 @@ export const execute = async function(msg:MessageComponentInteraction):Promise<v
         msg.update(getMessageContent(connectionManager))
     } catch(err) {
         console.error("COULD CONNECT FROM SELECT MENU?!")
-        console.log(err)
+        console.error(err)
     }
 }
 

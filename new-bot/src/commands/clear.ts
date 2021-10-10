@@ -2,7 +2,7 @@ import {getConnectionContainer} from "../connectionManager"
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from "discord.js"
 import { updateInterface } from "../utils/interface"
-
+import { reply } from "../utils/messageReply"
 const data = new SlashCommandBuilder()
     .setName('clear')
     .setDescription('Clears a song (number) or all songs ("all") from the queue')
@@ -17,17 +17,17 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
     try{
         if(args === "all") {
             if(!connectionManager.clearQueue()) {
-                msg.editReply("Something went wrong clearing the queue")
+                reply(msg, "Something went wrong clearing the queue")
             }
         } else if(args) {
             const val = msg.options.getString('index')
             if(!connectionManager.removeSong(val)) {
-                msg.editReply("The song you are trying to remove is currently being played, or does not exist!")
+                reply(msg, "The song you are trying to remove is currently being played, or does not exist!")
             }
         }
         updateInterface(connectionManager,msg,false,false,true)
     } catch(err) {
-        console.log(err)
+        console.error(err)
     }
 }
 

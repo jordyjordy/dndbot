@@ -3,10 +3,7 @@ const router = express.Router()
 const Token = require('../model/token')
 
 router.get('/', async (req, res) => {
-    console.log('generating token!')
-    console.log(req.query)
     const result = await Token.generateToken(req.query.user,req.query.server)
-    console.log(result)
     res.status(200).json({ result })
 })
 

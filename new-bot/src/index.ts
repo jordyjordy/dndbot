@@ -10,7 +10,6 @@ dotenv.config()
 export const client:Client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_VOICE_STATES] });
 
 client.on('ready',async () => {
-    console.log('ready')
     const servers = client.guilds.cache.map(guild => guild.id)
     registerSlashCommands(servers)
 })
@@ -25,7 +24,6 @@ client.on('interactionCreate', async interaction => {
                 }
             })
         } catch(err) {
-            console.log('could not process command as expected??')
             interaction.editReply("Something went wrong trying to process your command")
         }
     } else if(interaction.isSelectMenu()) {
@@ -39,12 +37,11 @@ client.on('interactionCreate', async interaction => {
     }
 })
 
-client.on('error', () => {
-    console.log('an actual error occured?')
+client.on('error', (err) => {
+    console.error(err)
 })
 
 client.on('guildCreate', async guild => {
-    console.log('registering slash commands on new server')
     registerSlashCommands([guild.id])
 })
 

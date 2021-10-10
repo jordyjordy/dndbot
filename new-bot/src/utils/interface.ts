@@ -10,7 +10,7 @@ export async function updateInterface(connectionContainer:ConnectionContainer,ms
             try{
                 await connectionContainer.queueMessage.delete()
             } catch(err) {
-                console.log('could not delete message?')
+                console.error(err)
             }
         }
         connectionContainer.queueMessage = undefined
@@ -21,7 +21,6 @@ export async function updateInterface(connectionContainer:ConnectionContainer,ms
 
 async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:CommandInteraction, message, newmsg, edit) {
     let channel: TextBasedChannels
-    console.log("going to send a message")
     if(!msg) {
         if(!connectionContainer.queueMessage) return
         channel = connectionContainer.queueMessage.channel
@@ -30,7 +29,6 @@ async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:Com
         channel = msg.channel
     }
     try{
-        console.log('going to send a message3')
         if(edit) {
             if(!newmsg && connectionContainer.queueMessage) {
                 deleteReply(msg)
@@ -41,13 +39,13 @@ async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:Com
             return
         }
         if (newmsg) {
-            console.log("going to send a message2")
             connectionContainer.queueMessage = await channel.send(message)
         } else {  
-            connectionContainer.queueMessage = await reply(msg, message) as Message;
+            await reply(msg, message);
+            connectionContainer.queueMessage = await msg.fetchReply() as Message
         }
     } catch(err) {
-        console.log
+        console.error(err)
     }
 }
 

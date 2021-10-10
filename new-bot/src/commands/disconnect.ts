@@ -18,7 +18,7 @@ const execute = async function(msg:CommandInteraction):Promise<void> {
   await reply(msg, 'hm')
   await deleteReply(msg)
   } catch(err) {
-    console.log(err)
+    console.error(err)
   }
 }
 export const Command = {info:data,command:execute}    

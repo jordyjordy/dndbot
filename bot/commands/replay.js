@@ -7,7 +7,7 @@ module.exports = {
             await connectionManager.replay()
             msg.delete({timer:500})
         } catch(err) {
-            console.log(err)
+            console.error(err)
         }
         
     }

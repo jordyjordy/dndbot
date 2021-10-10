@@ -7,7 +7,7 @@ module.exports = {
       connectionManager.clearConnection(msg.guild.id);
       msg.delete({timeout:100})
       } catch(err) {
-        console.log(err)
+        console.error(err)
       }
     }
     

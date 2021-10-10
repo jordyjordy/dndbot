@@ -18,7 +18,6 @@ router.get('/list',auth, async (req, res) => {
 router.post('/add', auth, async (req, res) => {
     try {
         const date = new Session(req.body.day)
-        console.log('hi')
         date.server = req.server
         await date.save()
         res.status(201).json({ date: date, server: req.server })
@@ -35,7 +34,7 @@ router.put('/update', auth, async (req, res) => {
         day.save()
         res.status(200).send("succes")
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(400).send("could not update")
     }
 })
@@ -45,7 +44,7 @@ router.delete('/delete', auth, async (req, res) => {
         await Session.findOneAndRemove({ id: req.query.id })
         res.status(200).send("success")
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(400).send("failure")
     }
 })

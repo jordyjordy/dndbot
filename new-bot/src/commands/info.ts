@@ -38,7 +38,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
             }
         })
     } catch(err) {
-        console.log(err.message)
+        console.error(err)
     }
 
 }

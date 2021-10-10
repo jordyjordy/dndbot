@@ -11,7 +11,6 @@ module.exports = {
             } else if(args.length > 0) {
                 try {
                     var id = parseInt(args[0])
-                    console.log(id +"," + typeof id)
                     if(!connectionManager.removeSong(msg.guild.id,id)) {
                         msg.channel.send("The song you are trying to remove is currently being played, or does not exist!")
                     }
@@ -21,7 +20,7 @@ module.exports = {
             }
             msg.delete({timeout:100})
         } catch(err) {
-            console.log(err)
+            console.error(err)
         }
     }
 }
