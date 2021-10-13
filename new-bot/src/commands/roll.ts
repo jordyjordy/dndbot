@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
+import { reply } from '../utils/messageReply'
 
 const data = new SlashCommandBuilder()
     .setName('roll')
@@ -50,7 +51,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
         } else {
             resultString += "result:" + highest + " (" + (highest - bonus) + (bonus >= 0 ? "+" : "") + bonus + ")" + "```"
         }
-        msg.channel.send(resultString)
+        reply(msg, resultString)
     } catch(err) {
         msg.reply("Make sure to use the correct argument")
     }
