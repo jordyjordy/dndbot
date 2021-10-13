@@ -43,7 +43,7 @@ const execute = async function(msg:CommandInteraction):Promise<void> {
                 } else {
                     await reply(msg, `OMG OMG OMG AAAAAAAAAAH DND IS TODAY!\nONLY ${hours} HOURS AND ${minutes} MINUTES REMAINING!`)
                 }
-                await reply(msg, `WEEEEEEEEEEEEEEEEEEEEEEEEEEEE`)
+                await msg.followUp(`WEEEEEEEEEEEEEEEEEEEEEEEEEEEE`)
                 break;
             case 1:
                 await reply(msg, `OMG DND IS TOMORROW!\nITS IN ONLY ${hours + 24 * days} HOURS AND ${minutes} MINUTES!`);

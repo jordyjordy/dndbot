@@ -1,8 +1,7 @@
-import { Message } from "discord.js";
 import { CommandInteraction, InteractionReplyOptions } from "discord.js/typings/index.js";
-import { APIMessage } from "../../node_modules/discord.js/node_modules/discord-api-types/v9";
 
 export async function reply(interaction:CommandInteraction,message: InteractionReplyOptions | string):Promise<void> {
+    if(!interaction) return
     if(interaction.replied || interaction.deferred) {
         if(typeof(message) !== 'string') message.ephemeral = false
         await interaction.editReply(message)
@@ -12,6 +11,7 @@ export async function reply(interaction:CommandInteraction,message: InteractionR
 }
 
 export async function deleteReply(interaction:CommandInteraction):Promise<boolean> {
+    if(!interaction) return false;
     try{
         if(interaction.replied) {
             await interaction.deleteReply()
