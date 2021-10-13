@@ -52,7 +52,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
         }
         reply(msg, {content:resultString, ephemeral:true })
     } catch(err) {
-        msg.reply("Make sure to use the correct argument")
+        reply(msg, "Make sure to use the correct argument")
     }
 }
 
