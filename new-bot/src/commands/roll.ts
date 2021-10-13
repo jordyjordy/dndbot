@@ -51,7 +51,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
         } else {
             resultString += "result:" + highest + " (" + (highest - bonus) + (bonus >= 0 ? "+" : "") + bonus + ")" + "```"
         }
-        reply(msg, resultString)
+        reply(msg, {content:resultString, ephemeral:true })
     } catch(err) {
         msg.reply("Make sure to use the correct argument")
     }
