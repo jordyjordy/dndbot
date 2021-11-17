@@ -94,7 +94,8 @@ function generateSelectRow(connectionContainer:ConnectionContainer):MessageActio
                 .setCustomId('songselect')
                 .setPlaceholder(connectionContainer.currentsong + ": " + connectionContainer.queue[connectionContainer.currentsong].name)
                 .addOptions(connectionContainer.queue.map((el,id) => {
-                    return {label:id+": "+ el.name, description:(connectionContainer.currentsong === id?playingText:""),value:id.toString()}
+                    const name = id + ": "+ el.name.substring(0,Math.min(80,el.name.length))
+                    return {label:name, description:(connectionContainer.currentsong === id?playingText:""),value:id.toString()}
                 }))
         )
     return row
