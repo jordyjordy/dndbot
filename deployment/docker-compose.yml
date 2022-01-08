@@ -15,9 +15,9 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.scope=dndbot"
   bot:
-    container_name: "dndbot-bot"
-    image: dndbot-bot
-    env_file: ".env"
+    container_name: "dndbot-newbot-duplicate"
+    image: dndbot-newbot
+    env_file: ".env.duplicate"
     deploy:
       restart_policy:
         condition: on-failure
