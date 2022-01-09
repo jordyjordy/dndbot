@@ -24,7 +24,6 @@ const refreshSlashCommmands = async (server: string, rest: REST, commands) => {
     try{
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const oldCommands: Array<any> | any = await rest.get(Routes.applicationGuildCommands(process.env.CLIENT_ID, server));
-        console.log(oldCommands);
         oldCommands.forEach(async (command) => {
             const deleteUrl: `/${string}` = `${Routes.applicationGuildCommands(process.env.CLIENT_ID, server)}/${command.id}`;
             try{ 
@@ -38,7 +37,6 @@ const refreshSlashCommmands = async (server: string, rest: REST, commands) => {
             Routes.applicationGuildCommands(process.env.CLIENT_ID, server),
             { body: commands }
         );
-        console.log('yay');
     } catch(err) {
         console.error(err)
     }
