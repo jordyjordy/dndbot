@@ -11,7 +11,7 @@ export const client:Client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents
 
 client.on('ready',async () => {
     const servers = client.guilds.cache.map(guild => guild.id)
-    registerSlashCommands(servers)
+    await registerSlashCommands(servers)
 })
 
 client.on('interactionCreate', async interaction => {
