@@ -19,7 +19,8 @@ client.on('interactionCreate', async interaction => {
     if(interaction.isCommand()) {
         try{
             Commands.forEach(command => {
-                if(command.info.name === interaction.commandName) {
+                const cmdName = `${command.info.name}${(process.env.BOT_ID && Number(process.env.BOT_ID) > 1) ? process.env.BOT_ID : ''}`
+                if(cmdName === interaction.commandName) {
                     command.command(interaction)
                 }
             })
