@@ -5,6 +5,7 @@ import { RegisterCommands } from "./commands";
 async function registerSlashCommands(servers:string[]):Promise<void> {
     let commands = RegisterCommands;
     if(process.env.BOT_ID && Number(process.env.BOT_ID) > 1) {
+        console.log('BOT ID bigger than 1');
         commands = RegisterCommands.map((command) => ({...command, name: `${command.name}${process.env.BOT_ID}`}));
     }
     const rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN);
