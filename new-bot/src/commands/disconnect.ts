@@ -10,7 +10,7 @@ const data = new SlashCommandBuilder()
 
 const execute = async function(msg:CommandInteraction):Promise<void> {
   await msg.deferReply();
-  const connectionManager = await getConnectionContainer(msg)
+  const connectionManager = await getConnectionContainer(msg.guildId)
   await updateInterface(connectionManager)
   try{
   connectionManager.clearConnection();

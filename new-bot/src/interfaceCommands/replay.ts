@@ -6,7 +6,7 @@ const data = {
     name:'replay',
 }
 export const execute = async function(msg:MessageComponentInteraction):Promise<void> {
-    const connectionManager = await getConnectionContainer(msg)
+    const connectionManager = await getConnectionContainer(msg.guildId)
     if(!connectionManager.isConnected()) {
         await connectionManager.connect(msg)
     }

@@ -7,7 +7,7 @@ const data = {
 }
 
 export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
-    const connectionManager = await getConnectionContainer(msg)
+    const connectionManager = await getConnectionContainer(msg.guildId)
     try{
         connectionManager.clearConnection();
         connectionManager.playing = false
