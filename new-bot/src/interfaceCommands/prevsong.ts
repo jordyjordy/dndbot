@@ -6,7 +6,7 @@ const data = {
     name:'ps',
 }
 export const execute = async function(msg:MessageComponentInteraction):Promise<void> {
-    const connectionManager = await getConnectionContainer(msg)
+    const connectionManager = await getConnectionContainer(msg.guildId)
     try{
         await connectionManager.previousSong()
         msg.update(getMessageContent(connectionManager))

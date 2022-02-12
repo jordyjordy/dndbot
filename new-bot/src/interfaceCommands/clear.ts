@@ -8,7 +8,7 @@ const data = {
 }
 
 export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
-    const connectionManager = await getConnectionContainer(msg)
+    const connectionManager = await getConnectionContainer(msg.guildId)
     try{
         if(!connectionManager.clearQueue()) {
             msg.editReply("Something went wrong clearing the queue")

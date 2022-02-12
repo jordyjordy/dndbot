@@ -4,6 +4,8 @@ import ytdl from 'ytdl-core-discord'
 import { LoopEnum } from './utils/loop';
 import { client } from "."
 import { updateInterface } from './utils/interface';
+import axios from 'axios';
+import { isEmpty } from 'lodash'
 // import youtubedl from 'youtube-dl-exec'
 const connectionContainers:connectionMap = {}
 
@@ -11,12 +13,11 @@ type connectionMap = {
     [key:string]:ConnectionContainer
 }
 
-export async function getConnectionContainer(interaction:Interaction):Promise<ConnectionContainer> {
-    const server = interaction.guild.id
+export async function getConnectionContainer(server:string):Promise<ConnectionContainer> {
     if(connectionContainers[server]){
         return connectionContainers[server]
     }
-    const container = new ConnectionContainer()
+    const container = new ConnectionContainer(server)
     connectionContainers[server] = container
     return container
 }
@@ -35,7 +36,8 @@ export async function destroyConnectionContainer(server:string):Promise<boolean>
 }
 
 export class ConnectionContainer {
-
+    server: string
+    playlist: string
     connection:VoiceConnection;
     loop:LoopEnum;
     queue:{url:string,name:string}[]
@@ -45,13 +47,31 @@ export class ConnectionContainer {
     playing:boolean
     shuffle:boolean
     crashed:boolean
-    constructor() {
+    constructor(server: string) {
+        this.server = server
         this.loop = LoopEnum.NONE
+        this.playlist = ''
         this.queue = []
         this.currentsong = 0
         this.playing = false
         this.shuffle = false
         this.crashed = false
+        this.#setQueue(server)
+    }
+
+    #setQueue = (server: string):void => {
+        axios.get(`${process.env.SERVER_IP}/playlists/list?server=${server}`).then(response => {
+            if(isEmpty(response.data)) {
+                axios.post(`${process.env.SERVER_IP}/playlists`,{name: 'default', server })
+            } else {
+                this.queue = [...this.queue, ...response.data[0].queue]
+                this.playlist = response.data[0]._id
+            }
+        })
+    }
+
+    #updateQueue = (): void => {
+        axios.put(`${process.env.SERVER_IP}/playlists`,{playlist: {_id: this.playlist, name: 'default', server: this.server, queue: this.queue } })
     }
 
     isConnected():boolean {
@@ -115,6 +135,7 @@ export class ConnectionContainer {
         try{
             const info = await ytdl.getBasicInfo(id)
             this.queue[this.queue.length-1].name = info.videoDetails.title
+            this.#updateQueue();
             const res =  this.#startSong(this.queue.length-1)
             return await res
         } catch(err) {
@@ -133,6 +154,7 @@ export class ConnectionContainer {
                 }
             } else {
                 this.queue.push({url:url,name:info.videoDetails.title})
+                this.#updateQueue();
             }
             return true
         }).catch((err) => {
@@ -221,6 +243,7 @@ export class ConnectionContainer {
 
     clearQueue():boolean {
         this.queue = []
+        this.#updateQueue();
         this.currentsong = 0
         this.playing = false
         if (this.audioPlayer !== undefined) {
@@ -233,8 +256,11 @@ export class ConnectionContainer {
     }
 
     removeSong(id:string):boolean {
+        if(id === null) {
+            return false
+        }
         try {
-            if (this.currentsong === parseInt(id)) {
+            if (this.audioPlayer && this.currentsong === parseInt(id)) {
                 if (this.audioPlayer.state.status !== (AudioPlayerStatus.Paused||AudioPlayerStatus.Idle)) {
                     return false
                 } else {
@@ -242,8 +268,10 @@ export class ConnectionContainer {
                 }
             }
             this.queue.splice(parseInt(id),1)
+            this.#updateQueue();
             return true
         }  catch(err) {
+            console.log(err)
             return false
         }
     }
