@@ -1,5 +1,5 @@
-import { VoiceConnection, createAudioResource, AudioPlayer, VoiceConnectionStatus, AudioPlayerStatus, joinVoiceChannel, createAudioPlayer } from '@discordjs/voice';
-import { CommandInteraction, Interaction, Message, Options } from 'discord.js';
+import { VoiceConnection, createAudioResource, AudioPlayer, VoiceConnectionStatus, AudioPlayerStatus, joinVoiceChannel, createAudioPlayer, DiscordGatewayAdapterCreator } from '@discordjs/voice';
+import { CommandInteraction, Interaction, Message } from 'discord.js';
 import ytdl from 'ytdl-core-discord'
 import { LoopEnum } from './utils/loop';
 import { client } from "."
@@ -75,7 +75,7 @@ export class ConnectionContainer {
             this.connection =  await joinVoiceChannel({
                 channelId: voice.channel.id,
                 guildId: interaction.guildId,
-                adapterCreator: guild.voiceAdapterCreator
+                adapterCreator: guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator
             })
             this.#prepareAudioPlayer()
             return true

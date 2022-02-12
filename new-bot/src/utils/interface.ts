@@ -1,5 +1,5 @@
 import { AudioPlayerStatus } from "@discordjs/voice"
-import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageSelectMenu, TextBasedChannels } from "discord.js"
+import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageSelectMenu, TextBasedChannel } from "discord.js"
 import { ConnectionContainer } from "../connectionManager"
 import { LoopEnum } from "./loop"
 import { reply, deleteReply } from '../utils/messageReply';
@@ -20,7 +20,7 @@ export async function updateInterface(connectionContainer:ConnectionContainer,ms
 }
 
 async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:CommandInteraction, message, newmsg, edit) {
-    let channel: TextBasedChannels
+    let channel: TextBasedChannel
     if(!msg) {
         if(!connectionContainer.queueMessage) return
         channel = connectionContainer.queueMessage.channel
