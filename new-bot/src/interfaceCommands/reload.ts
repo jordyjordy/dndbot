@@ -6,7 +6,7 @@ const data = {
     name:'reload',
 }
 export const execute = async function(msg:MessageComponentInteraction):Promise<void> {
-    const connectionManager = await getConnectionContainer(msg)
+    const connectionManager = await getConnectionContainer(msg.guildId)
     try{
         await msg.deferReply()
         updateInterface(connectionManager,undefined,true,true)

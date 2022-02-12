@@ -12,7 +12,7 @@ const data = new SlashCommandBuilder()
 export const execute = async function(msg:CommandInteraction):Promise<void> {
     await msg.deferReply();
     const args = Array.from(msg.options.data.values()).map(entry => entry.value.toString())
-    const connectionManager = await getConnectionContainer(msg)
+    const connectionManager = await getConnectionContainer(msg.guildId)
     try{
         if(!connectionManager.isConnected()) {
             const connect = await connectionManager.connect(msg)
