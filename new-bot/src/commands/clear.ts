@@ -13,7 +13,7 @@ const data = new SlashCommandBuilder()
 export const execute = async function(msg:CommandInteraction):Promise<void> {
     await msg.deferReply();
     const args = msg.options.getSubcommand()
-    const connectionManager = await getConnectionContainer(msg)
+    const connectionManager = await getConnectionContainer(msg.guildId)
     try{
         if(args === "all") {
             if(!connectionManager.clearQueue()) {
@@ -23,6 +23,8 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
             const val = msg.options.getString('index')
             if(!connectionManager.removeSong(val)) {
                 reply(msg, "The song you are trying to remove is currently being played, or does not exist!")
+            } else {
+                reply(msg, "Song cleared")
             }
         }
         updateInterface(connectionManager,msg,false,false,true)

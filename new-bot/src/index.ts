@@ -1,50 +1,22 @@
 import registerSlashCommands from "./registerSlashCommands";
 import dotenv from "dotenv";
-import { Client, Intents, TextChannel } from 'discord.js'
+import { Client, Intents } from 'discord.js'
 
 import { Commands } from "./commands";
 import interfaceCommands, {Play} from "./interfaceCommands"
+import { getConnectionContainer } from "./connectionManager";
 
 dotenv.config()
 
 export const client:Client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES] });
 
-let secretMessageInfo: {channelId: string, guildId: string};
-let secretMessageChannel: TextChannel;
-let secretMessageMode = false;
-
 client.on('ready',async () => {
+    console.log('ready');
     if(process.env.REGISTER_COMMANDS === '1') {
         const servers = client.guilds.cache.map(guild => guild.id)
         await registerSlashCommands(servers)
     }
-})
-
-client.on('messageCreate', async (message) => {
-    if(process.env.SECRET_MESSAGE !== '1') {
-        return;
-    }
-    if(message.author.id !== process.env.SECRET_ID) {
-        return;
-    }
-    if(message.content === '::setChannel') {
-        console.log('channel set');
-        const channel = await (await client.guilds.cache.get(message.guildId)).channels.cache.get(message.channelId)
-        if(!process.env.SECRET_ID ||channel.constructor.name === 'TextChannel') {
-            secretMessageChannel = channel as TextChannel;
-            message.delete();
-        }
-    } else if(message.content === '::toggleMode') {
-        secretMessageInfo = {guildId: message.guildId, channelId: message.channelId}
-        secretMessageMode = !secretMessageMode;
-        message.reply(secretMessageMode.toString());
-    } else if(secretMessageMode) {
-        if(secretMessageInfo && message.guildId === secretMessageInfo.guildId && message.channelId === secretMessageInfo.channelId) {
-            if(secretMessageChannel) {
-                secretMessageChannel.send(message.content);
-            }
-        }
-    }
+    client.guilds.cache.forEach(guild => getConnectionContainer(guild.id))
 })
 
 client.on('interactionCreate', async interaction => {
