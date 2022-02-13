@@ -8,6 +8,7 @@ import {Command as loop} from "./loop"
 import {Command as shuffle} from "./shuffle"
 import {Command as reload} from "./reload"
 import {Command as clear} from "./clear"
+import {Command as setPlaylist} from './setPlaylist'
 
 import { MessageComponentInteraction } from "discord.js";
 export const Play = play
@@ -31,7 +32,8 @@ const commands:interfaceCommandList = {
     "loop":loop,
     "shuffle":shuffle,
     "reload":reload,
-    "clear":clear
+    "clear":clear,
+    "playlistSelect": setPlaylist,
 }
 
 export default commands

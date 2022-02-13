@@ -4,7 +4,6 @@ auth = require('../config/auth')
 const PlayList = require('../model/playlist')
 
 router.get('/list', async (req, res) => {
-    console.log(req);
     const result = await PlayList.findByServerId(req.query.server)
     res.status(200).json(result)
 })
@@ -17,7 +16,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     try{
         const playlist = await PlayList.createNewPlayList(req.body.name, req.body.server);
-        res.status(201).json({ id:playlist._id })
+        res.status(201).json({ playlist, })
     } catch(err) {
         console.log(err)
         res.status(400).send("Could not create")
@@ -37,9 +36,7 @@ router.put('/', async (req, res) => {
 
 router.delete('/', async (req, res) => {
     try {
-        console.log(req)
         const playlist = await PlayList.findByIdAndDelete(req.query.id)
-        console.log(playlist)
         res.status(200).json(playlist)
     } catch(err) {
         console.log(err)
