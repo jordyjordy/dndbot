@@ -66,17 +66,23 @@ export class ConnectionContainer {
         this.playing = false
         this.shuffle = false
         this.crashed = false
-        this.#setPlaylists(server)
+        this.#setPlaylists()
     }
 
-    #setPlaylists = (server: string):void => {
-        axios.get(`${process.env.SERVER_IP}/playlists/list?server=${server}`).then(response => {
+    #setPlaylists = ():void => {
+        axios.get(`${process.env.SERVER_IP}/playlists/list?server=${this.server}`).then(response => {
             if(isEmpty(response.data)) {
-                axios.post(`${process.env.SERVER_IP}/playlists`,{name: 'default', server })
+                axios.post(`${process.env.SERVER_IP}/playlists`,{name: 'default', server:this.server })
             } else {
                 this.playlists = response.data
                 this.playlists[this.playlist].queue = [...this.playlists[this.playlist].queue, ...response.data[0].queue]
             }
+        })
+    }
+
+    updatePlaylists = async ():Promise<void> => {
+        return axios.get(`${process.env.SERVER_IP}/playlists/list?server=${this.server}`).then(response => {
+            this.playlists = response.data
         })
     }
 

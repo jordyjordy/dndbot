@@ -10,6 +10,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
     await msg.deferReply();
     const connectionManager = await getConnectionContainer(msg.guildId)
     try{
+        await connectionManager.updatePlaylists()
         updateInterface(connectionManager,msg)
     } catch(err) {
         console.error(err)
