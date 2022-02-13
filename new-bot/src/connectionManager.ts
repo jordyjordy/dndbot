@@ -1,4 +1,13 @@
-import { VoiceConnection, createAudioResource, AudioPlayer, VoiceConnectionStatus, AudioPlayerStatus, joinVoiceChannel, createAudioPlayer, DiscordGatewayAdapterCreator } from '@discordjs/voice';
+import { 
+    VoiceConnection,
+    createAudioResource,
+    AudioPlayer,
+    VoiceConnectionStatus, 
+    AudioPlayerStatus,
+    joinVoiceChannel,
+    createAudioPlayer,
+    DiscordGatewayAdapterCreator
+} from '@discordjs/voice';
 import { CommandInteraction, Interaction, Message } from 'discord.js';
 import ytdl from 'ytdl-core-discord'
 import { LoopEnum } from './utils/loop';
@@ -36,11 +45,12 @@ export async function destroyConnectionContainer(server:string):Promise<boolean>
 }
 
 export class ConnectionContainer {
+    playlists: {_id: string, name: string, server: string, queue:{url: string, name:string}[] }[]
     server: string
-    playlist: string
+    playlist: number
     connection:VoiceConnection;
+    currentsongplaylist: number;
     loop:LoopEnum;
-    queue:{url:string,name:string}[]
     currentsong:number
     audioPlayer:AudioPlayer
     queueMessage:Message
@@ -50,32 +60,65 @@ export class ConnectionContainer {
     constructor(server: string) {
         this.server = server
         this.loop = LoopEnum.NONE
-        this.playlist = ''
-        this.queue = []
+        this.playlist = 0
         this.currentsong = 0
+        this.currentsongplaylist = 0
         this.playing = false
         this.shuffle = false
         this.crashed = false
-        this.#setQueue(server)
+        this.#setPlaylists(server)
     }
 
-    #setQueue = (server: string):void => {
+    #setPlaylists = (server: string):void => {
         axios.get(`${process.env.SERVER_IP}/playlists/list?server=${server}`).then(response => {
             if(isEmpty(response.data)) {
                 axios.post(`${process.env.SERVER_IP}/playlists`,{name: 'default', server })
             } else {
-                this.queue = [...this.queue, ...response.data[0].queue]
-                this.playlist = response.data[0]._id
+                this.playlists = response.data
+                this.playlists[this.playlist].queue = [...this.playlists[this.playlist].queue, ...response.data[0].queue]
             }
         })
     }
 
+    createPlaylist = async (name: string):Promise<boolean> => {
+        return axios.post(`${process.env.SERVER_IP}/playlists`,{name: name, server: this.server}).then((res) => {
+            this.playlists.push(res.data.playlist);
+            return true
+        }).catch(() => false)
+    }
+
+    deletePlaylist = async(id: number):Promise<boolean> => {
+        if(id === this.playlist) {
+            return false;
+        }
+        return axios.delete(`${process.env.SERVER_IP}/playlists?id=${this.playlists[id]._id}`).then(() => {
+            this.playlists.splice(id,1)
+            if(this.playlist >= this.playlists.length) {
+                this.playlist -= 1
+                this.currentsong = 0
+                if(this.audioPlayer) {
+                    this.audioPlayer.stop()
+                }
+            }
+            return true;
+        }).catch(() => false)
+    }
+
+    renamePlaylist = async (playlist: number, name: string):Promise<boolean> => {
+        this.playlists[playlist].name = name;
+        return axios.put(`${process.env.SERVER_IP}/playlists`, {playlist: this.playlists[playlist]}).then(() => true).catch(() => false)
+    }
+
     #updateQueue = (): void => {
-        axios.put(`${process.env.SERVER_IP}/playlists`,{playlist: {_id: this.playlist, name: 'default', server: this.server, queue: this.queue } })
+        axios.put(`${process.env.SERVER_IP}/playlists`, {playlist: this.playlists[this.playlist]})
     }
 
     isConnected():boolean {
         return this.connection && this.connection.state.status !== VoiceConnectionStatus.Disconnected
+    }
+
+    getCurrentQueue = ():{name: string, url: string}[] => {
+        return this.playlists[this.playlist].queue;
     }
 
     async connect(interaction:Interaction):Promise<boolean> {
@@ -122,7 +165,7 @@ export class ConnectionContainer {
         if(!isNaN(Number(id))) {
             try{
                 const num = parseInt(id)
-                if(num >= 0 && num < this.queue.length) {
+                if(num >= 0 && num < this.playlists[this.playlist].queue.length) {
                     return await this.#startSong(num)
                 } else {
                     return false
@@ -131,29 +174,29 @@ export class ConnectionContainer {
                 return false
             }
         }
-        this.queue.push({url:id,name:""})
+        this.playlists[this.playlist].queue.push({url:id,name:""})
         try{
             const info = await ytdl.getBasicInfo(id)
-            this.queue[this.queue.length-1].name = info.videoDetails.title
+            this.playlists[this.playlist].queue[this.playlists[this.playlist].queue.length-1].name = info.videoDetails.title
             this.#updateQueue();
-            const res =  this.#startSong(this.queue.length-1)
+            const res =  this.#startSong(this.playlists[this.playlist].queue.length-1)
             return await res
         } catch(err) {
-            delete this.queue[-1]
+            delete this.playlists[this.playlist].queue[-1]
             return false
         }
     }
 
-    queueSong(url:string,pos=this.queue.length):Promise<boolean> {
+    queueSong(url:string,pos=this.playlists[this.playlist].queue.length):Promise<boolean> {
 
         return ytdl.getBasicInfo(url).then((info) => {
-            if(pos < this.queue.length) {
-                this.queue.splice(pos,0,{url:url,name:info.videoDetails.title})
+            if(pos < this.playlists[this.playlist].queue.length) {
+                this.playlists[this.playlist].queue.splice(pos,0,{url:url,name:info.videoDetails.title})
                 if(pos < this.currentsong) {
                     this.currentsong++
                 }
             } else {
-                this.queue.push({url:url,name:info.videoDetails.title})
+                this.playlists[this.playlist].queue.push({url:url,name:info.videoDetails.title})
                 this.#updateQueue();
             }
             return true
@@ -163,23 +206,29 @@ export class ConnectionContainer {
         })
     }
 
+    async setPlayList(index: number):Promise<void> {
+        if(index >= 0 && index < this.playlists.length) {
+            this.playlist = index
+        }
+    }
+
     async nextSong():Promise<boolean> {
         try{
             if(!this.isConnected()) {
                 return false
             }
             if(this.shuffle) {
-                let num = Math.floor(Math.random() * this.queue.length-1.01)
+                let num = Math.floor(Math.random() * this.playlists[this.playlist].queue.length-1.01)
                 if(num < 0) num = 0
-                if (num >= this.queue.length -1) num = this.queue.length-2
+                if (num >= this.playlists[this.playlist].queue.length -1) num = this.playlists[this.playlist].queue.length-2
                 if(num >= this.currentsong) num++
                 this.currentsong = num;
             } else {
                 this.currentsong++;
             }
-            if(this.currentsong < this.queue.length) {
+            if(this.currentsong < this.playlists[this.playlist].queue.length) {
                 return await this.#startSong(this.currentsong)
-            } else if(this.queue.length > 0) {
+            } else if(this.playlists[this.playlist].queue.length > 0) {
                 return await this.#startSong(0)
             }
         } catch(err) {
@@ -196,8 +245,8 @@ export class ConnectionContainer {
             this.currentsong--;
             if(this.currentsong >= 0) {
                 return await this.#startSong(this.currentsong)
-            } else if(this.queue.length > 0) {
-                this.currentsong = this.queue.length-1
+            } else if(this.playlists[this.playlist].queue.length > 0) {
+                this.currentsong = this.playlists[this.playlist].queue.length-1
                 return await this.#startSong(this.currentsong)
             }
         } catch(err) {
@@ -227,11 +276,11 @@ export class ConnectionContainer {
                     console.error(err)
                 }
                 return false
-            } else if (this.queue.length !== 0 && this.currentsong >= 0 && this.currentsong < this.queue.length) {
+            } else if (this.playlists[this.playlist].queue.length !== 0 && this.currentsong >= 0 && this.currentsong < this.playlists[this.playlist].queue.length) {
                 const res = await this.#startSong(this.currentsong)
                 this.playing = res
                 return res
-            } else if (this.currentsong === undefined && this.queue.length > 0) {
+            } else if (this.currentsong === undefined && this.playlists[this.playlist].queue.length > 0) {
                 const res = await this.#startSong( 0)
                 this.playing = res
                 return res
@@ -242,7 +291,7 @@ export class ConnectionContainer {
     }
 
     clearQueue():boolean {
-        this.queue = []
+        this.playlists[this.playlist].queue = []
         this.#updateQueue();
         this.currentsong = 0
         this.playing = false
@@ -252,7 +301,7 @@ export class ConnectionContainer {
         return true
     }
     getQueue():{queue:{url:string,name:string}[],currentsong:number} {
-        return {queue:this.queue,currentsong:this.currentsong}
+        return {queue:this.playlists[this.playlist].queue,currentsong:this.currentsong}
     }
 
     removeSong(id:string):boolean {
@@ -267,7 +316,7 @@ export class ConnectionContainer {
                     this.audioPlayer.stop()
                 }
             }
-            this.queue.splice(parseInt(id),1)
+            this.playlists[this.playlist].queue.splice(parseInt(id),1)
             this.#updateQueue();
             return true
         }  catch(err) {
@@ -289,7 +338,8 @@ export class ConnectionContainer {
 
     async #startSong(id:number):Promise<boolean> {
         this.currentsong = id
-        this.currentsong = this.currentsong % this.queue.length;
+        this.currentsongplaylist = this.playlist
+        this.currentsong = this.currentsong % this.playlists[this.playlist].queue.length;
         if (!this.audioPlayer) {
             this.#prepareAudioPlayer()
         }
@@ -298,13 +348,13 @@ export class ConnectionContainer {
                 this.playing = false
                 return false
             }
-            const audiosource = createAudioResource(await ytdl(this.queue[id].url))
+            const audiosource = createAudioResource(await ytdl(this.playlists[this.playlist].queue[id].url))
             this.audioPlayer.play(audiosource)
             this.playing = true
         } catch(err) {
             console.error(err)
             this.playing = false
-            this.queue.splice(id,1)
+            this.playlists[this.playlist].queue.splice(id,1)
             return false
         }
         return true
@@ -318,23 +368,23 @@ export class ConnectionContainer {
             
             if (this.playing) {
                 if (this.shuffle) {
-                    let num = Math.floor(Math.random() * this.queue.length-1.01)
+                    let num = Math.floor(Math.random() * this.playlists[this.playlist].queue.length-1.01)
                     if(num < 0) num = 0
-                    if (num >= this.queue.length -1) num = this.queue.length-2
+                    if (num >= this.playlists[this.playlist].queue.length -1) num = this.playlists[this.playlist].queue.length-2
                     if(num >= this.currentsong) num++
                     await this.#startSong(num)
                     updateInterface(this,undefined,false,false,true)
                 } else {
                     switch(this.loop) {
                         case LoopEnum.ALL:
-                            if (this.currentsong >= this.queue.length-1) {
+                            if (this.currentsong >= this.playlists[this.playlist].queue.length-1) {
                                 this.currentsong = 0
                             } else {
                                 this.currentsong++
                             }
                             break
                         case LoopEnum.NONE:
-                            if (this.currentsong >= this.queue.length-1) {
+                            if (this.currentsong >= this.playlists[this.playlist].queue.length-1) {
                                 this.playing = false
                                 this.audioPlayer.stop()
                                 return

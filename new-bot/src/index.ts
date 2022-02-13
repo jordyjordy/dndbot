@@ -32,17 +32,13 @@ client.on('interactionCreate', async interaction => {
         } catch(err) {
             interaction.editReply("Something went wrong trying to process your command")
         }
-    } else if(interaction.isSelectMenu()) {
-        try{
-            await Play.command(interaction)
-        } catch(err) {
-            console.error(err);
-        }
     } else if (interaction.isMessageComponent()) {
         try{
             if(interfaceCommands[interaction.customId]) {
                 interfaceCommands[interaction.customId].command(interaction)
             } else {
+                console.log(interaction.customId);
+                console.log(interfaceCommands);
                 interaction.channel.send("something went wrong, could not perform action")
             }
         } catch(err) {

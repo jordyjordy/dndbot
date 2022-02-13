@@ -6,8 +6,8 @@ import { reply } from "../utils/messageReply"
 const data = new SlashCommandBuilder()
     .setName('clear')
     .setDescription('Clears a song (number) or all songs ("all") from the queue')
-    .addSubcommand(command => command.setName('all').setDescription('clear the whole'))
-    .addSubcommand(command => command.setName('song').setDescription('enter an index')
+    .addSubcommand(command => command.setName('all').setDescription('clear the whole playlist'))
+    .addSubcommand(command => command.setName('song').setDescription('remove a song from the playlist')
     .addStringOption(option => option.setName('index').setDescription("index of song to remove")))
 
 export const execute = async function(msg:CommandInteraction):Promise<void> {
