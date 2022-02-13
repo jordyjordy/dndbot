@@ -72,9 +72,25 @@ function generateText(connectionContainer:ConnectionContainer) {
     return response
 }
 
+function generatePlaylistSelectRow(connnectionContainer: ConnectionContainer):MessageActionRow {
+    if(!connnectionContainer.playlists || connnectionContainer.playlists.length <= 0) {
+        return new MessageActionRow()
+    }
+    const placeholder = connnectionContainer.playlist + ': ' + connnectionContainer.playlists[connnectionContainer.playlist].name
+    return new MessageActionRow().addComponents(
+        new MessageSelectMenu()
+            .setCustomId('playlistSelect')
+            .setPlaceholder(placeholder.substring(0, Math.min(80, placeholder.length)))
+            .addOptions(connnectionContainer.playlists.map((el, id) => {
+                const label = id + ": " + el.name.substring(0,Math.min(80,el.name.length))
+                return {label, description: '', value: id.toString()}
+            }))
+    )
+}
+
 function generateSelectRow(connectionContainer:ConnectionContainer):MessageActionRow {
     let playingText = "PLAYING"
-    if(connectionContainer.currentsong > connectionContainer.queue.length - 1) {
+    if(connectionContainer.currentsong > connectionContainer.getCurrentQueue().length - 1) {
         return new MessageActionRow()
     }
     if(!connectionContainer.playing ) {
@@ -88,12 +104,17 @@ function generateSelectRow(connectionContainer:ConnectionContainer):MessageActio
             playingText = "SELECTED"
         }
     }
+    if(connectionContainer.currentsongplaylist !== connectionContainer.playlist) {
+        playingText = ""
+    }
     const row = new MessageActionRow()
         .addComponents(
             new MessageSelectMenu()
-                .setCustomId('songselect')
-                .setPlaceholder(connectionContainer.currentsong + ": " + connectionContainer.queue[connectionContainer.currentsong].name)
-                .addOptions(connectionContainer.queue.map((el,id) => {
+                .setCustomId('play')
+                .setPlaceholder(connectionContainer.currentsong + ": " + connectionContainer.getCurrentQueue()[connectionContainer.currentsong].name)
+                .addOptions(connectionContainer.getCurrentQueue().map((el,id) => {
+                    console.log(id);
+                    console.log(el);
                     const name = id + ": "+ el.name.substring(0,Math.min(80,el.name.length))
                     return {label:name, description:(connectionContainer.currentsong === id?playingText:""),value:id.toString()}
                 }))
@@ -152,7 +173,7 @@ function generateTeriaryButtonRow():MessageActionRow {
         .addComponents(
             new MessageButton()
                 .setCustomId('clear')
-                .setLabel("Clear Queue")
+                .setLabel("Empty Playlist")
                 .setStyle("DANGER")
         )
     return row
@@ -185,10 +206,13 @@ function getPlayButtonStyleAndText(connectionContainer:ConnectionContainer):{tex
 }
 export function getMessageContent(connectionContainer:ConnectionContainer):{content:string,components:MessageActionRow[]} {
     const response = generateText(connectionContainer)
+    const playlistRow = generatePlaylistSelectRow(connectionContainer)
     const selectrow = generateSelectRow(connectionContainer)
-    
     const components = []
-    if(connectionContainer.queue.length > 0) {
+    if(connectionContainer.playlists.length > 0) {
+        components.push(playlistRow)
+    }
+    if(connectionContainer.getCurrentQueue().length > 0) {
         components.push(selectrow)
     }
     components.push(genererateButtonRow(connectionContainer))
