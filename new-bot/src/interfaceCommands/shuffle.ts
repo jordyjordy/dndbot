@@ -13,7 +13,11 @@ export const execute = async function(msg:MessageComponentInteraction):Promise<v
         connectionManager.loop = LoopEnum.NONE
     }
     connectionManager.toggleShuffle(bool)
-    msg.update(getMessageContent(connectionManager))
+    try {
+        msg.update(getMessageContent(connectionManager))
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 export const Command:interfaceCommand = {info:data,command:execute}
