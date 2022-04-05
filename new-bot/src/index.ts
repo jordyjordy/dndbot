@@ -11,7 +11,6 @@ dotenv.config()
 export const client:Client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES] });
 
 client.on('ready',async () => {
-    console.log('ready');
     if(process.env.REGISTER_COMMANDS === '1') {
         const servers = client.guilds.cache.map(guild => guild.id)
         await registerSlashCommands(servers)
@@ -37,8 +36,6 @@ client.on('interactionCreate', async interaction => {
             if(interfaceCommands[interaction.customId]) {
                 interfaceCommands[interaction.customId].command(interaction)
             } else {
-                console.log(interaction.customId);
-                console.log(interfaceCommands);
                 interaction.channel.send("something went wrong, could not perform action")
             }
         } catch(err) {

@@ -18,16 +18,21 @@ import { isEmpty } from 'lodash'
 // import youtubedl from 'youtube-dl-exec'
 const connectionContainers:connectionMap = {}
 
+const MAX_PLAYLIST_SIZE = 24
+
 type connectionMap = {
     [key:string]:ConnectionContainer
 }
 
 export async function getConnectionContainer(server:string):Promise<ConnectionContainer> {
     if(connectionContainers[server]){
+        console.log(connectionContainers[server].getCurrentQueue().length);
         return connectionContainers[server]
     }
     const container = new ConnectionContainer(server)
+    await container.configurePlaylists();
     connectionContainers[server] = container
+    console.log(connectionContainers[server].getCurrentQueue().length);
     return container
 }
 
@@ -66,17 +71,22 @@ export class ConnectionContainer {
         this.playing = false
         this.shuffle = false
         this.crashed = false
-        this.#setPlaylists()
     }
 
-    #setPlaylists = ():void => {
-        axios.get(`${process.env.SERVER_IP}/playlists/list?server=${this.server}`).then(response => {
+    configurePlaylists = async ():Promise<void> => {
+        await this.#setPlaylists()
+        return;
+    }
+
+    #setPlaylists = ():Promise<void> => {
+        return axios.get(`${process.env.SERVER_IP}/playlists/list?server=${this.server}`).then(response => {
             if(isEmpty(response.data)) {
                 axios.post(`${process.env.SERVER_IP}/playlists`,{name: 'default', server:this.server })
             } else {
                 this.playlists = response.data
-                this.playlists[this.playlist].queue = [...this.playlists[this.playlist].queue, ...response.data[0].queue]
+                this.playlists[this.playlist].queue = [...response.data[0].queue]
             }
+            return;
         })
     }
 
@@ -180,6 +190,9 @@ export class ConnectionContainer {
                 return false
             }
         }
+        if(this.playlists[this.playlist].queue.length >= MAX_PLAYLIST_SIZE) {
+            throw new Error('maximum playlist size reached');
+        }
         this.playlists[this.playlist].queue.push({url:id,name:""})
         try{
             const info = await ytdl.getBasicInfo(id)
@@ -193,8 +206,10 @@ export class ConnectionContainer {
         }
     }
 
-    queueSong(url:string,pos=this.playlists[this.playlist].queue.length):Promise<boolean> {
-
+    async queueSong(url:string,pos=this.playlists[this.playlist].queue.length):Promise<boolean> {
+        if(this.playlists[this.playlist].queue.length >= MAX_PLAYLIST_SIZE) {
+            throw new Error('maximum playlist size reached');
+        }
         return ytdl.getBasicInfo(url).then((info) => {
             if(pos < this.playlists[this.playlist].queue.length) {
                 this.playlists[this.playlist].queue.splice(pos,0,{url:url,name:info.videoDetails.title})
@@ -206,9 +221,8 @@ export class ConnectionContainer {
                 this.#updateQueue();
             }
             return true
-        }).catch((err) => {
-            console.error(err)
-            return false
+        }).catch(() => {
+            throw new Error('Could not load song, url probably incorrect')
         })
     }
 

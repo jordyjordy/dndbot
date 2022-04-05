@@ -7,9 +7,10 @@ import { reply } from '../utils/messageReply';
 const data = new SlashCommandBuilder()
     .setName('play')
     .setDescription('Join audio channel and start playing a song')
-    .addStringOption(option => option.setName('song').setDescription('Enter a youtube url or queue index').setRequired(true))
+    .addStringOption(option => option.setName('song').setDescription('Enter a youtube url or queue index'))
 
 export const execute = async function(msg:CommandInteraction):Promise<void> {
+    console.log('waaa');
     await msg.deferReply();
     const args = Array.from(msg.options.data.values()).map(entry => entry.value.toString())
     const connectionManager = await getConnectionContainer(msg.guildId)
@@ -29,13 +30,12 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
             }
             return
         }
-        if(!await connectionManager.playSong(args[0])) {
-            reply(msg, "something went wrong, possibly you entered a bad url or number")
+        await connectionManager.playSong(args[0]).then(() => {
+            reply(msg, "You are playing: " + args[0])
             updateInterface(connectionManager,msg,true)
-        } else {
-            await reply(msg, "You are playing: " + args[0])
-            updateInterface(connectionManager,msg,true)
-        }
+        }).catch((err) => {
+            reply(msg, `something went wrong: ${err.message}`);
+        });
     } catch(err) {
         console.error(err)
     }
