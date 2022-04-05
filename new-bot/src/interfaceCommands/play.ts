@@ -9,14 +9,16 @@ const data = {
 export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
     const args = msg.values[0]
     const connectionManager = await getConnectionContainer(msg.guildId)
+
     try{
         if(!connectionManager.isConnected()) {
             await connectionManager.connect(msg)
         }
-        if(!await connectionManager.playSong(args)) {
+        await connectionManager.playSong(args).catch((err) => {
             console.error("COULD NOT UPDATE SONG FROM SELECT MENU?!")
-        }
-        msg.update(getMessageContent(connectionManager))
+        }).finally(() => {
+            msg.update(getMessageContent(connectionManager))
+        })
     } catch(err) {
         console.error("COULD CONNECT FROM SELECT MENU?!")
         console.error(err)

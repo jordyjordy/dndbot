@@ -1,8 +1,6 @@
-FROM node:12-alpine
+FROM node:16
 
 WORKDIR /app/server
-
-RUN apk add python make g++ --no-cache
 
 COPY package*.json ./
 
