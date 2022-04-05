@@ -15,8 +15,11 @@ export async function updateInterface(connectionContainer:ConnectionContainer,ms
         }
         connectionContainer.queueMessage = undefined
     }
-    sendQueueMessage(connectionContainer,msg,getMessageContent(connectionContainer),newmsg,edit)
-        
+    try {
+        sendQueueMessage(connectionContainer,msg,getMessageContent(connectionContainer),newmsg,edit)
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:CommandInteraction, message, newmsg, edit) {
@@ -74,24 +77,28 @@ function generateText(connectionContainer:ConnectionContainer) {
 
 function generatePlaylistSelectRow(connnectionContainer: ConnectionContainer):MessageActionRow {
     if(!connnectionContainer.playlists || connnectionContainer.playlists.length <= 0) {
-        return new MessageActionRow()
+        return null
     }
     const placeholder = connnectionContainer.playlist + ': ' + connnectionContainer.playlists[connnectionContainer.playlist].name
-    return new MessageActionRow().addComponents(
+    const row = new MessageActionRow().addComponents(
         new MessageSelectMenu()
             .setCustomId('playlistSelect')
             .setPlaceholder(placeholder.substring(0, Math.min(80, placeholder.length)))
             .addOptions(connnectionContainer.playlists.map((el, id) => {
                 const label = id + ": " + el.name.substring(0,Math.min(80,el.name.length))
                 return {label, description: '', value: id.toString()}
-            }))
-    )
+            }).filter((el, id) => id < 25))
+    );
+    return row;
 }
 
 function generateSelectRow(connectionContainer:ConnectionContainer):MessageActionRow {
+    if(connectionContainer.getCurrentQueue().length === 0) {
+        return null;
+    }
     let playingText = "PLAYING"
     if(connectionContainer.currentsong > connectionContainer.getCurrentQueue().length - 1) {
-        return new MessageActionRow()
+        return null;
     }
     if(!connectionContainer.playing ) {
         if(!connectionContainer.audioPlayer) {
@@ -113,11 +120,9 @@ function generateSelectRow(connectionContainer:ConnectionContainer):MessageActio
                 .setCustomId('play')
                 .setPlaceholder(connectionContainer.currentsong + ": " + connectionContainer.getCurrentQueue()[connectionContainer.currentsong].name)
                 .addOptions(connectionContainer.getCurrentQueue().map((el,id) => {
-                    console.log(id);
-                    console.log(el);
                     const name = id + ": "+ el.name.substring(0,Math.min(80,el.name.length))
                     return {label:name, description:(connectionContainer.currentsong === id?playingText:""),value:id.toString()}
-                }))
+                }).filter((el, id) => id < 25))
         )
     return row
 }
@@ -209,10 +214,10 @@ export function getMessageContent(connectionContainer:ConnectionContainer):{cont
     const playlistRow = generatePlaylistSelectRow(connectionContainer)
     const selectrow = generateSelectRow(connectionContainer)
     const components = []
-    if(connectionContainer.playlists.length > 0) {
+    if(playlistRow !== null) {
         components.push(playlistRow)
     }
-    if(connectionContainer.getCurrentQueue().length > 0) {
+    if(selectrow !== null) {
         components.push(selectrow)
     }
     components.push(genererateButtonRow(connectionContainer))

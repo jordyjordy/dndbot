@@ -14,13 +14,13 @@ const execute = async function(msg:CommandInteraction):Promise<void> {
     const connectionManager = await getConnectionContainer(msg.guildId)
     try{
         if(args.length > 1) {
-            if(!await connectionManager.queueSong(args[0],parseInt(args[1]))) {
-                reply(msg,"something went wrong, possibly you entered a bad url.")
-            }
+            await connectionManager.queueSong(args[0],parseInt(args[1])).catch(err => {
+                reply(msg,`something went wrong: ${err.message}`)
+            })
         } else {
-            if(!await connectionManager.queueSong(args[0])) {
-                reply(msg, "something went wrong, possibly you entered a bad url.")
-            }
+            await connectionManager.queueSong(args[0]).catch(err => {
+                reply(msg,`something went wrong: ${err.message}`)
+            })
         }
         await reply(msg, "You queued: " + args[0])
         updateInterface(connectionManager,msg,true)
