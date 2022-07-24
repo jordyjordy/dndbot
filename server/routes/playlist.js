@@ -1,7 +1,7 @@
-const express = require('express')
+import express from 'express';
 const router = express.Router()
-auth = require('../config/auth')
-const PlayList = require('../model/playlist')
+import auth from '../config/auth.js'
+import PlayList from '../model/playlist.js';
 
 router.get('/list', async (req, res) => {
     const result = await PlayList.findByServerId(req.query.server)
@@ -44,4 +44,4 @@ router.delete('/', async (req, res) => {
     }
 })
 
-module.exports = router;
+export default router;

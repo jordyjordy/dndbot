@@ -1,7 +1,7 @@
-const express = require('express')
+import express from 'express';
 const router = express.Router()
-auth = require('../config/auth')
-const Session = require('../model/session')
+import auth from '../config/auth.js'
+import Session from '../model/session.js';
 
 router.get('/', async (req, res) => {
     const result = await Session.find({server:req.query.server})
@@ -49,4 +49,4 @@ router.delete('/delete', auth, async (req, res) => {
     }
 })
 
-module.exports = router
+export default router;

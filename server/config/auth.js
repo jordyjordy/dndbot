@@ -1,5 +1,5 @@
-const Token = require('../model/token')
-module.exports = async (req, res, next) => {
+import Token from '../model/token.js';
+export default async (req, res, next) => {
     //retrieve possible tokens
     const token = req.headers.token
     try {

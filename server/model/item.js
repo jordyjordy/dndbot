@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose';
 
 const itemSchema = mongoose.Schema({
     name: {
@@ -34,4 +34,4 @@ itemSchema.statics.findByName = async (name,server) => {
 }
 
 const Item = mongoose.model("Item", itemSchema)
-module.exports = Item
+export default Item;
