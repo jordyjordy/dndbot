@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose';
 
 const sessionSchema = mongoose.Schema({
 
@@ -23,4 +23,4 @@ sessionSchema.statics.findByDayId = async (day) => {
 
 
 const Session = mongoose.model("session", sessionSchema)
-module.exports = Session
+export default Session;

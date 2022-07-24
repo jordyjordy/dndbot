@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose';
 
-tokenSchema = mongoose.Schema({
+const tokenSchema = mongoose.Schema({
     token: {
         type: String
     },
@@ -48,4 +48,4 @@ tokenSchema.statics.generateToken = async (user,server) => {
 }
 
 const Token = mongoose.model("token", tokenSchema)
-module.exports = Token
+export default Token;

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose';
 
 const playListSchema = mongoose.Schema({
     name: {
@@ -41,4 +41,4 @@ playListSchema.statics.createNewPlayList = async(name, server) => {
 
 
 const PlayList = mongoose.model("playList", playListSchema)
-module.exports = PlayList
+export default PlayList;

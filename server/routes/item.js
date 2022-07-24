@@ -1,7 +1,9 @@
-const express = require('express')
-router = express.Router()
-auth = require('../config/auth')
-const Item = require('../model/item')
+import express from 'express';
+import auth from '../config/auth.js';
+import Item from '../model/item.js';
+
+const router = express.Router()
+
 router.get('/list', auth, async (req, res) => {
     const result = await Item.find({server:req.server})
     res.status(200).json(result)
@@ -69,4 +71,4 @@ router.delete("/delete", auth, async (req, res) => {
     }
 })
 
-module.exports = router
+export default router;
