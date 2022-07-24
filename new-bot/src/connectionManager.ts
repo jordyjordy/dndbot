@@ -66,6 +66,7 @@ export class ConnectionContainer {
         this.server = server
         this.loop = LoopEnum.NONE
         this.playlist = 0
+        this.playlists = [];
         this.currentsong = 0
         this.currentsongplaylist = 0
         this.playing = false
