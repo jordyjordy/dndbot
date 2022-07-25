@@ -1,29 +1,29 @@
-import express from 'express';
+import express, { Request, Response} from 'express';
 import auth from '../config/auth.js';
 import Item from '../model/item.js';
 
 const router = express.Router()
 
-router.get('/list', auth, async (req, res) => {
+router.get('/list', auth, async (req: Request, res: Response) => {
     const result = await Item.find({server:req.server})
     res.status(200).json(result)
 })
 
-router.get('/name', async (req, res) => {
+router.get('/name', async (req: Request, res: Response) => {
     try {
-    const result = await Item.findByName(req.query.name,req.query.server)
+    const result = await Item.findByName(req.query.name as string, req.query.server as string)
     res.status(200).json(result)
     } catch(err) {
         res.status(200).json({})
     }
 })
 
-router.get('/id', auth, async (req, res) => {
+router.get('/id', auth, async (req: Request, res: Response) => {
     const result = await Item.findById(req.query.id)
     res.status(200).json(result)
 })
 
-router.put('/update', auth, async (req, res) => {
+router.put('/update', auth, async (req: Request, res:Response) => {
     try {
         req.body.item.name_lower = req.body.item.name.toLowerCase()
         req.body.item.edit = req.user
@@ -34,16 +34,20 @@ router.put('/update', auth, async (req, res) => {
     }
 })
 
-router.get('/search', auth,  async (req, res) => {
+
+router.get('/search', auth,  async (req: Request, res:Response) => {
     try {
-        const result = await Item.findByName(req.query.name,req.server)
+        if(!req.server || !req.query.string) {
+            throw new Error("Missing parameters");
+        }
+        const result = await Item.findByName(req.query.name as string, req.server)
         res.status(200).json(result)
     } catch (err) {
         res.status(400).send("something went wrong")
     }
 })
 
-router.post('/add', auth, async (req, res) => {
+router.post('/add', auth, async (req: Request, res: Response) => {
     try {
         const temp = req.body.item
         const item = new Item({
@@ -53,7 +57,7 @@ router.post('/add', auth, async (req, res) => {
             edit: req.user,
             server: req.server
         })
-        const result = await item.save()
+        await item.save()
         res.status(201).send("success")
     } catch (err) {
         console.log(err)
@@ -61,7 +65,7 @@ router.post('/add', auth, async (req, res) => {
     }
 })
 
-router.delete("/delete", auth, async (req, res) => {
+router.delete("/delete", auth, async (req: Request, res: Response) => {
     try {
         await Item.findByIdAndDelete(req.query.id)
         res.status(200).send("success")

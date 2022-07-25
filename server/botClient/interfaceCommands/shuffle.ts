@@ -7,6 +7,9 @@ const data = {
     name:'shuffle',
 }
 export const execute = async function(msg:MessageComponentInteraction):Promise<void> {
+    if(!msg.guildId) {
+        return;
+    }
     const connectionManager = await getConnectionContainer(msg.guildId)
     const bool = !connectionManager.shuffle
     if(bool) {

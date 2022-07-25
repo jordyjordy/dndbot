@@ -1,19 +1,18 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 const router = express.Router()
-import auth from '../config/auth.js'
 import PlayList from '../model/playlist.js';
 
-router.get('/list', async (req, res) => {
-    const result = await PlayList.findByServerId(req.query.server)
+router.get('/list', async (req: Request, res: Response) => {
+    const result = await PlayList.findByServerId(req.query.server as string)
     res.status(200).json(result)
 })
 
-router.get('/', async (req, res) => {
-    const result = await PlayList.findById(req.id);
+router.get('/', async (req: Request, res: Response) => {
+    const result = await PlayList.findById(req.id as string);
     res.status(200).json(result)
 })
 
-router.post('/', async (req, res) => {
+router.post('/', async (req: Request, res: Response) => {
     try{
         const playlist = await PlayList.createNewPlayList(req.body.name, req.body.server);
         res.status(201).json({ playlist, })
@@ -24,22 +23,22 @@ router.post('/', async (req, res) => {
 
 })
 
-router.put('/', async (req, res) => {
+router.put('/', async (req: Request, res: Response) => {
     try {
-        var playlist = await PlayList.findByIdAndUpdate(req.body.playlist._id, req.body.playlist, {new: true})
+        const playlist = await PlayList.findByIdAndUpdate(req.body.playlist._id, req.body.playlist, {new: true})
         res.status(201).json(playlist)
     } catch(err) {
-        console.log(err)
+        console.error(err)
         res.status(400).send("could not update")
     }
 })
 
-router.delete('/', async (req, res) => {
+router.delete('/', async (req: Request, res: Response) => {
     try {
         const playlist = await PlayList.findByIdAndDelete(req.query.id)
         res.status(200).json(playlist)
     } catch(err) {
-        console.log(err)
+        console.error(err)
         res.status(400).send("could not delete")
     }
 })

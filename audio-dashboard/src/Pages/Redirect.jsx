@@ -10,7 +10,6 @@ export default function Redirect() {
             isFetching.current = true;
             fetch(`${process.env.REACT_APP_SERVER_ADDRESS}/token/discord?code=${searchParams.get("code")}`).then(async res => {
                 const json = await res.json();
-                console.log(json)
                 localStorage.setItem('sessionId', json.sessionId);
                 navigate('/user', { replace: true });
             }); 

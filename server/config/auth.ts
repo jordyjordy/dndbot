@@ -1,5 +1,17 @@
+import { Response, NextFunction} from 'express';
 import Token from '../model/token.js';
-export default async (req, res, next) => {
+
+interface IAuthHeaders extends Headers {
+    token: string,
+}
+
+export interface IAuthRequest extends Request {
+    headers: IAuthHeaders,
+    user: string,
+    server: string,
+}
+
+export default async (req: IAuthRequest, res: Response, next: NextFunction): Promise<void> => {
     //retrieve possible tokens
     const token = req.headers.token
     try {
@@ -16,4 +28,5 @@ export default async (req, res, next) => {
     } catch (err) {
         res.status(401).json("Authentication Failed")
     }
+    return;
 }

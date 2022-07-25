@@ -10,8 +10,11 @@ const data = new SlashCommandBuilder()
     .addStringOption(option => option.setName('song').setDescription('Enter a youtube url or queue index'))
 
 export const execute = async function(msg:CommandInteraction):Promise<void> {
+    if(!msg.guildId) {
+        return;
+    }
     await msg.deferReply();
-    const args = Array.from(msg.options.data.values()).map(entry => entry.value.toString())
+    const args = Array.from(msg.options.data.values()).map(entry => entry.value?.toString() ?? '')
     const connectionManager = await getConnectionContainer(msg.guildId)
     try{
         if(!connectionManager.isConnected()) {

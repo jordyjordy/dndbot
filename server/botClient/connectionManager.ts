@@ -51,12 +51,12 @@ export class ConnectionContainer {
     playlists: {_id: string, name: string, server: string, queue:{url: string, name:string}[] }[]
     server: string
     playlist: number
-    connection:VoiceConnection;
+    connection:VoiceConnection | undefined;
     currentsongplaylist: number;
     loop:LoopEnum;
     currentsong:number
-    audioPlayer:AudioPlayer
-    queueMessage:Message
+    audioPlayer:AudioPlayer | undefined
+    queueMessage:Message | undefined
     playing:boolean
     shuffle:boolean
     crashed:boolean
@@ -129,7 +129,7 @@ export class ConnectionContainer {
     }
 
     isConnected():boolean {
-        return this.connection && this.connection.state.status !== VoiceConnectionStatus.Disconnected
+        return !!(this.connection && this.connection.state.status !== VoiceConnectionStatus.Disconnected)
     }
 
     getCurrentQueue = ():{name: string, url: string}[] => {
@@ -137,20 +137,26 @@ export class ConnectionContainer {
     }
 
     async connect(interaction:Interaction):Promise<boolean> {
-        const user = interaction.member.user.id
-        const guild = client.guilds.cache.get(interaction.guildId)
+        const user = interaction?.member?.user.id
+        const guild = client.guilds.cache.get(interaction.guildId ?? '')
+        if (!user || !guild) {
+            return false;
+        }
         const member = guild.members.cache.get(user)
-        const {voice} = member
+        const voice = member?.voice
         if(!voice || !voice.channel) {
             if(interaction instanceof CommandInteraction)
                 interaction.editReply("You must be in a voice channel!")
             else {
-                interaction.channel.send("You must be in a voice channel!")
+                interaction.channel?.send("You must be in a voice channel!")
             }
             return false
         }
         try {
-            this.connection =  await joinVoiceChannel({
+            if(!interaction.guildId) {
+                throw new Error("Need guild id");
+            }
+            this.connection = joinVoiceChannel({
                 channelId: voice.channel.id,
                 guildId: interaction.guildId,
                 adapterCreator: guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator
@@ -280,7 +286,7 @@ export class ConnectionContainer {
             this.audioPlayer.pause()
     }
     
-    async play():Promise<boolean> {
+    async play(): Promise<boolean> {
         try{
             if (!this.isConnected()) {
                 this.playing = false
@@ -307,6 +313,7 @@ export class ConnectionContainer {
         } catch(err) {
             console.error(err)
         }
+        return false;
     }
 
     clearQueue():boolean {
@@ -405,7 +412,7 @@ export class ConnectionContainer {
                         case LoopEnum.NONE:
                             if (this.currentsong >= this.playlists[this.playlist].queue.length-1) {
                                 this.playing = false
-                                this.audioPlayer.stop()
+                                this.audioPlayer?.stop()
                                 return
                             } else {
                                 this.currentsong++
@@ -419,7 +426,7 @@ export class ConnectionContainer {
                     updateInterface(this,undefined,false,false,true)
                 }
             } else {
-                this.audioPlayer.stop()
+                this.audioPlayer?.stop()
             }
         })
         this.audioPlayer.on('error',async (err) => {
@@ -429,14 +436,14 @@ export class ConnectionContainer {
             this.crashed = true
             console.error(err)
             setTimeout(() => {
-                this.audioPlayer.unpause()
+                this.audioPlayer?.unpause()
                 this.audioPlayer = createAudioPlayer()
-                this.connection.subscribe(this.audioPlayer)
+                this.connection?.subscribe(this.audioPlayer)
                 this.#prepareAudioPlayer()
                 this.play()
                 this.crashed = false
             }, 500)
         })
-        this.connection.subscribe(this.audioPlayer)
+        this.connection?.subscribe(this.audioPlayer)
     }
 }

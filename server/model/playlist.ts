@@ -1,6 +1,17 @@
 import mongoose from 'mongoose';
 
-const playListSchema = mongoose.Schema({
+interface IPlaylist {
+    name: string,
+    server:string,
+    queue: { type: { name: string,  url: string}[] }
+}
+
+interface IPlaylistModel extends mongoose.Model<IPlaylist> {
+    findByServerId(server:string): Promise<IPlaylist>,
+    createNewPlayList(name: string, server:string): Promise<IPlaylist>
+}
+
+const playListSchema = new mongoose.Schema({
     name: {
         type: String,
         require: [true, "We cant have a playlist without a name!"]
@@ -40,5 +51,5 @@ playListSchema.statics.createNewPlayList = async(name, server) => {
 
 
 
-const PlayList = mongoose.model("playList", playListSchema)
+const PlayList = mongoose.model<IPlaylist, IPlaylistModel>("playList", playListSchema)
 export default PlayList;

@@ -25,7 +25,7 @@ export const execute = async function(msg:MessageComponentInteraction):Promise<v
     try {
         msg.update(getMessageContent(connectionManager))
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
 
 }

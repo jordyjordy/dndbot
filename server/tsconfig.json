@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "esModuleInterop": true,
+      "target": "es6",
+      "module": "CommonJS",
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "outDir": "dist",
+      "strictNullChecks": true,
+    },
+    "lib": ["es2016"],
+    "files": ["custom.d.ts", "index.ts"]
+  }

@@ -7,6 +7,9 @@ const data = {
 }
 
 export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
+    if(!msg.guildId) {
+        return;
+    }
     const args = msg.values[0]
     const connectionManager = await getConnectionContainer(msg.guildId)
 

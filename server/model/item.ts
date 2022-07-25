@@ -1,6 +1,20 @@
 import mongoose from 'mongoose';
 
-const itemSchema = mongoose.Schema({
+interface IItem extends mongoose.Document {
+    name: string,
+    name_lower: string,
+    email: string,
+    type: string,
+    details: string,
+    edit: string,
+    server: string,
+}
+
+interface IITemModel extends mongoose.Model<IItem> {
+    findByName(name:string, server:string): Promise<IItem>,
+}
+
+const itemSchema = new mongoose.Schema<IItem>({
     name: {
         type: String,
         require: [true, "We need a name to find this, silly!"]
@@ -24,8 +38,7 @@ const itemSchema = mongoose.Schema({
     }
 })
 itemSchema.pre("save", async function (next) {
-    const item = this;
-    item.name_lower = item.name.toLowerCase()
+    this.name_lower = this.name.toLowerCase()
     next()
 })
 itemSchema.statics.findByName = async (name,server) => {
@@ -33,5 +46,5 @@ itemSchema.statics.findByName = async (name,server) => {
     return item;
 }
 
-const Item = mongoose.model("Item", itemSchema)
+const Item = mongoose.model<IItem,IITemModel>("Item", itemSchema)
 export default Item;

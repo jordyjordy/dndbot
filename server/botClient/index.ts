@@ -36,7 +36,7 @@ client.on('interactionCreate', async interaction => {
             if(interfaceCommands[interaction.customId]) {
                 interfaceCommands[interaction.customId].command(interaction)
             } else {
-                interaction.channel.send("something went wrong, could not perform action")
+                interaction.channel?.send("something went wrong, could not perform action")
             }
         } catch(err) {
             console.error(err);
@@ -52,6 +52,6 @@ client.on('guildCreate', async guild => {
     registerSlashCommands([guild.id])
 })
 
-client.login(process.env.BOT_TOKEN)
+
 
 export default client;

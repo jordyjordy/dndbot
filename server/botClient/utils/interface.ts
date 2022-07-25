@@ -16,15 +16,15 @@ export async function updateInterface(connectionContainer:ConnectionContainer,ms
         connectionContainer.queueMessage = undefined
     }
     try {
-        sendQueueMessage(connectionContainer,msg,getMessageContent(connectionContainer),newmsg,edit)
+        sendQueueMessage(connectionContainer, msg,getMessageContent(connectionContainer),newmsg,edit)
     } catch (err) {
         console.error(err)
     }
 }
 
-async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:CommandInteraction, message, newmsg, edit) {
+async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:CommandInteraction | undefined, message: messageContent, newmsg: boolean, edit: boolean) {
     let channel: TextBasedChannel
-    if(!msg) {
+    if(!msg || !msg.channel) {
         if(!connectionContainer.queueMessage) return
         channel = connectionContainer.queueMessage.channel
         newmsg = true
@@ -33,17 +33,17 @@ async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:Com
     }
     try{
         if(edit) {
-            if(!newmsg && connectionContainer.queueMessage) {
+            if(!newmsg && connectionContainer.queueMessage && msg) {
                 deleteReply(msg)
                 connectionContainer.queueMessage.edit(message)
-            } else {
+            } else if(msg) {
                 reply(msg,message)
             }
             return
         }
         if (newmsg) {
             connectionContainer.queueMessage = await channel.send(message)
-        } else {  
+        } else if (msg) {  
             await reply(msg, message);
             connectionContainer.queueMessage = await msg.fetchReply() as Message
         }
@@ -77,7 +77,7 @@ function generateText(connectionContainer:ConnectionContainer) {
 
 function generatePlaylistSelectRow(connnectionContainer: ConnectionContainer):MessageActionRow {
     if(!connnectionContainer.playlists || connnectionContainer.playlists.length <= 0) {
-        return null
+        return new MessageActionRow();
     }
     const placeholder = connnectionContainer.playlist + ': ' + connnectionContainer.playlists[connnectionContainer.playlist].name
     const row = new MessageActionRow().addComponents(
@@ -94,11 +94,11 @@ function generatePlaylistSelectRow(connnectionContainer: ConnectionContainer):Me
 
 function generateSelectRow(connectionContainer:ConnectionContainer):MessageActionRow {
     if(connectionContainer.getCurrentQueue().length === 0) {
-        return null;
+        return new MessageActionRow();
     }
     let playingText = "PLAYING"
     if(connectionContainer.currentsong > connectionContainer.getCurrentQueue().length - 1) {
-        return null;
+        return new MessageActionRow();
     }
     if(!connectionContainer.playing ) {
         if(!connectionContainer.audioPlayer) {
@@ -209,12 +209,12 @@ function getPlayButtonStyleAndText(connectionContainer:ConnectionContainer):{tex
     }
     return {text:"Play",style:"SUCCESS"}
 }
-export function getMessageContent(connectionContainer:ConnectionContainer):{content:string,components:MessageActionRow[]} {
+export function getMessageContent(connectionContainer:ConnectionContainer):messageContent {
     const response = generateText(connectionContainer)
-    const playlistRow = generatePlaylistSelectRow(connectionContainer)
-    const selectrow = generateSelectRow(connectionContainer)
-    const components = []
-    if(playlistRow !== null) {
+    const playlistRow = generatePlaylistSelectRow(connectionContainer) as MessageActionRow;
+    const selectrow = generateSelectRow(connectionContainer) as MessageActionRow
+    const components: MessageActionRow[] = []
+    if(playlistRow) {
         components.push(playlistRow)
     }
     if(selectrow !== null) {
@@ -224,4 +224,9 @@ export function getMessageContent(connectionContainer:ConnectionContainer):{cont
     components.push(generateSecondaryButtonRow(connectionContainer))
     components.push(generateTeriaryButtonRow())
     return {content:response, components:components}
+}
+
+export interface messageContent {
+    content:string,
+    components: MessageActionRow[],
 }
