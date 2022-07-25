@@ -3,11 +3,11 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import client from './botClient';
 
 const app = express()
 dotenv.config()
 
-import client from './util/client.js';
 import items from './routes/item.js';
 import tokens from './routes/token.js';
 import sessions from './routes/session.js';
@@ -18,7 +18,7 @@ mongoose.set('useCreateIndex', true)
 mongoose.set('useUnifiedTopology', true)
 mongoose.set('useNewUrlParser', true)
 mongoose.set("useFindAndModify", false)
-mongoose.connect(process.env.DATABASE_URL).then(() => {
+mongoose.connect(process.env.DATABASE_URL as string).then(() => {
     console.log("Connected to database!")
 })
 const port = process.env.PORT || 5000
@@ -31,3 +31,5 @@ app.use("/sessions", sessions)
 app.use('/playlists', playlists)
 app.use('/user', user)
 app.listen(port, () => console.log("Listening on port " + port))
+
+client.login(process.env.BOT_TOKEN)

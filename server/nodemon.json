@@ -1,7 +1,6 @@
 {
-    "events": {
-      "restart": "kill-port 5000",
-      "crash": "kill-port 5000"
-    },
-    "delay": "1500"
-  }
+  "watch": ["src"],
+  "ext": "ts,json",
+  "ignore": ["src/**/*.spec.ts"],
+  "exec": "tsc && node dist/index.js"
+}

@@ -1,45 +1,38 @@
-import express from 'express';
+import express, {Request, Response} from 'express';
+import { URLSearchParams } from 'url';
 const router = express.Router()
 import Token from '../model/token.js';
 import axios from 'axios';
-import sessionManager from '../util/sessionManager.js';
+import sessionManager, { sessionDetails } from '../util/sessionManager.js';
 
-async function getJSONResponse(body) {
-	let fullBody = '';
-
-	for await (const data of body) {
-		fullBody += data.toString();
-	}
-	return JSON.parse(fullBody);
-}
-
-router.get('/', async (req, res) => {
-    const result = await Token.generateToken(req.query.user,req.query.server)
+router.get('/', async (req: Request, res: Response) => {
+    const result = await Token.generateToken(req.query.user as string,req.query.server as string)
     res.status(200).json({ result })
 })
 
-router.get('/discord', async ({query}, res) => {
+router.get('/discord', async ({query}, res: Response) => {
     const {code} = query;
 
     if (code) {
 		try {
+            const urlSearchParams = {
+                client_id: process.env.CLIENT_ID as string,
+                client_secret: process.env.CLIENT_SECRET as string,
+                code: code.toString(),
+                grant_type: 'authorization_code',
+                redirect_uri: 'http://localhost:3000/redirect',
+                scope: 'identify',
+                }
             const tokenResponseData = await axios({
                 method: 'post',
                 url: 'https://discord.com/api/oauth2/token',
                 headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                data: new URLSearchParams({
-                client_id: process.env.CLIENT_ID,
-                client_secret: process.env.CLIENT_SECRET,
-                code,
-                grant_type: 'authorization_code',
-                redirect_uri: 'http://localhost:3000/redirect',
-                scope: 'identify',
-                })
+                data: new URLSearchParams(urlSearchParams)
             });
 
-            const {data} = tokenResponseData;
+            const data: sessionDetails = tokenResponseData.data;
 
             const userData = await axios({
                 method: 'get',
@@ -60,7 +53,7 @@ router.get('/discord', async ({query}, res) => {
     res.status(200).send('aaaaaaaaaaaa');
 })
 
-router.get('/validate', async (req, res) => {
+router.get('/validate', async (req: Request, res: Response) => {
     try {
         const token = await Token.findOne({ token: req.query.token })
         if (token == null) {
@@ -73,7 +66,7 @@ router.get('/validate', async (req, res) => {
     }
 })
 
-router.delete('/clear', async (req, res) => {
+router.delete('/clear', async (req: Request, res: Response) => {
     try {
         await Token.deleteOne({ token: req.query.token })
         res.status(200).send()

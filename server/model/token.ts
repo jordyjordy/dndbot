@@ -1,6 +1,17 @@
 import mongoose from 'mongoose';
 
-const tokenSchema = mongoose.Schema({
+interface IToken extends Document {
+    discord_id: string,
+    iat: number,
+    server_id: string,
+}
+
+interface ITokenModel extends mongoose.Model<IToken> {
+    findByToken(token: string): Promise<IToken>,
+    generateToken(user:string, server:string): Promise<string>
+}
+
+const tokenSchema = new mongoose.Schema({
     token: {
         type: String
     },
@@ -16,10 +27,13 @@ const tokenSchema = mongoose.Schema({
 
 })
 
-tokenSchema.statics.findByToken = async (token) => {
-    const result = await Token.findOne({ token: token })
+tokenSchema.statics.findByToken = async (token: string) => {
+    const result = await Token.findOne({ token })
+    if(!result) {
+        throw new Error("token does not exist");
+    }
     const secondsSinceEpoch = Math.round(Date.now() / 1000)
-    if (secondsSinceEpoch - result.iat >= process.env.TOKEN_TIMEOUT) {
+    if (secondsSinceEpoch - result.iat >= (parseInt(process.env.TOKEN_TIMEOUT as string))) {
         await result.remove()
         throw new Error("token no longer valid")
     }
@@ -28,9 +42,9 @@ tokenSchema.statics.findByToken = async (token) => {
 
 tokenSchema.statics.generateToken = async (user,server) => {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    var tokenid = ''
+    let tokenid = ''
     const charlength = characters.length
-    for (i = 0; i < process.env.TOKEN_LENGTH; i++) {
+    for (let i = 0; i < parseInt(process.env.TOKEN_LENGTH as string); i++) {
         tokenid += characters.charAt(Math.floor(Math.random() * charlength));
     }
     await Token.deleteMany({ discord_id: user })
@@ -47,5 +61,5 @@ tokenSchema.statics.generateToken = async (user,server) => {
 
 }
 
-const Token = mongoose.model("token", tokenSchema)
+const Token = mongoose.model<IToken, ITokenModel>("token", tokenSchema)
 export default Token;

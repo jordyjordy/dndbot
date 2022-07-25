@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
-const sessionSchema = mongoose.Schema({
+interface ISession extends mongoose.Document {
+    date: number,
+    server: string,
+}
+
+const sessionSchema = new mongoose.Schema<ISession>({
 
     id: {
         type: String,
@@ -22,5 +27,5 @@ sessionSchema.statics.findByDayId = async (day) => {
 }
 
 
-const Session = mongoose.model("session", sessionSchema)
+const Session = mongoose.model<ISession>("session", sessionSchema)
 export default Session;

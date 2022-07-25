@@ -2,25 +2,22 @@ import {getConnectionContainer} from "../connectionManager"
 import { SelectMenuInteraction } from "discord.js"
 import { getMessageContent } from "../utils/interface"
 import { interfaceCommand } from "."
+
 const data = {
-    name:'play',
+    name:'clear',
 }
 
 export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
-    const args = msg.values[0]
+    if(!msg.guildId) {
+        return;
+    }
     const connectionManager = await getConnectionContainer(msg.guildId)
-
     try{
-        if(!connectionManager.isConnected()) {
-            await connectionManager.connect(msg)
+        if(!connectionManager.clearQueue()) {
+            msg.editReply("Something went wrong clearing the queue")
         }
-        await connectionManager.playSong(args).catch(() => {
-            console.error("COULD NOT UPDATE SONG FROM SELECT MENU?!")
-        }).finally(() => {
-            msg.update(getMessageContent(connectionManager))
-        })
+        await msg.update(getMessageContent(connectionManager))
     } catch(err) {
-        console.error("COULD CONNECT FROM SELECT MENU?!")
         console.error(err)
     }
 }
