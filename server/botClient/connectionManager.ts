@@ -374,10 +374,20 @@ export class ConnectionContainer {
                 this.playing = false
                 return false
             }
-            const audiosource = createAudioResource(await ytdl(this.playlists[this.playlist].queue[id].url))
+            console.log(this.playlists[this.playlist].queue[id].url);
+            const stream = await ytdl(this.playlists[this.playlist].queue[id].url, {
+                filter: 'audioonly',
+                quality: 'highestaudio',
+                highWaterMark: 1 << 25
+            } )
+            console.log('a');
+            const audiosource = createAudioResource(stream)
+            console.log('b');
             this.audioPlayer.play(audiosource)
+            console.log('c');
             this.playing = true
         } catch(err) {
+            console.log('weeee');
             console.error(err)
             this.playing = false
             this.playlists[this.playlist].queue.splice(id,1)
