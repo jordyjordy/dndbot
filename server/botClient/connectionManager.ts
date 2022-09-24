@@ -83,7 +83,7 @@ export class ConnectionContainer {
                 axios.post(`${process.env.SERVER_IP}/playlists`,{name: 'default', server:this.server })
             } else {
                 this.playlists = response.data
-                this.playlists[this.playlist].queue = [...response.data[0].queue]
+                this.playlists[this.playlist].queue = [...response.data[0].queue] ?? []
             }
             return;
         })
@@ -133,7 +133,7 @@ export class ConnectionContainer {
     }
 
     getCurrentQueue = ():{name: string, url: string}[] => {
-        return this.playlists[this.playlist]?.queue
+        return this.playlists[this.playlist]?.queue ?? []
     }
 
     async connect(interaction:Interaction):Promise<boolean> {
@@ -186,7 +186,7 @@ export class ConnectionContainer {
         if(!isNaN(Number(id))) {
             try{
                 const num = parseInt(id)
-                if(num >= 0 && num < this.playlists[this.playlist].queue.length) {
+                if(num >= 0 && num < (this.playlists[this.playlist]?.queue ?? []).length) {
                     return await this.#startSong(num)
                 } else {
                     return false
@@ -195,7 +195,8 @@ export class ConnectionContainer {
                 return false
             }
         }
-        if(this.playlists[this.playlist].queue.length >= MAX_PLAYLIST_SIZE) {
+        if(this.playlists[this.playlist] === undefined) 
+        if((this.playlists[this.playlist]?.queue ?? []).length >= MAX_PLAYLIST_SIZE) {
             throw new Error('maximum playlist size reached');
         }
         this.playlists[this.playlist].queue.push({url:id,name:""})
@@ -374,17 +375,8 @@ export class ConnectionContainer {
                 this.playing = false
                 return false
             }
-            console.log(this.playlists[this.playlist].queue[id].url);
-            const stream = await ytdl(this.playlists[this.playlist].queue[id].url, {
-                filter: 'audioonly',
-                quality: 'highestaudio',
-                highWaterMark: 1 << 25
-            } )
-            console.log('a');
-            const audiosource = createAudioResource(stream)
-            console.log('b');
+            const audiosource = createAudioResource(await ytdl(this.playlists[this.playlist].queue[id].url))
             this.audioPlayer.play(audiosource)
-            console.log('c');
             this.playing = true
         } catch(err) {
             console.log('weeee');

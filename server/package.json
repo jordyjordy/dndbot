@@ -31,6 +31,7 @@
     "discord.js-typings": "github:discordjs/discord.js-typings",
     "dotenv": "^8.6.0",
     "express": "^4.17.1",
+    "ffmpeg-static": "^5.1.0",
     "jsonwebtoken": "^8.5.1",
     "kill-port": "^1.6.1",
     "libsodium-wrappers": "^0.7.9",
