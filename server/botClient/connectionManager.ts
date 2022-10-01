@@ -15,6 +15,7 @@ import client from "."
 import { updateInterface } from './utils/interface';
 import axios from 'axios';
 import { isEmpty } from 'lodash'
+import fs from 'fs';
 // import youtubedl from 'youtube-dl-exec'
 const connectionContainers:connectionMap = {}
 
@@ -375,7 +376,9 @@ export class ConnectionContainer {
                 this.playing = false
                 return false
             }
-            const audiosource = createAudioResource(await ytdl(this.playlists[this.playlist].queue[id].url))
+            (await ytdl(this.playlists[this.playlist].queue[id].url)).pipe(fs.createWriteStream(`${this.server}.temp`));
+            const readStream = fs.createReadStream(`${this.server}.temp`);
+            const audiosource = createAudioResource(readStream);
             this.audioPlayer.play(audiosource)
             this.playing = true
         } catch(err) {
