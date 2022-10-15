@@ -9,13 +9,13 @@ import {
     DiscordGatewayAdapterCreator
 } from '@discordjs/voice';
 import { CommandInteraction, Interaction, Message } from 'discord.js';
-import ytdl from 'ytdl-core-discord'
+import ytdl from 'ytdl-core'
 import { LoopEnum } from './utils/loop';
 import client from "."
 import { updateInterface } from './utils/interface';
 import axios from 'axios';
 import { isEmpty } from 'lodash'
-import fs from 'fs';
+import fs, { write } from 'fs';
 // import youtubedl from 'youtube-dl-exec'
 const connectionContainers:connectionMap = {}
 
@@ -135,6 +135,17 @@ export class ConnectionContainer {
 
     getCurrentQueue = ():{name: string, url: string}[] => {
         return this.playlists[this.playlist]?.queue ?? []
+    }
+
+    async connectToChannel(channelId: string, guildId: string): Promise<boolean> {
+        const guild = client.guilds.cache.get(guildId);
+        this.connection = joinVoiceChannel({
+            channelId,
+            guildId,
+            adapterCreator: guild?.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
+        })
+        this.#prepareAudioPlayer()
+        return true;
     }
 
     async connect(interaction:Interaction):Promise<boolean> {
@@ -376,13 +387,10 @@ export class ConnectionContainer {
                 this.playing = false
                 return false
             }
-            (await ytdl(this.playlists[this.playlist].queue[id].url)).pipe(fs.createWriteStream(`${this.server}.temp`));
-            const readStream = fs.createReadStream(`${this.server}.temp`);
-            const audiosource = createAudioResource(readStream);
+            const audiosource = createAudioResource(ytdl(this.playlists[this.playlist].queue[id].url, { filter: 'audioonly' }));
             this.audioPlayer.play(audiosource)
             this.playing = true
         } catch(err) {
-            console.log('weeee');
             console.error(err)
             this.playing = false
             this.playlists[this.playlist].queue.splice(id,1)

@@ -8,11 +8,12 @@ import client from './botClient';
 const app = express()
 dotenv.config()
 
-import items from './routes/item.js';
-import tokens from './routes/token.js';
-import sessions from './routes/session.js';
-import playlists from './routes/playlist.js'
-import user from './routes/user.js';
+import items from './routes/item';
+import tokens from './routes/token';
+import sessions from './routes/session';
+import playlists from './routes/playlist'
+import user from './routes/user';
+import bot from './routes/bot';
 
 mongoose.set('useCreateIndex', true)
 mongoose.set('useUnifiedTopology', true)
@@ -30,6 +31,7 @@ app.use('/token', tokens)
 app.use("/sessions", sessions)
 app.use('/playlists', playlists)
 app.use('/user', user)
+app.use('/bot', bot)
 app.listen(port, () => console.log("Listening on port " + port))
 
 client.login(process.env.BOT_TOKEN)

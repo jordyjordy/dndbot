@@ -10,6 +10,6 @@
       "skipLibCheck": true
     },
     "lib": ["es2016"],
-    "files": ["custom.d.ts", "index.ts"],
+    "files": ["src/index.ts"],
     "exclude": ["node_modules/**"]
   }
