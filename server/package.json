@@ -4,7 +4,7 @@
   "description": "Api for discord bot",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.ts",
+    "dev": "nodemon src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts",
     "start": "tsc && node dist/index.js"
@@ -40,7 +40,9 @@
     "mongodb": "^3.7.1",
     "mongoose": "^5.13.9",
     "nodemon": "^2.0.13",
+    "ts-node": "^10.9.1",
     "uuid": "^8.3.2",
+    "ytdl-core": "^4.11.2",
     "ytdl-core-discord": "^1.3.1"
   },
   "devDependencies": {

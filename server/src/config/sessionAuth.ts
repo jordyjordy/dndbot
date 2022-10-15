@@ -19,6 +19,6 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
             throw new Error("no valid tokens present")
         }
     } catch (err) {
-        res.status(401).json("Authentication Failed")
+        res.status(401).send("Authentication Failed")
     }
 }
