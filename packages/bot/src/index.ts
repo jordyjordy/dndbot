@@ -55,3 +55,5 @@ client.on('guildCreate', async guild => {
 
 
 export default client;
+
+export { getConnectionContainer } 
