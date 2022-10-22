@@ -1,10 +1,11 @@
+#!/bin/bash
 CLIENTPORT=8080
 SERVERPORT=5000
 
 help()
 {
     echo "" 
-    echo "Usage: $0 -c Client port, -b Server Port"
+    echo "Usage: $0 -c Client port, -s Server Port"
     exit 1
 }
 
@@ -15,6 +16,7 @@ while getopts "c:s:h:" ports; do
         s)
             SERVERPORT=${OPTARG};;
         h) help ;;
+        *) help;;
     esac
 done
 
