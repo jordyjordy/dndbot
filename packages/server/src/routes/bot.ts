@@ -1,8 +1,7 @@
 import express, {Response} from 'express';
 const router = express.Router()
-import client from '../botClient/index.js';
+import client, { getConnectionContainer }  from '@thepineappledev/discord-bot';
 import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth.js';
-import { getConnectionContainer } from '../botClient/connectionManager.js';
 
 interface JoinChannelRequest extends ISessionAuthRequest {
     body: {

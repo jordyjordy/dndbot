@@ -2,7 +2,7 @@ import express, {Response} from 'express';
 const router = express.Router()
 import axios from 'axios';
 import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth.js';
-import client from '../botClient/index.js';
+import client from '@thepineappledev/discord-bot';
 import { sessionDetails } from '../util/sessionManager.js';
 import { APIGuild } from 'discord-api-types';
 
@@ -38,7 +38,6 @@ router.get('/guilds', sessionAuth, async(req: ISessionAuthRequest, res: Response
 router.get('/voicechannel', sessionAuth, async(req: ISessionAuthRequest, res: Response): Promise<void> => {
     const { sessionDetails } = req;
     try{
-        console.log(sessionDetails);
         const guildIds = (await getUserGuilds(sessionDetails)).map(({ id }) => id);
         const filteredGuilds = client.guilds.cache.filter(({ id }) => guildIds.includes(id))
         for(let i = 0; i < filteredGuilds.size; i++) {

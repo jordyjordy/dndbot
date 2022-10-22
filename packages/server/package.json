@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "@thepineappledev/bot-server",
   "version": "1.0.0",
   "description": "Api for discord bot",
   "main": "index.js",
@@ -12,6 +12,7 @@
   "author": "J. van der Tang",
   "license": "ISC",
   "dependencies": {
+    "@thepineappledev/discord-bot": "*",
     "@discordjs/builders": "^0.6.0",
     "@discordjs/opus": "^0.8.0",
     "@discordjs/rest": "^0.1.0-canary.0",
