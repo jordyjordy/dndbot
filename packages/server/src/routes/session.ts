@@ -1,6 +1,6 @@
 import express, {Request, Response } from 'express';
 const router = express.Router()
-import auth from '../config/auth.js'
+import auth, { IAuthRequest } from '../config/auth.js'
 import Session from '../model/session.js';
 
 router.get('/', async (req: Request, res: Response) => {
@@ -9,14 +9,14 @@ router.get('/', async (req: Request, res: Response) => {
 
 })
 
-router.get('/list', auth, async (req: Request, res: Response) => {
+router.get('/list', auth, async (req: IAuthRequest, res: Response) => {
     const result = await Session.find({server:req.server})
     res.status(200).json(result)
 
 })
 
 
-router.post('/add', auth, async (req: Request, res: Response) => {
+router.post('/add', auth, async (req: IAuthRequest, res: Response) => {
     try {
         const date = new Session(req.body.day)
         date.server = req.server
@@ -28,7 +28,7 @@ router.post('/add', auth, async (req: Request, res: Response) => {
 
 })
 
-router.put('/update', auth, async (req: Request, res: Response) => {
+router.put('/update', auth, async (req: IAuthRequest, res: Response) => {
     try {
         const day = await Session.findByIdAndUpdate(req.body.day._id, req.body.day)
         if(day) {
@@ -44,7 +44,7 @@ router.put('/update', auth, async (req: Request, res: Response) => {
     }
 })
 
-router.delete('/delete', auth, async (req: Request, res: Response) => {
+router.delete('/delete', auth, async (req: IAuthRequest, res: Response) => {
     try {
         await Session.findOneAndRemove({ id: req.query.id as string })
         res.status(200).send("success")

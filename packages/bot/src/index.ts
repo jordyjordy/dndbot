@@ -52,8 +52,6 @@ client.on('guildCreate', async guild => {
     registerSlashCommands([guild.id])
 })
 
-
-
 export default client;
 
 export { getConnectionContainer } 

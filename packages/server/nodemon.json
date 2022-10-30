@@ -1,6 +1,7 @@
 {
-  "watch": ["src", "node_modules"],
-  "ext": "ts,json",
+  "watch": ["src", "node_modules/@thepineappledev/discord-bot/dist/index.js"],
+  "ext": "ts,json,js",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "tsc && node dist/index.js"
+  "exec": "tsc && node dist/index.js",
+  "ignoreRoot": [".git", "dist"]
 }

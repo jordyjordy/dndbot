@@ -15,8 +15,7 @@ import client from "."
 import { updateInterface } from './utils/interface';
 import axios from 'axios';
 import { isEmpty } from 'lodash'
-import fs, { write } from 'fs';
-// import youtubedl from 'youtube-dl-exec'
+
 const connectionContainers:connectionMap = {}
 
 const MAX_PLAYLIST_SIZE = 24
@@ -26,6 +25,7 @@ type connectionMap = {
 }
 
 export async function getConnectionContainer(server:string):Promise<ConnectionContainer> {
+    // console.log('getting connection container');
     if(connectionContainers[server]){
         return connectionContainers[server]
     }

@@ -48,7 +48,8 @@ router.get('/voicechannel', sessionAuth, async(req: ISessionAuthRequest, res: Re
                 return;
             }
         }
-        return  res.status(200).json({});
+        res.status(200).json({});
+        return;
     } catch (err) {
         console.error(err);
     }

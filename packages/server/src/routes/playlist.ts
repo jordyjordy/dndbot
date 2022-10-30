@@ -8,7 +8,7 @@ router.get('/list', async (req: Request, res: Response) => {
 })
 
 router.get('/', async (req: Request, res: Response) => {
-    const result = await PlayList.findById(req.id as string);
+    const result = await PlayList.findById(req.query.id as string);
     res.status(200).json(result)
 })
 

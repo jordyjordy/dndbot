@@ -1,10 +1,10 @@
 import express, { Request, Response} from 'express';
-import auth from '../config/auth.js';
+import auth, { IAuthRequest } from '../config/auth.js';
 import Item from '../model/item.js';
 
 const router = express.Router()
 
-router.get('/list', auth, async (req: Request, res: Response) => {
+router.get('/list', auth, async (req: IAuthRequest, res: Response) => {
     const result = await Item.find({server:req.server})
     res.status(200).json(result)
 })
@@ -18,12 +18,12 @@ router.get('/name', async (req: Request, res: Response) => {
     }
 })
 
-router.get('/id', auth, async (req: Request, res: Response) => {
+router.get('/id', auth, async (req: IAuthRequest, res: Response) => {
     const result = await Item.findById(req.query.id)
     res.status(200).json(result)
 })
 
-router.put('/update', auth, async (req: Request, res:Response) => {
+router.put('/update', auth, async (req: IAuthRequest, res:Response) => {
     try {
         req.body.item.name_lower = req.body.item.name.toLowerCase()
         req.body.item.edit = req.user
@@ -35,7 +35,7 @@ router.put('/update', auth, async (req: Request, res:Response) => {
 })
 
 
-router.get('/search', auth,  async (req: Request, res:Response) => {
+router.get('/search', auth,  async (req: IAuthRequest, res:Response) => {
     try {
         if(!req.server || !req.query.string) {
             throw new Error("Missing parameters");
@@ -47,7 +47,7 @@ router.get('/search', auth,  async (req: Request, res:Response) => {
     }
 })
 
-router.post('/add', auth, async (req: Request, res: Response) => {
+router.post('/add', auth, async (req: IAuthRequest, res: Response) => {
     try {
         const temp = req.body.item
         const item = new Item({
@@ -65,7 +65,7 @@ router.post('/add', auth, async (req: Request, res: Response) => {
     }
 })
 
-router.delete("/delete", auth, async (req: Request, res: Response) => {
+router.delete("/delete", auth, async (req: IAuthRequest, res: Response) => {
     try {
         await Item.findByIdAndDelete(req.query.id)
         res.status(200).send("success")
