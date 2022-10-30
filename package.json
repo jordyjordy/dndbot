@@ -6,7 +6,8 @@
   ],
   "scripts": {
     "dev": "npx lerna run build --scope @thepineappledev/discord-bot && npx lerna run dev --parallel",
-    "build": "echo no build needed"
+    "build": "echo no build needed",
+    "bootstrap": "npm install && lerna run bootstrap"
   },
   "devDependencies": {
     "lerna": "^6.0.1"

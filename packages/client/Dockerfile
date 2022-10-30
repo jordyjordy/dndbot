@@ -6,11 +6,11 @@ RUN apk add python make g++ --no-cache
 
 COPY package-lock.json ./
 COPY package.json ./
-RUN npm install
+RUN yarn install
 
 COPY . .
 
-RUN npm run build
+RUN yarn run build
 
 FROM nginx:alpine as production-stage
 COPY /.nginx/nginx.conf /etc/nginx/nginx.conf
