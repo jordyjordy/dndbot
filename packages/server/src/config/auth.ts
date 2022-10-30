@@ -1,7 +1,8 @@
-import { Response, NextFunction} from 'express';
+import { Response, Request, NextFunction } from 'express';
+import { IncomingHttpHeaders } from 'http';
 import Token from '../model/token.js';
 
-interface IAuthHeaders extends Headers {
+interface IAuthHeaders extends IncomingHttpHeaders {
     token: string,
 }
 

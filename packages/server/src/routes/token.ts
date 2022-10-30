@@ -12,7 +12,6 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.get('/discord', async ({query}, res: Response) => {
     const {code} = query;
-
     if (code) {
 		try {
             const urlSearchParams = {
@@ -23,6 +22,7 @@ router.get('/discord', async ({query}, res: Response) => {
                 redirect_uri: 'http://localhost:3000/redirect',
                 scope: 'identify',
                 }
+
             const tokenResponseData = await axios({
                 method: 'post',
                 url: 'https://discord.com/api/oauth2/token',

@@ -20,4 +20,4 @@ import {Command as deleteplaylist} from "./deleteplaylist"
 export const Commands = [dnd,info,passcode,roll,play,addsong,clear,queue,pause,loop,nextsong,prevsong,replay,disconnect,resume, shuffle, createplaylist,
     deleteplaylist]
 
-export const RegisterCommands = Commands.map(command => command.info.toJSON())
+export const RegisterCommands: any[] = Commands.map(command => command.info.toJSON())
