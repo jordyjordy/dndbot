@@ -228,18 +228,18 @@ export class ConnectionContainer {
         }
     }
 
-    async queueSong(url:string,pos=this.playlists[this.playlist].queue.length):Promise<boolean> {
+    async queueSong({ url, pos=this.playlists[this.playlist].queue.length, name }: {url: string, pos?:number, name?: string }):Promise<boolean> {
         if(this.playlists[this.playlist].queue.length >= MAX_PLAYLIST_SIZE) {
             throw new Error('maximum playlist size reached');
         }
         return ytdl.getBasicInfo(url).then((info) => {
             if(pos < this.playlists[this.playlist].queue.length) {
-                this.playlists[this.playlist].queue.splice(pos,0,{url:url,name:info.videoDetails.title})
+                this.playlists[this.playlist].queue.splice(pos,0,{url:url,name: name ?? info.videoDetails.title})
                 if(pos < this.currentsong) {
                     this.currentsong++
                 }
             } else {
-                this.playlists[this.playlist].queue.push({url:url,name:info.videoDetails.title})
+                this.playlists[this.playlist].queue.push({url:url,name: name ?? info.videoDetails.title})
                 this.#updateQueue();
             }
             return true
