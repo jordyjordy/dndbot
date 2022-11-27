@@ -1,5 +1,5 @@
 #!/bin/bash
-SERVERPORT=5000
+SERVERPORT=3010
 
 help()
 {
