@@ -12,19 +12,3 @@ services:
         max_attempts: 10
     ports:
       - "${SERVERPORT}:5000"
-    labels:
-      - "com.centurylinklabs.watchtower.scope=dndbot"
-  client:
-    container_name: "dndbot-client"
-    image: dndbot-client
-    env_file: ".env"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 10s 
-        window: 60s
-        max_attempts: 10
-    ports:
-      - "${CLIENTPORT}:80"
-    labels:
-      - "com.centurylinklabs.watchtower.scope=dndbot"

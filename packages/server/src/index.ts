@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import client from '@thepineappledev/discord-bot';
+import client from './bot/index';
 
 const app = express()
 dotenv.config()

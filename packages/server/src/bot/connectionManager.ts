@@ -115,6 +115,8 @@ export class ConnectionContainer {
                 if(this.audioPlayer) {
                     this.audioPlayer.stop()
                 }
+            } else if (this.playlist > id) {
+                this.playlist -= 1;
             }
             return true;
         }).catch(() => false)
@@ -207,7 +209,9 @@ export class ConnectionContainer {
                 return false
             }
         }
-        if(this.playlists[this.playlist] === undefined) 
+        if(this.playlists[this.playlist] === undefined) {
+            return false;
+        }
         if((this.playlists[this.playlist]?.queue ?? []).length >= MAX_PLAYLIST_SIZE) {
             throw new Error('maximum playlist size reached');
         }
