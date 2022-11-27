@@ -75,16 +75,16 @@ function generateText(connectionContainer:ConnectionContainer) {
     return response
 }
 
-function generatePlaylistSelectRow(connnectionContainer: ConnectionContainer):MessageActionRow {
-    if(!connnectionContainer.playlists || connnectionContainer.playlists.length <= 0) {
-        return new MessageActionRow();
+function generatePlaylistSelectRow(connectionContainer: ConnectionContainer):MessageActionRow | null {
+    if(!connectionContainer.playlists || connectionContainer.playlists.length <= 0) {
+        return null
     }
-    const placeholder = connnectionContainer.playlist + ': ' + connnectionContainer.playlists[connnectionContainer.playlist].name
+    const placeholder = connectionContainer.playlist + ': ' + connectionContainer.playlists[connectionContainer.playlist].name
     const row = new MessageActionRow().addComponents(
         new MessageSelectMenu()
             .setCustomId('playlistSelect')
             .setPlaceholder(placeholder.substring(0, Math.min(80, placeholder.length)))
-            .addOptions(connnectionContainer.playlists.map((el, id) => {
+            .addOptions(connectionContainer.playlists.map((el, id) => {
                 const label = id + ": " + el.name.substring(0,Math.min(80,el.name.length))
                 return {label, description: '', value: id.toString()}
             }).filter((el, id) => id < 25))
@@ -92,13 +92,13 @@ function generatePlaylistSelectRow(connnectionContainer: ConnectionContainer):Me
     return row;
 }
 
-function generateSelectRow(connectionContainer:ConnectionContainer):MessageActionRow {
+function generateSelectRow(connectionContainer:ConnectionContainer):MessageActionRow | null {
     if(connectionContainer.getCurrentQueue().length === 0) {
-        return new MessageActionRow();
+        return null;
     }
     let playingText = "PLAYING"
     if(connectionContainer.currentsong > connectionContainer.getCurrentQueue().length - 1) {
-        return new MessageActionRow();
+        return null;
     }
     if(!connectionContainer.playing ) {
         if(!connectionContainer.audioPlayer) {

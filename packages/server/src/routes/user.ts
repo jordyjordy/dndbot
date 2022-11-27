@@ -2,7 +2,7 @@ import express, {Response} from 'express';
 const router = express.Router()
 import axios from 'axios';
 import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth.js';
-import client from '@thepineappledev/discord-bot';
+import client from '../bot/index.js';
 import { sessionDetails } from '../util/sessionManager.js';
 import { APIGuild } from 'discord-api-types';
 
