@@ -7,6 +7,7 @@ const data = new SlashCommandBuilder()
     .setName('addsong')
     .setDescription('Adds a song to the music queue, optional param to indicate the index')
     .addStringOption(option => option.setName('url').setDescription('Enter a youtube url').setRequired(true))
+    .addStringOption(option => option.setName('name').setDescription('Override video name').setRequired(false))
 
 const execute = async function(msg:CommandInteraction):Promise<void> {
     if(!msg.guildId) {
@@ -17,11 +18,11 @@ const execute = async function(msg:CommandInteraction):Promise<void> {
     const connectionManager = await getConnectionContainer(msg.guildId)
     try{
         if(args.length > 1) {
-            await connectionManager.queueSong(args[0],parseInt(args[1])).catch(err => {
+            await connectionManager.queueSong({ url: args[0], name: args[1] }).catch(err => {
                 reply(msg,`something went wrong: ${err.message}`)
             })
         } else {
-            await connectionManager.queueSong(args[0]).catch(err => {
+            await connectionManager.queueSong({url: args[0] }).catch(err => {
                 reply(msg,`something went wrong: ${err.message}`)
             })
         }
