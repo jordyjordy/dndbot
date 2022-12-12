@@ -1,4 +1,4 @@
-import {getConnectionContainer} from "../connectionManager"
+import { getConnection } from "../connectionManager"
 import { MessageComponentInteraction } from "discord.js"
 import { getMessageContent } from "../utils/interface"
 import { LoopEnum } from "../utils/loop"
@@ -10,8 +10,8 @@ export const execute = async function(msg:MessageComponentInteraction):Promise<v
     if(!msg.guildId) {
         return;
     }
-    const connectionManager = await getConnectionContainer(msg.guildId)
-    let option = connectionManager.loop
+    const { connectionManager, queueManager } = await getConnection(msg.guildId)
+    let option = queueManager.loop
     switch(option) {
         case LoopEnum.ONE:
             option = LoopEnum.NONE
@@ -23,8 +23,8 @@ export const execute = async function(msg:MessageComponentInteraction):Promise<v
             option = LoopEnum.ONE
             break
     }
-    connectionManager.shuffle = false
-    connectionManager.toggleLoop(option)
+    queueManager.shuffle = false
+    queueManager.toggleLoop(option)
     try {
         msg.update(getMessageContent(connectionManager))
     } catch (err) {

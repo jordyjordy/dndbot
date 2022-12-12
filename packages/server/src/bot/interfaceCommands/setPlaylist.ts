@@ -1,4 +1,4 @@
-import {getConnectionContainer} from "../connectionManager"
+import { getConnection } from "../connectionManager"
 import { SelectMenuInteraction } from "discord.js"
 import { getMessageContent } from "../utils/interface"
 import { interfaceCommand } from "."
@@ -11,9 +11,9 @@ export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
         return;
     }
     const args = msg.values[0]
-    const connectionManager = await getConnectionContainer(msg.guildId)
+    const { connectionManager, queueManager } = await getConnection(msg.guildId)
     try{
-        connectionManager.setPlayList(parseInt(args))
+        queueManager.setPlayList(parseInt(args))
         msg.update(getMessageContent(connectionManager))
     } catch(err) {
         console.error("COULD CONNECT FROM SELECT MENU?!")

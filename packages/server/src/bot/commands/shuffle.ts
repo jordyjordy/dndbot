@@ -1,4 +1,4 @@
-import {getConnectionContainer} from "../connectionManager"
+import { getConnection } from "../connectionManager"
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from "discord.js"
 import { updateInterface } from "../utils/interface"
@@ -13,11 +13,11 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
     if(!msg.guildId) {
         return;
     }
-    const connectionManager = await getConnectionContainer(msg.guildId)
+    const { connectionManager, queueManager } = await getConnection(msg.guildId)
     const toggle = msg.options.getSubcommand()
     const bool = toggle === "on"?true:false
 
-    connectionManager.toggleShuffle(bool)
+    queueManager.toggleShuffle(bool)
     updateInterface(connectionManager,msg,false,false,true)
 }
 

@@ -1,4 +1,4 @@
-import {getConnectionContainer} from "../connectionManager"
+import { getConnection } from "../connectionManager"
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from "discord.js"
 import { updateInterface } from "../utils/interface"
@@ -15,14 +15,14 @@ const execute = async function(msg:CommandInteraction):Promise<void> {
     }
     await msg.deferReply();
     const args = Array.from(msg.options.data.values()).map(entry => entry.value?.toString() ?? '')
-    const connectionManager = await getConnectionContainer(msg.guildId)
+    const { connectionManager, queueManager } = await getConnection(msg.guildId)
     try{
         if(args.length > 1) {
-            await connectionManager.queueSong({ url: args[0], name: args[1] }).catch(err => {
+            await queueManager.queueSong({ url: args[0], name: args[1] }).catch(err => {
                 reply(msg,`something went wrong: ${err.message}`)
             })
         } else {
-            await connectionManager.queueSong({url: args[0] }).catch(err => {
+            await queueManager.queueSong({url: args[0] }).catch(err => {
                 reply(msg,`something went wrong: ${err.message}`)
             })
         }

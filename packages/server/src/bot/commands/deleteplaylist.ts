@@ -1,4 +1,4 @@
-import {getConnectionContainer} from "../connectionManager"
+import { getConnection} from "../connectionManager"
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from "discord.js"
 import { updateInterface } from "../utils/interface"
@@ -15,9 +15,9 @@ const execute = async function(msg:CommandInteraction):Promise<void> {
     }
     await msg.deferReply();
     const args = Array.from(msg.options.data.values()).map(entry => entry.value?.toString() ?? '')
-    const connectionManager = await getConnectionContainer(msg.guildId)
+    const { connectionManager, queueManager } = await getConnection(msg.guildId)
     try{
-        if(!await connectionManager.deletePlaylist(parseInt(args[0]))) {
+        if(!await queueManager.deletePlaylist(parseInt(args[0]))) {
             reply(msg,"something went wrong, possibly you entered a bad id or tried to delete the current playlist")
         } else {
             await reply(msg, "You deleted " + args[0])

@@ -1,4 +1,4 @@
-import {getConnectionContainer} from "../connectionManager"
+import { getConnection } from "../connectionManager"
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from "discord.js"
 import { updateInterface } from "../utils/interface"
@@ -15,9 +15,9 @@ const execute = async function(msg:CommandInteraction):Promise<void> {
     }
     await msg.deferReply();
     const args = Array.from(msg.options.data.values()).map(entry => entry.value?.toString() ?? '')
-    const connectionManager = await getConnectionContainer(msg.guildId)
+    const { connectionManager, queueManager } = await getConnection(msg.guildId)
     try{
-        if(!await connectionManager.createPlaylist(args[0])) {
+        if(!await queueManager.createPlaylist(args[0])) {
             reply(msg,"something went wrong, possibly you entered a bad url.")
         }
         await reply(msg, "You added " + args[0])

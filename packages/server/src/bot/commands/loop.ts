@@ -1,4 +1,4 @@
-import {getConnectionContainer} from "../connectionManager"
+import { getConnection } from "../connectionManager"
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from "discord.js"
 import { LoopEnum } from "../utils/loop"
@@ -15,7 +15,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
         return;
     }
     await msg.deferReply();
-    const connectionManager = await getConnectionContainer(msg.guildId)
+    const { connectionManager, queueManager } = await getConnection(msg.guildId)
     const toggle = msg.options.getSubcommand()
     let option = LoopEnum.NONE
     switch(toggle) {
@@ -30,9 +30,9 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
             break
     }
     if(option !== LoopEnum.NONE) {
-        connectionManager.shuffle = false
+        queueManager.shuffle = false
     }
-    connectionManager.toggleLoop(option)
+    queueManager.toggleLoop(option)
     updateInterface(connectionManager,msg,false,false,true)
 }
 
