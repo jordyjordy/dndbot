@@ -6,7 +6,7 @@ export interface ISessionAuthRequest extends Request {
     sessionDetails: sessionDetails
 }
 
-export default async (req: any, res: Response, next: NextFunction): Promise<void> => {
+export default async (req: ISessionAuthRequest , res: Response, next: NextFunction): Promise<void> => {
     //retrieve possible tokens
     const sessionId = req.headers['session-id'] as string
     try {

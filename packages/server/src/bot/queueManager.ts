@@ -1,4 +1,5 @@
 import { isEmpty} from 'lodash'
+import PlayList, { Song } from './Playlist';
 import axios from 'axios';
 import { LoopEnum } from './utils/loop';
 import ytdl from 'ytdl-core'
@@ -7,7 +8,7 @@ const MAX_PLAYLIST_SIZE = 24
 
 export default class QueueManager {
     server: string
-    playlists: {_id: string, name: string, server: string, queue:{url: string, name:string}[] }[]
+    playlists: PlayList[]
     currentPlaylist: number
     currentSongPlaylist: number;
     currentSong:number;
@@ -35,7 +36,7 @@ export default class QueueManager {
                 axios.post(`${process.env.SERVER_IP}/playlists`,{name: 'default', server:this.server })
             } else {
                 this.playlists = response.data
-                this.playlists[this.currentPlaylist].queue = [...response.data[0].queue] ?? []
+                this.getCurrentPlaylist().queue = [...response.data[0].queue] ?? []
             }
             return;
         })
@@ -50,7 +51,7 @@ export default class QueueManager {
 
     createPlaylist = async (name: string):Promise<boolean> => {
         return axios.post(`${process.env.SERVER_IP}/playlists`,{name: name, server: this.server}).then((res) => {
-            this.playlists.push(res.data.playlist);
+            this.playlists.push(new PlayList(res.data.playlist));
             return true
         }).catch(() => false)
     }
@@ -77,7 +78,7 @@ export default class QueueManager {
     }
 
     #updateQueue = (): void => {
-        axios.put(`${process.env.SERVER_IP}/playlists`, {playlist: this.playlists[this.currentPlaylist]})
+        axios.put(`${process.env.SERVER_IP}/playlists`, {playlist: this.getCurrentPlaylist()})
     }
 
     async setPlayList(index: number):Promise<void> {
@@ -87,7 +88,7 @@ export default class QueueManager {
     }
 
     getCurrentQueue = ():{name: string, url: string}[] => {
-        return this.playlists[this.currentPlaylist]?.queue ?? []
+        return this.getCurrentPlaylist()?.queue ?? []
     }
 
     toggleLoop(value:LoopEnum):void {
@@ -102,7 +103,7 @@ export default class QueueManager {
     selectSong(id:number):void {
         this.currentSong = id
         this.currentSongPlaylist = this.currentPlaylist
-        this.currentSong = this.currentSong % this.playlists[this.currentPlaylist].queue.length;
+        this.currentSong = this.currentSong % this.getCurrentPlaylist().queue.length;
     }
 
     goToNextSong():number {
@@ -110,22 +111,22 @@ export default class QueueManager {
             return this.currentSong;
         }
         if(this.shuffle) {
-            let num = Math.floor(Math.random() * this.playlists[this.currentPlaylist].queue.length-1.01)
+            let num = Math.floor(Math.random() * this.getCurrentPlaylist().queue.length-1.01)
             if(num < 0) num = 0
-            if (num >= this.playlists[this.currentPlaylist].queue.length -1) num = this.playlists[this.currentPlaylist].queue.length-2
+            if (num >= this.getCurrentPlaylist().queue.length -1) num = this.getCurrentPlaylist().queue.length-2
             if(num >= this.currentSong) num++
             this.currentSong = num;
         } else {
             this.currentSong++;
         }
-        this.currentSong = this.currentSong % this.playlists[this.currentPlaylist].queue.length
+        this.currentSong = this.currentSong % this.getCurrentPlaylist().queue.length
         return this.currentSong;
     }
 
     goToPreviousSong():number {
         this.currentSong--;
         if(this.currentSong < 0) {
-            this.currentSong = this.playlists[this.currentPlaylist].queue.length - 1;
+            this.currentSong = this.getCurrentPlaylist().queue.length - 1;
         }
         return this.currentSong;
     }
@@ -135,7 +136,7 @@ export default class QueueManager {
             return false
         }
         try {
-            this.playlists[this.currentPlaylist].queue.splice(id,1)
+            this.getCurrentPlaylist().removeSong(id);
             this.#updateQueue();
             return true
         }  catch(err) {
@@ -145,35 +146,39 @@ export default class QueueManager {
     }
 
     clearQueue():boolean {
-        this.playlists[this.currentPlaylist].queue = []
+        this.getCurrentPlaylist().clearQueue;
         this.#updateQueue();
         this.currentSong = 0
         return true
     }
     getQueue():{queue:{url:string,name:string}[],currentsong:number} {
-        return {queue:this.playlists[this.currentPlaylist].queue,currentsong:this.currentSong}
+        return {queue:this.getCurrentPlaylist().queue,currentsong:this.currentSong}
     }
 
-    getCurrentSong(): number {
-        return this.currentSong;
+    getCurrentPlaylist():PlayList {
+        return this.playlists[this.currentPlaylist];
+    }
+
+    getCurrentSong(): Song {
+        return this.getCurrentPlaylist().getSong(this.currentSong);
     }
 
     getCurrentSongUrl(): string {
-        return this.playlists[this.currentPlaylist].queue[this.currentSong].url;
+        return this.getCurrentPlaylist().getSongUrl(this.currentSong);
     }
 
-    queueSong({ url, pos=this.playlists[this.currentPlaylist].queue.length, name }: {url: string, pos?:number, name?: string }):Promise<number> {
-        if(this.playlists[this.currentPlaylist].queue.length >= MAX_PLAYLIST_SIZE) {
+    queueSong({ url, pos=this.getCurrentPlaylist().queue.length, name }: {url: string, pos?:number, name?: string }):Promise<number> {
+        if(this.getCurrentPlaylist().queue.length >= MAX_PLAYLIST_SIZE) {
             throw new Error('maximum playlist size reached');
         }
         return ytdl.getBasicInfo(url).then((info) => {
-            if(pos < this.playlists[this.currentPlaylist].queue.length) {
-                this.playlists[this.currentPlaylist].queue.splice(pos,0,{url:url,name: name ?? info.videoDetails.title})
+            if(pos < this.getCurrentPlaylist().queue.length) {
+                this.getCurrentPlaylist().insertSong({url, name: name ?? info.videoDetails.title}, pos)
                 if(pos < this.currentSong) {
                     this.currentSong++
                 }
             } else {
-                this.playlists[this.currentPlaylist].queue.push({url:url,name: name ?? info.videoDetails.title})
+                this.getCurrentPlaylist().insertSong({url ,name: name ?? info.videoDetails.title})
                 this.#updateQueue();
             }
             return pos;

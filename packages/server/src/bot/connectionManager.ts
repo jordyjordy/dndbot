@@ -203,7 +203,7 @@ export class ConnectionManager {
     }
 
 
-    async #startSong(id:number = this.queueManager.getCurrentSong()):Promise<boolean> {
+    async #startSong(id:number = this.queueManager.currentSong):Promise<boolean> {
         if (!this.audioPlayer) {
             this.#prepareAudioPlayer()
         }
