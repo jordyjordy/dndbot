@@ -19,7 +19,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
     const { connectionManager, queueManager }= await getConnection(msg.guildId)
     try{
         if(args === "all") {
-            if(!queueManager.clearQueue()) {
+            if(!await queueManager.clearQueue()) {
                 reply(msg, "Something went wrong clearing the queue")
             }
         } else if(args) {

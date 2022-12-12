@@ -1,7 +1,7 @@
-import axios from 'axios'
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js';
 import { reply } from '../utils/messageReply';
+import Item from '../../model/item';
 const data = new SlashCommandBuilder()
     .setName('info')
     .setDescription('Provides info about characters!')
@@ -25,21 +25,20 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
         }
     }
     try {
-        axios.get(process.env.SERVER_IP + `/item/name?name=${query}&server=${msg.guild.id}`).then(function (response) {
-            if (response.data.length > 0) {
-                let resultString = ``
-                for (let i = 0; i < response.data.length; i++) {
-                    resultString += `**Name:** ${response.data[i].name} **Type:** ${response.data[i].type} \n \n${response.data[i].details}\n`
-                    if (i + 1 < response.data.length) {
-                        resultString += "----------------------------------------\n"
-                    }
+        const result = await Item.findByName(query, msg.guild.id);
+        if (result.length > 0) {
+            let resultString = ``
+            for (let i = 0; i < result.length; i++) {
+                resultString += `**Name:** ${result[i].name} **Type:** ${result[i].type} \n \n${result[i].details}\n`
+                if (i + 1 < result.length) {
+                    resultString += "----------------------------------------\n"
                 }
-                reply(msg, resultString)
-
-            } else {
-                reply(msg, "No information was found with that name")
             }
-        })
+            reply(msg, resultString)
+
+        } else {
+            reply(msg, "No information was found with that name")
+        }
     } catch(err) {
         console.error(err)
     }

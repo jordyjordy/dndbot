@@ -6,7 +6,7 @@ export type Song = {
 
 export type Queue = Song[];
 
-export default class Playlist {
+export default class playlist {
     _id: string;
     name: string;
     server: string;
