@@ -1,10 +1,10 @@
 import { AudioPlayerStatus } from "@discordjs/voice"
 import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageSelectMenu, TextBasedChannel } from "discord.js"
-import { ConnectionContainer } from "../connectionManager"
+import { ConnectionManager } from "../connectionManager"
 import { LoopEnum } from "./loop"
 import { reply, deleteReply } from '../utils/messageReply';
 
-export async function updateInterface(connectionContainer:ConnectionContainer,msg?:CommandInteraction ,newmsg=false,removeOld=true,edit=false):Promise<void> {
+export async function updateInterface(connectionContainer:ConnectionManager,msg?:CommandInteraction ,newmsg=false,removeOld=true,edit=false):Promise<void> {
     if(connectionContainer.queueMessage && removeOld) {
         if(!connectionContainer.queueMessage.deleted) {
             try{
@@ -22,7 +22,7 @@ export async function updateInterface(connectionContainer:ConnectionContainer,ms
     }
 }
 
-async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:CommandInteraction | undefined, message: messageContent, newmsg: boolean, edit: boolean) {
+async function sendQueueMessage(connectionContainer:ConnectionManager, msg:CommandInteraction | undefined, message: messageContent, newmsg: boolean, edit: boolean) {
     let channel: TextBasedChannel
     if(!msg || !msg.channel) {
         if(!connectionContainer.queueMessage) return
@@ -54,11 +54,12 @@ async function sendQueueMessage(connectionContainer:ConnectionContainer, msg:Com
 
 
 
-function getLoopIcon(connectionContainer:ConnectionContainer):string {
-    if(connectionContainer.shuffle) {
+function getLoopIcon(connectionContainer:ConnectionManager):string {
+    const queueManager = connectionContainer.queueManager
+    if(queueManager.shuffle) {
         return ":twisted_rightwards_arrows:"
     }
-    switch(connectionContainer.loop) {
+    switch(queueManager.loop) {
         case LoopEnum.ALL:
             return ':repeat:'
         case LoopEnum.ONE:
@@ -68,23 +69,25 @@ function getLoopIcon(connectionContainer:ConnectionContainer):string {
     }
 }
 
-function generateText(connectionContainer:ConnectionContainer) {
+function generateText(connectionContainer:ConnectionManager) {
     let response = ""
     response += "**Status: " + (connectionContainer.playing?':arrow_forward:':':pause_button:') +
     " PlayStyle: " + getLoopIcon(connectionContainer) + "**\n" 
     return response
 }
 
-function generatePlaylistSelectRow(connectionContainer: ConnectionContainer):MessageActionRow | null {
-    if(!connectionContainer.playlists || connectionContainer.playlists.length <= 0) {
+function generatePlaylistSelectRow(connectionContainer: ConnectionManager):MessageActionRow | null {
+    const queueManager = connectionContainer.queueManager;
+    if(!queueManager.playlists || queueManager.playlists.length <= 0) {
         return null
     }
-    const placeholder = connectionContainer.playlist + ': ' + connectionContainer.playlists[connectionContainer.playlist].name
+    console.log(queueManager);
+    const placeholder = queueManager.currentPlaylist + ': ' + queueManager.playlists[queueManager.currentPlaylist].name
     const row = new MessageActionRow().addComponents(
         new MessageSelectMenu()
             .setCustomId('playlistSelect')
             .setPlaceholder(placeholder.substring(0, Math.min(80, placeholder.length)))
-            .addOptions(connectionContainer.playlists.map((el, id) => {
+            .addOptions(queueManager.playlists.map((el, id) => {
                 const label = id + ": " + el.name.substring(0,Math.min(80,el.name.length))
                 return {label, description: '', value: id.toString()}
             }).filter((el, id) => id < 25))
@@ -92,12 +95,13 @@ function generatePlaylistSelectRow(connectionContainer: ConnectionContainer):Mes
     return row;
 }
 
-function generateSelectRow(connectionContainer:ConnectionContainer):MessageActionRow | null {
-    if(connectionContainer.getCurrentQueue().length === 0) {
+function generateSelectRow(connectionContainer:ConnectionManager):MessageActionRow | null {
+    const queueManager = connectionContainer.queueManager;
+    if(queueManager.getCurrentQueue().length === 0) {
         return null;
     }
     let playingText = "PLAYING"
-    if(connectionContainer.currentsong > connectionContainer.getCurrentQueue().length - 1) {
+    if(queueManager.currentSong > queueManager.getCurrentQueue().length - 1) {
         return null;
     }
     if(!connectionContainer.playing ) {
@@ -111,23 +115,23 @@ function generateSelectRow(connectionContainer:ConnectionContainer):MessageActio
             playingText = "SELECTED"
         }
     }
-    if(connectionContainer.currentsongplaylist !== connectionContainer.playlist) {
+    if(queueManager.currentSongPlaylist !== queueManager.currentPlaylist) {
         playingText = ""
     }
     const row = new MessageActionRow()
         .addComponents(
             new MessageSelectMenu()
                 .setCustomId('play')
-                .setPlaceholder(connectionContainer.currentsong + ": " + connectionContainer.getCurrentQueue()[connectionContainer.currentsong].name)
-                .addOptions(connectionContainer.getCurrentQueue().map((el,id) => {
+                .setPlaceholder(queueManager.currentSong + ": " + queueManager.getCurrentQueue()[queueManager.currentSong].name)
+                .addOptions(queueManager.getCurrentQueue().map((el,id) => {
                     const name = id + ": "+ el.name.substring(0,Math.min(80,el.name.length))
-                    return {label:name, description:(connectionContainer.currentsong === id?playingText:""),value:id.toString()}
+                    return {label:name, description:(queueManager.currentSong === id?playingText:""),value:id.toString()}
                 }).filter((el, id) => id < 25))
         )
     return row
 }
 
-function genererateButtonRow(connectionContainer:ConnectionContainer):MessageActionRow {
+function genererateButtonRow(connectionContainer:ConnectionManager):MessageActionRow {
     const row = new MessageActionRow()
     .addComponents(
         new MessageButton()
@@ -150,7 +154,7 @@ function genererateButtonRow(connectionContainer:ConnectionContainer):MessageAct
     return row
 }
 
-function generateSecondaryButtonRow(connectionContainer:ConnectionContainer):MessageActionRow {
+function generateSecondaryButtonRow(connectionContainer:ConnectionManager):MessageActionRow {
     const row = new MessageActionRow()
         .addComponents(
             new MessageButton()
@@ -184,8 +188,9 @@ function generateTeriaryButtonRow():MessageActionRow {
     return row
 }
 
-function getLoopButtonStyle(connectionContainer:ConnectionContainer) {
-    switch(connectionContainer.loop) {
+function getLoopButtonStyle(connectionContainer:ConnectionManager) {
+    const queueManager = connectionContainer.queueManager;
+    switch(queueManager.loop) {
         case LoopEnum.ALL:
             return "PRIMARY"
         case LoopEnum.ONE:
@@ -195,21 +200,22 @@ function getLoopButtonStyle(connectionContainer:ConnectionContainer) {
     }
 }
 
-function getShuffleButtonStyle(connectionContainer:ConnectionContainer):"PRIMARY"|"SECONDARY" {
-    if(connectionContainer.shuffle) {
+function getShuffleButtonStyle(connectionContainer:ConnectionManager):"PRIMARY"|"SECONDARY" {
+    const queueManager = connectionContainer.queueManager;
+    if(queueManager.shuffle) {
         return "PRIMARY"
     }
     return "SECONDARY"
 }
 
 
-function getPlayButtonStyleAndText(connectionContainer:ConnectionContainer):{text:"Pause",style:"PRIMARY"}|{text:"Play",style:"SUCCESS"} {
+function getPlayButtonStyleAndText(connectionContainer:ConnectionManager):{text:"Pause",style:"PRIMARY"}|{text:"Play",style:"SUCCESS"} {
     if(connectionContainer.playing) {
         return {text:"Pause",style:"PRIMARY"}
     }
     return {text:"Play",style:"SUCCESS"}
 }
-export function getMessageContent(connectionContainer:ConnectionContainer):messageContent {
+export function getMessageContent(connectionContainer:ConnectionManager):messageContent {
     const response = generateText(connectionContainer)
     const playlistRow = generatePlaylistSelectRow(connectionContainer) as MessageActionRow;
     const selectrow = generateSelectRow(connectionContainer) as MessageActionRow

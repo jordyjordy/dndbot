@@ -1,13 +1,14 @@
 import mongoose from 'mongoose';
 
 interface IPlaylist {
+    _id: string,
     name: string,
     server:string,
-    queue: { type: { name: string,  url: string}[] }
+    queue: { name: string,  url: string}[]
 }
 
 interface IPlaylistModel extends mongoose.Model<IPlaylist> {
-    findByServerId(server:string): Promise<IPlaylist>,
+    findByServerId(server:string): Promise<IPlaylist[]>,
     createNewPlayList(name: string, server:string): Promise<IPlaylist>
 }
 
@@ -34,7 +35,7 @@ const playListSchema = new mongoose.Schema({
     }
 })
 
-playListSchema.statics.findByServerId = async (server) => {
+playListSchema.statics.findByServerId = async (server): Promise<IPlaylist[]> => {
     const foundDay = PlayList.find({ server })
     return foundDay;
 }

@@ -1,4 +1,4 @@
-import {getConnectionContainer} from "../connectionManager"
+import { getConnection } from "../connectionManager"
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from "discord.js"
 import { updateInterface } from "../utils/interface"
@@ -16,15 +16,15 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
     }
     await msg.deferReply();
     const args = msg.options.getSubcommand()
-    const connectionManager = await getConnectionContainer(msg.guildId)
+    const { connectionManager, queueManager }= await getConnection(msg.guildId)
     try{
         if(args === "all") {
-            if(!connectionManager.clearQueue()) {
+            if(!await queueManager.clearQueue()) {
                 reply(msg, "Something went wrong clearing the queue")
             }
         } else if(args) {
             const val = msg.options.getString('index')
-            if(val && !connectionManager.removeSong(val)) {
+            if(val && !queueManager.removeSong(parseInt(val))) {
                 reply(msg, "The song you are trying to remove is currently being played, or does not exist!")
             } else {
                 reply(msg, "Song cleared")

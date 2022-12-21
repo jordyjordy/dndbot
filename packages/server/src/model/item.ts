@@ -11,7 +11,7 @@ interface IItem extends mongoose.Document {
 }
 
 interface IITemModel extends mongoose.Model<IItem> {
-    findByName(name:string, server:string): Promise<IItem>,
+    findByName(name:string, server:string): Promise<IItem[]>,
 }
 
 const itemSchema = new mongoose.Schema<IItem>({

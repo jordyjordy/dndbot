@@ -4,7 +4,7 @@ import { Client, Intents } from 'discord.js'
 
 import { Commands } from "./commands";
 import interfaceCommands from "./interfaceCommands"
-import { getConnectionContainer } from "./connectionManager";
+import { getConnection } from "./connectionManager";
 
 dotenv.config()
 
@@ -15,7 +15,7 @@ client.on('ready',async () => {
         const servers = client.guilds.cache.map(guild => guild.id)
         await registerSlashCommands(servers)
     }
-    client.guilds.cache.forEach(guild => getConnectionContainer(guild.id))
+    client.guilds.cache.forEach(guild => getConnection(guild.id))
 })
 
 client.on('interactionCreate', async interaction => {
@@ -54,4 +54,4 @@ client.on('guildCreate', async guild => {
 
 export default client;
 
-export { getConnectionContainer } 
+export { getConnection } 
