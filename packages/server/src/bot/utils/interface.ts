@@ -81,7 +81,6 @@ function generatePlaylistSelectRow(connectionContainer: ConnectionManager):Messa
     if(!queueManager.playlists || queueManager.playlists.length <= 0) {
         return null
     }
-    console.log(queueManager);
     const placeholder = queueManager.currentPlaylist + ': ' + queueManager.playlists[queueManager.currentPlaylist].name
     const row = new MessageActionRow().addComponents(
         new MessageSelectMenu()

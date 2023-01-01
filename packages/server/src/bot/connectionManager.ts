@@ -216,7 +216,7 @@ export class ConnectionManager {
             this.queueManager.selectSong(id);
             const songUrl = this.queueManager.getCurrentSongUrl();
 
-            const audiosource = createAudioResource(ytdl(songUrl, { filter: 'audioonly' }));
+            const audiosource = createAudioResource(ytdl(songUrl, { filter: 'audioonly', highWaterMark: 8192*4, dlChunkSize: 0 }));
             this.audioPlayer.play(audiosource)
             this.playing = true
         } catch(err) {

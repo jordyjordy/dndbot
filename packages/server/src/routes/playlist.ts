@@ -1,8 +1,9 @@
 import express, { Request, Response } from 'express';
 const router = express.Router()
 import PlayList from '../model/playlist.js';
+import sessionAuth from '../config/sessionAuth.js';
 
-router.get('/list', async (req: Request, res: Response) => {
+router.get('/list', sessionAuth, async (req: Request, res: Response) => {
     const result = await PlayList.findByServerId(req.query.server as string)
     res.status(200).json(result)
 })
@@ -20,7 +21,6 @@ router.post('/', async (req: Request, res: Response) => {
         console.log(err)
         res.status(400).send("Could not create")
     }
-
 })
 
 router.put('/', async (req: Request, res: Response) => {

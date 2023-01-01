@@ -6,6 +6,13 @@ import PlayList from '../model/playlist';
 
 const MAX_PLAYLIST_SIZE = 24
 
+export interface QueueStatus {
+    playlist: number;
+    song: number;
+    shuffle: boolean;
+    loop: boolean;
+}
+
 export default class QueueManager {
     server: string
     playlists: playList[]
@@ -23,6 +30,15 @@ export default class QueueManager {
         this.currentSongPlaylist = 0;
         this.shuffle = false;
         this.loop = LoopEnum.NONE;
+    }
+
+    getPlayStatus = (): QueueStatus => {
+        return {
+            playlist: this.currentPlaylist,
+            song: this.currentSong,
+            shuffle: this.shuffle,
+            loop: this.loop !== LoopEnum.NONE,
+        }
     }
 
     initialize = async ():Promise<void> => {
@@ -109,6 +125,7 @@ export default class QueueManager {
 
     toggleLoop(value:LoopEnum):void {
         this.loop = value
+        console.log(this.loop);
         this.shuffle = false
 
     }

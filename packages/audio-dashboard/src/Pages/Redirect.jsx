@@ -8,10 +8,8 @@ export default function Redirect() {
     useEffect(() => {
         if(isFetching.current === false) {
             isFetching.current = true;
-            fetch(`${process.env.REACT_APP_SERVER_ADDRESS}/token/discord?code=${searchParams.get("code")}`).then(async res => {
-                const json = await res.json();
-                localStorage.setItem('sessionId', json.sessionId);
-                navigate('/user', { replace: true });
+            fetch(`${process.env.REACT_APP_SERVER_ADDRESS}/token/discord?code=${searchParams.get("code")}`, { credentials: 'include' }).then(async res => {
+                navigate('/overview', { replace: true });
             }); 
         }
     }, [searchParams, navigate]);

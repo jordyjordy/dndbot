@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Login from './Pages/Login';
 import Redirect from './Pages/Redirect';
-import User from './Pages/User';
+import Overview from './Pages/Overview';
 
 function App() {
 
@@ -17,7 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/redirect" element={<Redirect />} />
-          <Route path="/user" element={<User />} />
+          <Route path="/overview" element={<Overview />} />
         </Routes>
       </BrowserRouter>
     </div>

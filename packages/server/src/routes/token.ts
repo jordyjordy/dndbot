@@ -4,6 +4,7 @@ const router = express.Router()
 import Token from '../model/token.js';
 import axios from 'axios';
 import sessionManager, { sessionDetails } from '../util/sessionManager.js';
+import jwt from 'jsonwebtoken';
 
 router.get('/', async (req: Request, res: Response) => {
     const result = await Token.generateToken(req.query.user as string,req.query.server as string)
@@ -13,6 +14,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/discord', async ({query}, res: Response) => {
     const {code} = query;
     if (code) {
+        console.log('yes');
 		try {
             const urlSearchParams = {
                 client_id: process.env.CLIENT_ID as string,
@@ -41,10 +43,13 @@ router.get('/discord', async ({query}, res: Response) => {
                     authorization: `${data.token_type} ${data.access_token}`
                 }
             });
-            const sessionId = sessionManager.storeSession({ ...data, userId: userData.data.id, username: userData.data.username })
-            res.status(200).json({ sessionId });
+            const token = jwt.sign({ ...data, userId: userData.data.id, username: userData.data.username }, process.env.TOKEN_SECRET, {expiresIn: '30d'})
+            res.cookie('access_token', token, { httpOnly: false, secure: false, });
+            console.log('interesting');
+            res.status(200).send('Succesfully authenticated');
             return;
 		} catch (error) {
+            console.log('no');
 			// NOTE: An unauthorized token will not throw an error
 			// tokenResponseData.statusCode will be 401
 			console.error(error);
