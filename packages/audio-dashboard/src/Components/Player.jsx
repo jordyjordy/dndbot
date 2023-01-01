@@ -17,8 +17,8 @@ export default function Player() {
             },
             body: JSON.stringify({ action, serverId }),
         }).then(async (res) => {
-            const json = await res.json();
-            dispatch(setPlayStatus(json));
+            // const json = await res.json();
+            // dispatch(setPlayStatus(json));
         })
     }
 

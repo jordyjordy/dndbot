@@ -5,6 +5,7 @@ import sessionAuth, { ISessionAuthRequest } from '../../config/sessionAuth';
 import { getConnection } from '../../bot';
 import ConnectionInterface from '../../util/ConnectionInterface';
 import { LoopEnum } from '../../bot/utils/loop';
+import SSEManager from '../../util/SSeManager';
 
 router.use('/playlists', playlists);
 
@@ -71,7 +72,32 @@ router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Respons
             // do nothing;
             break;
     }
+    SSEManager.publish(req.body.serverId, await connectionInterface.getPlayStatus());
     res.status(200).send(await connectionInterface.getPlayStatus());
 })
+
+router.get('/update', sessionAuth, async (req: SongPlayRequest, res: Response) => {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders(); // flush the headers to establish SSE with client
+
+    SSEManager.addListener(req.query.serverId, req.sessionDetails.userId, (message) => {
+        console.log('publishing?');
+        res.write(`\ndata: ${JSON.stringify(message)}\n\n`);
+    })
+
+    const connectionInterface = new ConnectionInterface(req.query.serverId);
+    res.write(`\ndata: ${JSON.stringify(await connectionInterface.getPlayStatus())}\n\n`);
+
+    // If client closes connection, stop sending events
+    res.on('close', () => {
+        console.log('closing');
+        SSEManager.removeListener(req.query.serverId, req.sessionDetails.userId);
+        res.end();
+    });
+});
+
+
 
 export default router;
