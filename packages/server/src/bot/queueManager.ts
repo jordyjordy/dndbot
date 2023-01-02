@@ -116,7 +116,6 @@ export default class QueueManager {
     async setPlayList(index: number):Promise<void> {
         if(index >= 0 && index < this.playlists.length) {
             this.currentPlaylist = index;
-            this.currentSongPlaylist = index;
         }
     }
 
