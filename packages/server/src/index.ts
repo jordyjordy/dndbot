@@ -32,7 +32,7 @@ mongoose.connect(process.env.DATABASE_URL as string).then(() => {
 const port = process.env.PORT || 5000
 app.use(cors({
     credentials: true,
-    origin: 'http://localhost:3000'
+    origin: process.env.CORS_ORIGIN
 }));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
