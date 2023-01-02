@@ -132,9 +132,10 @@ export default class QueueManager {
         this.shuffle = value
     }
 
-    selectSong(id:number):void {
+    selectSong(id:number, playlistIndex: number = this.currentSongPlaylist):void {
+        console.log(playlistIndex);
         this.currentSong = id
-        this.currentSongPlaylist = this.currentPlaylist
+        this.currentSongPlaylist = playlistIndex;
         this.currentSong = this.currentSong % this.getCurrentPlaylist().queue.length;
     }
 
