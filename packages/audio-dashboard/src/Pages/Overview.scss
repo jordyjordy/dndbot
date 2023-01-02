@@ -1,7 +1,9 @@
 .overview {
     display: flex;
     flex-direction: column;
+    max-height: 100vh;
     height: 100vh;
+    overflow: hidden;
     justify-content: stretch;
 }
 

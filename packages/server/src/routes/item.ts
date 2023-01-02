@@ -1,32 +1,38 @@
 import express, { Request, Response} from 'express';
-import auth, { IAuthRequest } from '../config/auth.js';
-import Item from '../model/item.js';
+import Item from '../model/item';
+import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth';
 
 const router = express.Router()
 
-router.get('/list', auth, async (req: IAuthRequest, res: Response) => {
-    const result = await Item.find({server:req.server})
+interface RequestWithServer extends ISessionAuthRequest {
+    query: {
+        serverId: string
+    }
+}
+
+router.get('/list', sessionAuth, async (req: RequestWithServer, res: Response) => {
+    const result = await Item.find({server:req.query.serverId})
     res.status(200).json(result)
 })
 
 router.get('/name', async (req: Request, res: Response) => {
     try {
-    const result = await Item.findByName(req.query.name as string, req.query.server as string)
+    const result = await Item.findByName(req.query.name as string, req.query.serverId as string)
     res.status(200).json(result)
     } catch(err) {
         res.status(200).json({})
     }
 })
 
-router.get('/id', auth, async (req: IAuthRequest, res: Response) => {
+router.get('/id', sessionAuth, async (req: ISessionAuthRequest, res: Response) => {
     const result = await Item.findById(req.query.id)
     res.status(200).json(result)
 })
 
-router.put('/update', auth, async (req: IAuthRequest, res:Response) => {
+router.put('/update', sessionAuth, async (req: ISessionAuthRequest, res:Response) => {
     try {
         req.body.item.name_lower = req.body.item.name.toLowerCase()
-        req.body.item.edit = req.user
+        req.body.item.edit = req.sessionDetails.userId
         await Item.findByIdAndUpdate(req.body.item._id, req.body.item)
         res.status(201).send("success")
     } catch (err) {
@@ -35,27 +41,27 @@ router.put('/update', auth, async (req: IAuthRequest, res:Response) => {
 })
 
 
-router.get('/search', auth,  async (req: IAuthRequest, res:Response) => {
+router.get('/search', sessionAuth,  async (req: ISessionAuthRequest, res:Response) => {
     try {
-        if(!req.server || !req.query.string) {
+        if(!req.body.server || !req.query.string) {
             throw new Error("Missing parameters");
         }
-        const result = await Item.findByName(req.query.name as string, req.server)
+        const result = await Item.findByName(req.query.name as string, req.body.server)
         res.status(200).json(result)
     } catch (err) {
         res.status(400).send("something went wrong")
     }
 })
 
-router.post('/add', auth, async (req: IAuthRequest, res: Response) => {
+router.post('/add', sessionAuth, async (req: ISessionAuthRequest, res: Response) => {
     try {
         const temp = req.body.item
         const item = new Item({
             name: temp.name,
             type: temp.type,
             details: temp.details,
-            edit: req.user,
-            server: req.server
+            edit: req.sessionDetails?.userId,
+            server: req.body.serverId
         })
         await item.save()
         res.status(201).send("success")
@@ -65,7 +71,7 @@ router.post('/add', auth, async (req: IAuthRequest, res: Response) => {
     }
 })
 
-router.delete("/delete", auth, async (req: IAuthRequest, res: Response) => {
+router.delete("/delete", sessionAuth, async (req: ISessionAuthRequest, res: Response) => {
     try {
         await Item.findByIdAndDelete(req.query.id)
         res.status(200).send("success")

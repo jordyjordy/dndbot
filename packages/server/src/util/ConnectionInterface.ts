@@ -46,6 +46,9 @@ class ConnectionInterface {
         const playStatus = queueManager.getPlayStatus();
         return { playing, ...playStatus };
     }
+
+    
+    
 }
 
 export default ConnectionInterface;

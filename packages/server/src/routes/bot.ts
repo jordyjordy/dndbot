@@ -1,7 +1,7 @@
 import express, {Response} from 'express';
 const router = express.Router()
 import client, { getConnection }  from '../bot';
-import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth.js';
+import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth';
 
 interface JoinChannelRequest extends ISessionAuthRequest {
     body: {

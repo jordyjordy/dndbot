@@ -34,7 +34,7 @@ export default class QueueManager {
 
     getPlayStatus = (): QueueStatus => {
         return {
-            playlist: this.currentPlaylist,
+            playlist: this.currentSongPlaylist,
             song: this.currentSong,
             shuffle: this.shuffle,
             loop: this.loop !== LoopEnum.NONE,
@@ -47,7 +47,7 @@ export default class QueueManager {
     
 
     #setPlaylists = async ():Promise<void> => { 
-        const playlists = (await PlayList.findByServerId(this.server)).map((playlist) => new playList(playlist));
+        const playlists = (await PlayList.findByServerId(this.server) ?? []).map((playlist) => new playList(playlist));
         if(isEmpty(playlists)) {
            try {
                 const playlist = await PlayList.createNewPlayList('default', this.server);
@@ -105,9 +105,9 @@ export default class QueueManager {
         }
     }
 
-    #updateQueue = async (): Promise<void> => {
+    #updateQueue = async (playlistId=this.currentPlaylist): Promise<void> => {
         try {
-            await PlayList.findByIdAndUpdate(this.getCurrentPlaylist()._id, this.getCurrentPlaylist(), {new: true})
+            await PlayList.findByIdAndUpdate(this.playlists[playlistId]._id, this.playlists[playlistId], {new: true})
         } catch {
             // do nothing
         }
@@ -115,7 +115,8 @@ export default class QueueManager {
 
     async setPlayList(index: number):Promise<void> {
         if(index >= 0 && index < this.playlists.length) {
-            this.currentPlaylist = index
+            this.currentPlaylist = index;
+            this.currentSongPlaylist = index;
         }
     }
 
@@ -125,7 +126,6 @@ export default class QueueManager {
 
     toggleLoop(value:LoopEnum):void {
         this.loop = value
-        console.log(this.loop);
         this.shuffle = false
 
     }
@@ -144,32 +144,32 @@ export default class QueueManager {
             return this.currentSong;
         }
         if(this.shuffle) {
-            let num = Math.floor(Math.random() * this.getCurrentPlaylist().queue.length-1.01)
+            let num = Math.floor(Math.random() * this.getCurrentSongPlaylist().queue.length-1.01)
             if(num < 0) num = 0
-            if (num >= this.getCurrentPlaylist().queue.length -1) num = this.getCurrentPlaylist().queue.length-2
+            if (num >= this.getCurrentSongPlaylist().queue.length -1) num = this.getCurrentSongPlaylist().queue.length-2
             if(num >= this.currentSong) num++
             this.currentSong = num;
         } else {
             this.currentSong++;
         }
-        this.currentSong = this.currentSong % this.getCurrentPlaylist().queue.length
+        this.currentSong = this.currentSong % this.getCurrentSongPlaylist().queue.length
         return this.currentSong;
     }
 
     goToPreviousSong():number {
         this.currentSong--;
         if(this.currentSong < 0) {
-            this.currentSong = this.getCurrentPlaylist().queue.length - 1;
+            this.currentSong = this.getCurrentSongPlaylist().queue.length - 1;
         }
         return this.currentSong;
     }
 
-    async removeSong(id:number):Promise<boolean> {
+    async removeSong(id:number, playlistId=this.currentPlaylist):Promise<boolean> {
         if(id === null) {
             return false
         }
         try {
-            this.getCurrentPlaylist().removeSong(id);
+            this.playlists[playlistId].removeSong(id);
             await this.#updateQueue();
             return true
         }  catch(err) {
@@ -178,9 +178,9 @@ export default class QueueManager {
         }
     }
 
-    async clearQueue():Promise<boolean> {
+    async clearQueue(playlistId=this.currentPlaylist):Promise<boolean> {
         try {
-            this.getCurrentPlaylist().clearQueue();
+            this.playlists[playlistId].clearQueue();
             await this.#updateQueue();
             this.currentSong = 0
             return true
@@ -196,26 +196,30 @@ export default class QueueManager {
         return this.playlists[this.currentPlaylist];
     }
 
+    getCurrentSongPlaylist():playList {
+        return this.playlists[this.currentSongPlaylist]
+    }
+
     getCurrentSong(): Song {
-        return this.getCurrentPlaylist().getSong(this.currentSong);
+        return this.getCurrentSongPlaylist().getSong(this.currentSong);
     }
 
     getCurrentSongUrl(): string {
-        return this.getCurrentPlaylist().getSongUrl(this.currentSong);
+        return this.getCurrentSongPlaylist().getSongUrl(this.currentSong);
     }
 
-    async queueSong({ url, pos=this.getCurrentPlaylist().queue.length, name }: {url: string, pos?:number, name?: string }):Promise<number> {
+    async queueSong({ url, playlistIndex=this.currentPlaylist, pos=this.getCurrentPlaylist().queue.length, name }: {url: string, playlistIndex?:number, pos?:number, name?: string }):Promise<number> {
         if(this.getCurrentPlaylist().queue.length >= MAX_PLAYLIST_SIZE) {
             throw new Error('maximum playlist size reached');
         }
         return ytdl.getBasicInfo(url).then(async (info) => {
-            if(pos < this.getCurrentPlaylist().queue.length) {
-                this.getCurrentPlaylist().insertSong({url, name: name ?? info.videoDetails.title}, pos)
+            if(pos < this.playlists[playlistIndex].queue.length) {
+                this.playlists[playlistIndex].insertSong({url, name: name ?? info.videoDetails.title}, pos)
                 if(pos < this.currentSong) {
                     this.currentSong++
                 }
             } else {
-                this.getCurrentPlaylist().insertSong({url ,name: name ?? info.videoDetails.title})
+                this.playlists[playlistIndex].insertSong({url ,name: name ?? info.videoDetails.title})
             }
             await this.#updateQueue();
             return pos;

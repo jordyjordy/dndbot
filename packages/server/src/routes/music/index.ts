@@ -1,18 +1,24 @@
 import express, { Response } from 'express';
 const router = express.Router();
-import playlists from './playlists';
+import userPlaylists from './userPlaylists';
 import sessionAuth, { ISessionAuthRequest } from '../../config/sessionAuth';
 import { getConnection } from '../../bot';
 import ConnectionInterface from '../../util/ConnectionInterface';
 import { LoopEnum } from '../../bot/utils/loop';
 import SSEManager from '../../util/SSeManager';
 
-router.use('/playlists', playlists);
+router.use('/playlists', userPlaylists);
 
 type SongPlayRequest = ISessionAuthRequest & {
+    body: {
+        playlist: number,
+        song: number,
+        serverId: string,
+    }
+}
+
+type UpdateRequest = ISessionAuthRequest & {
     query: {
-        playlistId: number,
-        songId: number,
         serverId: string,
     }
 }
@@ -26,13 +32,28 @@ type MusicActionRequest = ISessionAuthRequest & {
     }
 }
 
-router.get('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response): Promise<void> => {
-    const connection = await getConnection(req.query.serverId);
-    connection.queueManager.setPlayList(req.query.playlistId);
-    connection.queueManager.selectSong(req.query.songId);
-    connection.connectionManager.play();
+const updateSSE = async (req, res, next) => {
+    const serverId = req.query.serverId ?? req.body.serverId
+    const connectionInterface = new ConnectionInterface(serverId);
+    SSEManager.publish(serverId, await connectionInterface.getPlayStatus());
+    next();
+}
+
+
+router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response, next): Promise<void> => {
+    await getConnection(req.body.serverId);
+    const connectionInterface = new ConnectionInterface(req.body.serverId);
+    const connectionManager = await connectionInterface.getConnectionManager();
+    const queueManager = await connectionInterface.getQueueManager();
+    if(!connectionManager.isConnected()) {
+        await connectionInterface.joinVoiceChannel(req.sessionDetails.userId);
+    }
+    queueManager.setPlayList(req.body.playlist);
+    queueManager.selectSong(req.body.song);
+    await connectionManager.play();
     res.sendStatus(200);
-})
+    next();
+}, updateSSE)
 
 router.get('/status', sessionAuth, async (req: SongPlayRequest, res: Response): Promise<void> => {
     const connectionInterface = new ConnectionInterface(req.body.serverId);
@@ -40,7 +61,7 @@ router.get('/status', sessionAuth, async (req: SongPlayRequest, res: Response): 
 })
 
 
-router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Response): Promise<void> => {
+router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Response, next): Promise<void> => {
     const connection = await getConnection(req.body.serverId);
     const connectionInterface = new ConnectionInterface(req.body.serverId);
     switch (req.body.action as MusicAction) {
@@ -72,18 +93,17 @@ router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Respons
             // do nothing;
             break;
     }
-    SSEManager.publish(req.body.serverId, await connectionInterface.getPlayStatus());
     res.status(200).send(await connectionInterface.getPlayStatus());
-})
+    next();
+}, updateSSE)
 
-router.get('/update', sessionAuth, async (req: SongPlayRequest, res: Response) => {
+router.get('/update', sessionAuth, async (req: UpdateRequest, res: Response) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders(); // flush the headers to establish SSE with client
 
     SSEManager.addListener(req.query.serverId, req.sessionDetails.userId, (message) => {
-        console.log('publishing?');
         res.write(`\ndata: ${JSON.stringify(message)}\n\n`);
     })
 
@@ -97,7 +117,5 @@ router.get('/update', sessionAuth, async (req: SongPlayRequest, res: Response) =
         res.end();
     });
 });
-
-
 
 export default router;

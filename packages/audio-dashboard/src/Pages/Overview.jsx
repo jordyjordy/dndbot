@@ -65,7 +65,7 @@ export default function User() {
                             </div>
                         )}
                     <div>
-                        <button className="btn" onClick={getCurrentVoiceChannel}>
+                        <button className="dndbtn" onClick={getCurrentVoiceChannel}>
                             Refresh voice channel
                         </button>
                     </div>

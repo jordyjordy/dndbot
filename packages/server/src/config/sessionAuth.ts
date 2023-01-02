@@ -1,7 +1,11 @@
-import { sessionDetails } from "../util/sessionManager.js";
-import { Response, Request, NextFunction } from "express";
+import { sessionDetails } from "../util/sessionManager";
+import { Response, NextFunction, Request } from "express";
 import jwt from 'jsonwebtoken';
 
+
+export interface IsessionPreAuthRequest extends Request {
+    sessionDetails?: sessionDetails,
+}
 export interface ISessionAuthRequest extends Request {
     sessionDetails: sessionDetails
 }

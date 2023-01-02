@@ -3,11 +3,9 @@ import { play, pause, playSkipBack, playSkipForward, shuffle, repeat, stop } fro
 import './Player.scss';
 import { IonIcon } from '@ionic/react';
 import { request } from '../utils/network';
-import { useDispatch, useSelector } from 'react-redux';
-import { setPlayStatus } from '../reducers/playStatus/actions';
+import { useSelector } from 'react-redux';
 
 export default function Player() {
-    const dispatch = useDispatch();
     const { serverId, playStatus } = useSelector((state) => { return { serverId: state?.serverInfo?.serverId, playStatus: state?.playStatus } });
     const sendAction = (action) => {
         request('/music/action', {
@@ -16,42 +14,39 @@ export default function Player() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ action, serverId }),
-        }).then(async (res) => {
-            // const json = await res.json();
-            // dispatch(setPlayStatus(json));
         })
     }
 
     return (
         <div className='music-player'>
             <div>
-                <button onClick={() => sendAction('STOP')} className='btn'>
+                <button onClick={() => sendAction('STOP')} className='dndbtn'>
                     <IonIcon icon={stop} />
                 </button>
-                <button onClick={() => sendAction('PREVIOUSSONG')} className='btn'>
+                <button onClick={() => sendAction('PREVIOUSSONG')} className='dndbtn'>
                     <IonIcon icon={playSkipBack} />
                 </button>
                 {playStatus.playing
                     ? (
-                        <button onClick={() => sendAction('PAUSE')} className='btn'>
+                        <button onClick={() => sendAction('PAUSE')} className='dndbtn'>
                             <IonIcon icon={pause} />
                         </button>
                     )
                     : (
 
-                        <button onClick={() => sendAction('PLAY')} className='btn'>
+                        <button onClick={() => sendAction('PLAY')} className='dndbtn'>
                             <IonIcon icon={play} />
                         </button>
                     )}
-                <button onClick={() => sendAction('NEXTSONG')} className='btn'>
+                <button onClick={() => sendAction('NEXTSONG')} className='dndbtn'>
                     <IonIcon icon={playSkipForward} />
                 </button>
             </div>
             <div>
-                <button onClick={() => sendAction('TOGGLESHUFFLE')} className={`btn ${playStatus.shuffle ? 'active' : ''}`}>
+                <button onClick={() => sendAction('TOGGLESHUFFLE')} className={`dndbtn ${playStatus.shuffle ? 'active' : ''}`}>
                     <IonIcon icon={shuffle} />
                 </button>
-                <button onClick={() => sendAction('TOGGLEREPEAT')} className={`btn ${playStatus.loop ? 'active' : ''}`}>
+                <button onClick={() => sendAction('TOGGLEREPEAT')} className={`dndbtn ${playStatus.loop ? 'active' : ''}`}>
                     <IonIcon icon={repeat} />
                 </button>
             </div>

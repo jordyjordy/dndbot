@@ -13,7 +13,6 @@ class SSEManager {
     };
 
     static publish = (serverId: string, message: any): void => {
-        console.log(Object.keys(this.serverList[serverId] ?? {}));
         Object.values(this.serverList[serverId]).forEach(callback => callback(message));
     }
 }

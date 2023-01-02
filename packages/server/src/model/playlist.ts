@@ -8,7 +8,7 @@ interface IPlaylist {
 }
 
 interface IPlaylistModel extends mongoose.Model<IPlaylist> {
-    findByServerId(server:string): Promise<IPlaylist[]>,
+    findByServerId(server?:string): Promise<IPlaylist[]>,
     createNewPlayList(name: string, server:string): Promise<IPlaylist>
 }
 
@@ -35,10 +35,14 @@ const playListSchema = new mongoose.Schema({
     }
 })
 
-playListSchema.statics.findByServerId = async (server): Promise<IPlaylist[]> => {
-    const foundDay = PlayList.find({ server })
-    return foundDay;
+playListSchema.statics.findByServerId = async (server): Promise<IPlaylist[] | null> => {
+    if(server) {
+        const foundDay = PlayList.find({ server })
+        return foundDay;
+    }
+    return null;
 }
+
 
 playListSchema.statics.createNewPlayList = async(name, server) => {
     const playList = new PlayList({

@@ -4,8 +4,8 @@
 }
 
 body {
-  background-color: #111111;;
-  color: #FFF;
+  background-color: #111111 !important;
+  color: #FFF !important;
 }
 
 
@@ -44,7 +44,7 @@ body {
   }
 }
 
-.btn {
+.dndbtn {
   background-color: #3e3e3e;
   color: white;
   padding: 0.8rem 0.8rem;
@@ -54,10 +54,14 @@ body {
   cursor: pointer;
 }
 
-.btn:disabled {
+.dndbtn:disabled {
   cursor: default;
 }
 
-.btn:hover {
+.dndbtn:hover {
   filter:brightness(150%);
+}
+
+.dark-modal {
+  color: black !important;
 }

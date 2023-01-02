@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Login from './Pages/Login';
 import Redirect from './Pages/Redirect';
 import Overview from './Pages/Overview';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
 
