@@ -1,0 +1,26 @@
+.music-player {
+    border-top: 2px solid rgba(255, 255, 255, 0.05);
+    flex: 0 0 100px;
+    display: flex;
+    justify-content: center;
+    column-gap: 0.5rem;
+    align-items: center;
+
+    & > div {
+        display: flex;
+        justify-content: center;
+        column-gap: 0.5rem;
+        align-items: center;
+    }
+
+    .dndbtn {
+        font-size: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.active {
+            filter: brightness(150%);
+        }
+    }
+}

@@ -1,0 +1,23 @@
+.overview {
+    display: flex;
+    flex-direction: column;
+    max-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+    justify-content: stretch;
+}
+
+.overview-topbar {
+    display: flex;
+    flex: 0 0 60px;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    justify-content: space-between;
+    padding: 0rem 2rem;
+}
+
+
+.server-details {
+    display: flex;
+    column-gap: 2rem;
+}

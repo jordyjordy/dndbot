@@ -195,7 +195,7 @@ export class ConnectionManager {
                 }
                 return false
             }
-            this.#startSong();
+            await this.#startSong();
         } catch(err) {
             console.error(err)
         }
@@ -205,18 +205,18 @@ export class ConnectionManager {
 
     async #startSong(id:number = this.queueManager.currentSong):Promise<boolean> {
         if (!this.audioPlayer) {
-            this.#prepareAudioPlayer()
+            await this.#prepareAudioPlayer()
         }
         try{
             if (!this.connection || !this.audioPlayer) {
                 this.playing = false
                 return false
             }
-
+            console.log(id, this.queueManager);
             this.queueManager.selectSong(id);
             const songUrl = this.queueManager.getCurrentSongUrl();
 
-            const audiosource = createAudioResource(ytdl(songUrl, { filter: 'audioonly' }));
+            const audiosource = createAudioResource(ytdl(songUrl, { filter: 'audioonly', highWaterMark: 8192*4, dlChunkSize: 0 }));
             this.audioPlayer.play(audiosource)
             this.playing = true
         } catch(err) {
@@ -227,7 +227,7 @@ export class ConnectionManager {
         }
         return true
     }
-    #prepareAudioPlayer():void {
+    async #prepareAudioPlayer():Promise<void> {
         if (!this.isConnected()) {
             return
         }
