@@ -10,6 +10,7 @@ import client from './bot/index';
 
 const app = express()
 dotenv.config()
+const originWhitelist = process.env.CORS_ORIGINS?.split(',');
 
 import items from './routes/item';
 import sessions from './routes/session';
@@ -32,7 +33,13 @@ mongoose.connect(process.env.DATABASE_URL as string).then(() => {
 const port = process.env.PORT || 5000
 app.use(cors({
     credentials: true,
-    origin: process.env.CORS_ORIGIN
+    origin: function (ori, callback) {
+        if (!ori || originWhitelist?.indexOf(ori ?? '') !== -1) {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+      }
 }));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
