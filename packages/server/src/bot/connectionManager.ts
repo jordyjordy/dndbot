@@ -126,6 +126,7 @@ export class ConnectionManager {
         }
         if(!isNaN(Number(id))) {
             try{
+                this.queueManager.currentSongPlaylist = this.queueManager.currentPlaylist;
                 this.queueManager.selectSong(parseInt(id));
                 return await this.#startSong();
             } catch(err) {
