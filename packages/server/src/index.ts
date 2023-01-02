@@ -61,7 +61,7 @@ app.get('/redirect', async ({ query }, res: Response) => {
                 client_secret: process.env.CLIENT_SECRET as string,
                 code: code.toString(),
                 grant_type: 'authorization_code',
-                redirect_uri: 'http://localhost:5000/redirect',
+                redirect_uri: process.env.REDIRECT_URL as string,
                 scope: 'identify',
                 }
 
