@@ -83,7 +83,7 @@ app.get('/redirect', async ({ query }, res: Response) => {
                 }
             });
             const token = jwt.sign({ ...data, userId: userData.data.id, username: userData.data.username }, process.env.TOKEN_SECRET, {expiresIn: '30d'})
-            res.cookie('access_token', token, { httpOnly: false, secure: false, sameSite: 'none' });
+            res.cookie('access_token', token, { secure: true, sameSite: 'none', maxAge: 2592000000 });
             res.redirect(state.toString());
             return;
 		} catch (error) {
