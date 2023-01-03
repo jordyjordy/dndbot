@@ -19,7 +19,6 @@ export default function PlayStateManager({ children }) {
             const data = JSON.parse(event.data);
             data.playlist = parseInt(data.playlist);
             data.song = parseInt(data.song);
-            console.log(data);
             dispatch(setPlayStatus(data));
         });
 

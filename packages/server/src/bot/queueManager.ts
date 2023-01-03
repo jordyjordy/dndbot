@@ -108,7 +108,8 @@ export default class QueueManager {
     #updateQueue = async (playlistId=this.currentPlaylist): Promise<void> => {
         try {
             await PlayList.findByIdAndUpdate(this.playlists[playlistId]._id, this.playlists[playlistId], {new: true})
-        } catch {
+        } catch (err) {
+            console.log(err);
             // do nothing
         }
     }
@@ -170,7 +171,7 @@ export default class QueueManager {
         }
         try {
             this.playlists[playlistId].removeSong(id);
-            await this.#updateQueue();
+            await this.#updateQueue(playlistId);
             return true
         }  catch(err) {
             console.error(err)
