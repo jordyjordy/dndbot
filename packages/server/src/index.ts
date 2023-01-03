@@ -90,8 +90,8 @@ app.get('/redirect', async ({ query }, res: Response) => {
                 }
             });
             const token = jwt.sign({ ...data, userId: userData.data.id, username: userData.data.username }, process.env.TOKEN_SECRET, {expiresIn: '30d'})
-            res.cookie('access_token', token, { secure: true, sameSite: 'none', maxAge: 2592000000 });
-            res.redirect(state.toString());
+            res.cookie('access_token', token, { path: "/", httpOnly: true ,secure: true, sameSite: 'none', domain: process.env.SERVER_IP });
+            res.redirect(302, state.toString());
             return;
 		} catch (error) {
 			// NOTE: An unauthorized token will not throw an error

@@ -182,7 +182,7 @@ export default class QueueManager {
     async clearQueue(playlistId=this.currentPlaylist):Promise<boolean> {
         try {
             this.playlists[playlistId].clearQueue();
-            await this.#updateQueue();
+            await this.#updateQueue(playlistId);
             this.currentSong = 0
             return true
         } catch {

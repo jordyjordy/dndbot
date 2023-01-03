@@ -26,7 +26,7 @@ export default async (req: ISessionAuthRequest , res: Response, next: NextFuncti
             throw new Error("no valid tokens present");
         }
     } catch (err) {
-        res.clearCookie('access_token');
+        // res.clearCookie('access_token');
         res.status(401).send("Authentication Failed")
     }
 }
