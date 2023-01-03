@@ -9,28 +9,21 @@ import { useNavigate } from "react-router";
 import PlayStateManager from "../Components/PlayStateManager.jsx";
 
 export default function User() {
-    const isFetching = useRef(false);
     const [user, setUser] = useState();
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const serverInfo = useSelector((state) => state.serverInfo);
     useEffect(() => {
-        if(!isFetching.current) {
-            isFetching.current = true;
-            if(localStorage.getItem('sessionId')) {
-                request('/user').then(async res => {
-                    if(res.status === 401) {
-                        navigate('/')
-                        return;
-                    }
-                    const { username } = await res.json();
-                    console.log(username);
-                    setUser(username)
-                }).catch(err => {
-                    navigate('/');
-                })
+        request('/user').then(async res => {
+            if(res.status === 401) {
+                navigate('/')
+                return;
             }
-        }
+            const { username } = await res.json();
+            setUser(username)
+        }).catch(err => {
+            navigate('/');
+        })
     }, [navigate])
 
     const getCurrentVoiceChannel = useCallback(() => {

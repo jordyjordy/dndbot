@@ -48,9 +48,9 @@ client.on('error', (err) => {
     console.error(err)
 })
 
-client.on('guildCreate', async guild => {
-    registerSlashCommands([guild.id])
-})
+// client.on('guildCreate', async guild => {
+//     registerSlashCommands([guild.id])
+// })
 
 export default client;
 
