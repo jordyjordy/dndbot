@@ -85,8 +85,12 @@ export default function Playlists() {
                             </div>
                         )
                     })}
-                    <button className='dndbtn' onClick={() => setShowPlaylistModal(true)}>Add playlist</button>
-                    <CreatePlaylistModal isOpen={showPlaylistModal} close={() => setShowPlaylistModal(false)} />
+                    {serverId && (
+                        <>
+                            <button className='dndbtn' onClick={() => setShowPlaylistModal(true)}>Add playlist</button>
+                            <CreatePlaylistModal isOpen={showPlaylistModal} close={() => setShowPlaylistModal(false)} />
+                        </>
+                    )}
                 </div>
             </div>
             <div className='songs'>
@@ -107,8 +111,12 @@ export default function Playlists() {
                             </div>
                         );
                     })}
-                    <button onClick={() => setShowSongModal(true)} className='dndbtn'>Add song</button>
-                    <CreateSongModal isOpen={showSongModal} close={() => setShowSongModal(false)} currentPlaylist={activePlaylist} />
+                    {serverId && (
+                        <>
+                            <button onClick={() => setShowSongModal(true)} className='dndbtn'>Add song</button>
+                            <CreateSongModal isOpen={showSongModal} close={() => setShowSongModal(false)} currentPlaylist={activePlaylist} />
+                        </>
+                    )}
                 </div>
             </div>
         </div>

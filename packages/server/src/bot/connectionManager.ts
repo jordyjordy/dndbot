@@ -126,7 +126,7 @@ export class ConnectionManager {
         }
         if(!isNaN(Number(id))) {
             try{
-                this.queueManager.currentSongPlaylist = this.queueManager.currentPlaylist;
+                this.queueManager.currentSongPlaylist = this.queueManager.botDisplayPlaylist;
                 this.queueManager.selectSong(parseInt(id));
                 return await this.#startSong();
             } catch(err) {
@@ -180,13 +180,13 @@ export class ConnectionManager {
             this.audioPlayer.pause()
     }
     
-    async play(): Promise<boolean> {
+    async play(force = false): Promise<boolean> {
         try{
             if (!this.isConnected()) {
                 this.playing = false
                 return false
             }
-            if (this.audioPlayer !== undefined && this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
+            if (!force && this.audioPlayer !== undefined && this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
                 try{
                     await this.audioPlayer.unpause()
                     this.playing = true

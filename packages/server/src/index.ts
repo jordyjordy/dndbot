@@ -13,7 +13,6 @@ dotenv.config()
 const originWhitelist = process.env.CORS_ORIGINS?.split(',');
 
 import items from './routes/item';
-import sessions from './routes/session';
 import playlists from './routes/playlist'
 import user from './routes/user';
 import bot from './routes/bot';
@@ -45,7 +44,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cookieParser());
 app.use('/item', items)
-app.use("/sessions", sessions)
 app.use('/playlists', playlists)
 app.use('/user', user)
 app.use('/bot', bot)
@@ -54,14 +52,14 @@ app.use('/songs', song)
 
 app.get('/login', (req: Request, res: Response) => {
     req.query.redirect 
-    const loginUrl = `${process.env.LOGIN_URL}&state=${
+    const loginUrl = `${process.env.LOGIN_URL}&redirect_uri=${
         encodeURIComponent(`${req.query.redirect}`)}`
     res.redirect(loginUrl);
 })
 
-app.get('/redirect', async ({ query }, res: Response) => {
-    const {code, state} = query;
-    if (code && state) {
+app.get('/getAccess', async ({ query }, res: Response) => {
+    const {code} = query;
+    if (code) {
 		try {
             const urlSearchParams = {
                 client_id: process.env.CLIENT_ID as string,
@@ -81,6 +79,11 @@ app.get('/redirect', async ({ query }, res: Response) => {
                 data: new URLSearchParams(urlSearchParams)
             });
 
+            console.log(tokenResponseData.status);
+            if(tokenResponseData.status === 401) {
+                throw new Error('Could not authorize with discord');
+            }
+
             const data: sessionDetails = tokenResponseData.data;
             const userData = await axios({
                 method: 'get',
@@ -90,8 +93,8 @@ app.get('/redirect', async ({ query }, res: Response) => {
                 }
             });
             const token = jwt.sign({ ...data, userId: userData.data.id, username: userData.data.username }, process.env.TOKEN_SECRET, {expiresIn: '30d'})
-            res.cookie('access_token', token, { path: "/", httpOnly: true ,secure: true, sameSite: 'none', domain: process.env.SERVER_IP });
-            res.redirect(302, state.toString());
+            res.cookie('access_token', token, { path: "/", httpOnly: false ,secure: true, sameSite: 'none' });
+            res.sendStatus(204);
             return;
 		} catch (error) {
 			// NOTE: An unauthorized token will not throw an error
