@@ -57,8 +57,8 @@ app.get('/login', (req: Request, res: Response) => {
     res.redirect(loginUrl);
 })
 
-app.get('/getAccess', async ({ query }, res: Response) => {
-    const {code} = query;
+app.get('/getaccess', async ({ query }, res: Response) => {
+    const {code, redirect_uri } = query;
     if (code) {
 		try {
             const urlSearchParams = {
@@ -66,10 +66,10 @@ app.get('/getAccess', async ({ query }, res: Response) => {
                 client_secret: process.env.CLIENT_SECRET as string,
                 code: code.toString(),
                 grant_type: 'authorization_code',
-                redirect_uri: process.env.REDIRECT_URL as string,
+                redirect_uri: redirect_uri as string,
                 scope: 'identify',
                 }
-
+            console.log(new URLSearchParams(urlSearchParams));
             const tokenResponseData = await axios({
                 method: 'post',
                 url: 'https://discord.com/api/oauth2/token',
@@ -79,7 +79,7 @@ app.get('/getAccess', async ({ query }, res: Response) => {
                 data: new URLSearchParams(urlSearchParams)
             });
 
-            console.log(tokenResponseData.status);
+            console.log(tokenResponseData);
             if(tokenResponseData.status === 401) {
                 throw new Error('Could not authorize with discord');
             }
@@ -99,7 +99,9 @@ app.get('/getAccess', async ({ query }, res: Response) => {
 		} catch (error) {
 			// NOTE: An unauthorized token will not throw an error
 			// tokenResponseData.statusCode will be 401
-			console.error(error);
+			console.error('could not authenticate');
+            console.log(error.response.data);
+            res.sendStatus(400);
 		}
 	}
 });
