@@ -3,6 +3,7 @@ import playList, { Song } from './playlist';
 import { LoopEnum } from './utils/loop';
 import ytdl from 'ytdl-core'
 import PlayList from '../model/playlist';
+import { info } from 'console';
 
 const MAX_PLAYLIST_SIZE = 24
 
@@ -16,7 +17,7 @@ export interface QueueStatus {
 export default class QueueManager {
     server: string
     playlists: playList[]
-    currentPlaylist: number
+    botDisplayPlaylist: number
     currentSongPlaylist: number;
     currentSong:number;
     shuffle:boolean;
@@ -24,7 +25,7 @@ export default class QueueManager {
 
     constructor(server: string) {
         this.server = server;
-        this.currentPlaylist = 0;
+        this.botDisplayPlaylist = 0;
         this.playlists = [];
         this.currentSong = 0;
         this.currentSongPlaylist = 0;
@@ -57,7 +58,7 @@ export default class QueueManager {
            }
         } else {
             this.playlists = playlists;
-            this.getCurrentPlaylist().queue = [...this.getCurrentPlaylist().queue];
+            this.getBotDisplayPlaylist().queue = [...this.getBotDisplayPlaylist().queue];
         }
     }
 
@@ -77,17 +78,17 @@ export default class QueueManager {
     }
 
     deletePlaylist = async(id: number):Promise<boolean> => {
-        if(id === this.currentPlaylist) {
+        if(id === this.botDisplayPlaylist) {
             return false;
         }
         try {
             await PlayList.findByIdAndDelete(this.playlists[id]._id);
             this.playlists.splice(id,1)
-            if(this.currentPlaylist >= this.playlists.length) {
-                this.currentPlaylist -= 1
+            if(this.botDisplayPlaylist >= this.playlists.length) {
+                this.botDisplayPlaylist -= 1
                 this.currentSong = 0
-            } else if (this.currentPlaylist > id) {
-                this.currentPlaylist -= 1;
+            } else if (this.botDisplayPlaylist > id) {
+                this.botDisplayPlaylist -= 1;
             }
             return true;
         } catch {
@@ -105,7 +106,7 @@ export default class QueueManager {
         }
     }
 
-    #updateQueue = async (playlistId=this.currentPlaylist): Promise<void> => {
+    #updateQueue = async (playlistId=this.botDisplayPlaylist): Promise<void> => {
         try {
             await PlayList.findByIdAndUpdate(this.playlists[playlistId]._id, this.playlists[playlistId], {new: true})
         } catch (err) {
@@ -114,14 +115,14 @@ export default class QueueManager {
         }
     }
 
-    async setPlayList(index: number):Promise<void> {
+    async setBotDisplayPlaylist(index: number):Promise<void> {
         if(index >= 0 && index < this.playlists.length) {
-            this.currentPlaylist = index;
+            this.botDisplayPlaylist = index;
         }
     }
 
-    getCurrentQueue = ():{name: string, url: string}[] => {
-        return this.getCurrentPlaylist()?.queue ?? []
+    getBotDisplayQueue = ():{name: string, url: string}[] => {
+        return this.getBotDisplayPlaylist()?.queue ?? []
     }
 
     toggleLoop(value:LoopEnum):void {
@@ -134,10 +135,9 @@ export default class QueueManager {
     }
 
     selectSong(id:number, playlistIndex: number = this.currentSongPlaylist):void {
-        console.log(playlistIndex);
         this.currentSong = id
         this.currentSongPlaylist = playlistIndex;
-        this.currentSong = this.currentSong % this.getCurrentPlaylist().queue.length;
+        this.currentSong = this.currentSong % this.getCurrentSongPlaylist().queue.length;
     }
 
     goToNextSong():number {
@@ -165,7 +165,7 @@ export default class QueueManager {
         return this.currentSong;
     }
 
-    async removeSong(id:number, playlistId=this.currentPlaylist):Promise<boolean> {
+    async removeSong(id:number, playlistId=this.botDisplayPlaylist):Promise<boolean> {
         if(id === null) {
             return false
         }
@@ -179,7 +179,7 @@ export default class QueueManager {
         }
     }
 
-    async clearQueue(playlistId=this.currentPlaylist):Promise<boolean> {
+    async clearQueue(playlistId=this.botDisplayPlaylist):Promise<boolean> {
         try {
             this.playlists[playlistId].clearQueue();
             await this.#updateQueue(playlistId);
@@ -190,11 +190,11 @@ export default class QueueManager {
         }
     }
     getQueue():{queue:{url:string,name:string}[],currentsong:number} {
-        return {queue:this.getCurrentPlaylist().queue,currentsong:this.currentSong}
+        return {queue:this.getBotDisplayPlaylist().queue,currentsong:this.currentSong}
     }
 
-    getCurrentPlaylist():playList {
-        return this.playlists[this.currentPlaylist];
+    getBotDisplayPlaylist():playList {
+        return this.playlists[this.botDisplayPlaylist];
     }
 
     getCurrentSongPlaylist():playList {
@@ -209,21 +209,25 @@ export default class QueueManager {
         return this.getCurrentSongPlaylist().getSongUrl(this.currentSong);
     }
 
-    async queueSong({ url, playlistIndex=this.currentPlaylist, pos=this.getCurrentPlaylist().queue.length, name }: {url: string, playlistIndex?:number, pos?:number, name?: string }):Promise<number> {
-        if(this.getCurrentPlaylist().queue.length >= MAX_PLAYLIST_SIZE) {
+    async queueSong({ url, playlistIndex=this.botDisplayPlaylist, pos, name }: {url: string, playlistIndex?:number, pos?:number, name?: string }):Promise<number> {
+        if(this.getBotDisplayPlaylist().queue.length >= MAX_PLAYLIST_SIZE) {
             throw new Error('maximum playlist size reached');
         }
+        const actualPos = Math.max(0, Math.min(pos ?? this.playlists[playlistIndex].queue.length, this.playlists[playlistIndex].queue.length));
+        const actualName = name === undefined || name === ''
+            ? undefined
+            : name;
         return ytdl.getBasicInfo(url).then(async (info) => {
-            if(pos < this.playlists[playlistIndex].queue.length) {
-                this.playlists[playlistIndex].insertSong({url, name: name ?? info.videoDetails.title}, pos)
-                if(pos < this.currentSong) {
+            if(actualPos < this.playlists[playlistIndex].queue.length) {
+                this.playlists[playlistIndex].insertSong({url, name: actualName ?? info.videoDetails.title}, actualPos)
+                if(actualPos < this.currentSong) {
                     this.currentSong++
                 }
             } else {
-                this.playlists[playlistIndex].insertSong({url ,name: name ?? info.videoDetails.title})
+                this.playlists[playlistIndex].insertSong({url ,name: actualName ?? info.videoDetails.title})
             }
-            await this.#updateQueue();
-            return pos;
+            await this.#updateQueue(playlistIndex);
+            return actualPos;
         }).catch(() => {
             throw new Error('Could not load song, url probably incorrect')
         })

@@ -13,7 +13,7 @@ export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
     const args = msg.values[0]
     const { connectionManager, queueManager } = await getConnection(msg.guildId)
     try{
-        queueManager.setPlayList(parseInt(args))
+        queueManager.setBotDisplayPlaylist(parseInt(args))
         msg.update(getMessageContent(connectionManager))
     } catch(err) {
         console.error("COULD CONNECT FROM SELECT MENU?!")

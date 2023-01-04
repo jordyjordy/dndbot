@@ -1,6 +1,5 @@
 import {Command as dnd} from "./dnd"
 import {Command as info} from './info'
-import {Command as passcode} from './passcode'
 import {Command as roll} from './roll'
 import {Command as play} from './play'
 import {Command as addsong} from './addsong'
@@ -16,7 +15,7 @@ import {Command as shuffle} from "./shuffle"
 import {Command as createplaylist} from "./createplaylist"
 import {Command as deleteplaylist} from "./deleteplaylist"
 
-export const Commands = [dnd,info,passcode,roll,play,addsong,clear,queue,pause,loop,nextsong,prevsong,disconnect,resume, shuffle, createplaylist,
+export const Commands = [dnd,info,roll,play,addsong,clear,queue,pause,loop,nextsong,prevsong,disconnect,resume, shuffle, createplaylist,
     deleteplaylist]
 
 export const RegisterCommands = Commands.map(command => command.info.toJSON())

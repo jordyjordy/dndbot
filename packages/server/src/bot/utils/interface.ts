@@ -81,7 +81,7 @@ function generatePlaylistSelectRow(connectionContainer: ConnectionManager):Messa
     if(!queueManager.playlists || queueManager.playlists.length <= 0) {
         return null
     }
-    const placeholder = queueManager.currentPlaylist + ': ' + queueManager.playlists[queueManager.currentPlaylist].name
+    const placeholder = queueManager.botDisplayPlaylist + ': ' + queueManager.playlists[queueManager.botDisplayPlaylist].name
     const row = new MessageActionRow().addComponents(
         new MessageSelectMenu()
             .setCustomId('playlistSelect')
@@ -96,11 +96,11 @@ function generatePlaylistSelectRow(connectionContainer: ConnectionManager):Messa
 
 function generateSelectRow(connectionContainer:ConnectionManager):MessageActionRow | null {
     const queueManager = connectionContainer.queueManager;
-    if(queueManager.getCurrentQueue().length === 0) {
+    if(queueManager.getBotDisplayQueue().length === 0) {
         return null;
     }
     let playingText = "PLAYING"
-    if(queueManager.currentSong > queueManager.getCurrentQueue().length - 1) {
+    if(queueManager.currentSong > queueManager.getBotDisplayQueue().length - 1) {
         return null;
     }
     if(!connectionContainer.playing ) {
@@ -114,15 +114,15 @@ function generateSelectRow(connectionContainer:ConnectionManager):MessageActionR
             playingText = "SELECTED"
         }
     }
-    if(queueManager.currentSongPlaylist !== queueManager.currentPlaylist) {
+    if(queueManager.currentSongPlaylist !== queueManager.botDisplayPlaylist) {
         playingText = ""
     }
     const row = new MessageActionRow()
         .addComponents(
             new MessageSelectMenu()
                 .setCustomId('play')
-                .setPlaceholder(queueManager.currentSong + ": " + queueManager.getCurrentQueue()[queueManager.currentSong].name)
-                .addOptions(queueManager.getCurrentQueue().map((el,id) => {
+                .setPlaceholder(queueManager.currentSong + ": " + queueManager.getBotDisplayQueue()[queueManager.currentSong].name)
+                .addOptions(queueManager.getBotDisplayQueue().map((el,id) => {
                     const name = id + ": "+ el.name.substring(0,Math.min(80,el.name.length))
                     return {label:name, description:(queueManager.currentSong === id?playingText:""),value:id.toString()}
                 }).filter((el, id) => id < 25))
