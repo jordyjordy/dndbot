@@ -1,5 +1,5 @@
 import express, {Response} from 'express';
-const router = express.Router()
+const router = express.Router();
 import client, { getConnection }  from '../bot';
 import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth';
 
@@ -17,7 +17,7 @@ router.post('/joinchannel', sessionAuth, async (req: JoinChannelRequest, res: Re
         await connectionManager.connectToChannel(req.body.channelId, req.body.serverId);
     }
     res.sendStatus(200);
-})
+});
 
 
 export default router;

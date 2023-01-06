@@ -2,7 +2,7 @@
 export type Song = {
     url:string,
     name:string
-}
+};
 
 export type Queue = Song[];
 
@@ -20,7 +20,7 @@ export default class playlist {
     }
 
     removeSong(id:number):void {
-        this.queue.splice(id,1)
+        this.queue.splice(id,1);
     }
 
     clearQueue(): void {
@@ -36,6 +36,6 @@ export default class playlist {
     }
 
     insertSong(song:Song, pos:number = this.queue.length):void {
-        this.queue.splice(pos, 0, song)
+        this.queue.splice(pos, 0, song);
     }
 }

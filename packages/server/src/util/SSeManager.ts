@@ -14,7 +14,7 @@ class SSEManager {
 
     static publish = (serverId: string, message: any): void => {
         Object.values(this.serverList[serverId]).forEach(callback => callback(message));
-    }
+    };
 }
 
 export default SSEManager;

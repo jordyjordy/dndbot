@@ -1,5 +1,5 @@
-import { REST } from '@discordjs/rest'
-import { Routes } from 'discord-api-types/v9'
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
 import { RegisterCommands } from "./commands";
 
 async function registerSlashCommands(servers:string[]):Promise<void> {
@@ -26,9 +26,9 @@ const refreshSlashCommmands = async (server: string, rest: REST, commands) => {
             { body: commands }
         );
     } catch(err) {
-        console.error(err)
+        console.error(err);
     }
-}
+};
 
 
-export default registerSlashCommands
+export default registerSlashCommands;

@@ -2,5 +2,5 @@
 export enum LoopEnum {
     NONE,
     ONE,
-    ALL
+    ALL,
 }
