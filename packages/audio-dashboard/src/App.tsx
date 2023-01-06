@@ -5,10 +5,12 @@ import Login from './Pages/Login';
 import Redirect from './Pages/Redirect';
 import Overview from './Pages/Overview';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import LoaderSpinner from './Components/LoaderSpinner';
 
 function App (): JSX.Element {
     return (
         <div className="App">
+            <LoaderSpinner />
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<Login />} />
