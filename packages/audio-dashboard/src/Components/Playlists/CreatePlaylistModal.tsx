@@ -63,7 +63,7 @@ const CreatePlaylistModal = ({ close, isOpen, fromUrl = false }: CreatePlaylistM
                 {fromUrl && (
                     <>
                         <Label>Url (optional)</Label>
-                        <Input onChange={(e) => { setUrl(e.target.value); }} value={url}/>
+                        <Input onChange={(e) => { setUrl(e.target.value); }} value={url ?? ''}/>
                     </>
                 )}
                 <button onClick={handleCreate} className='dndbtn mt-2'>
