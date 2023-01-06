@@ -15,11 +15,11 @@ interface IPlaylistModel extends mongoose.Model<IPlaylist> {
 const playListSchema = new mongoose.Schema({
     name: {
         type: String,
-        require: [true, "We cant have a playlist without a name!"]
+        require: [true, "We cant have a playlist without a name!"],
     },
     server: {
         type: String,
-        require: [true, "We need to link a playlist to a server"]
+        require: [true, "We need to link a playlist to a server"],
     },
     queue: {
         type: [
@@ -28,20 +28,20 @@ const playListSchema = new mongoose.Schema({
                     type: String,
                 },
                 url: {
-                    type: String
-                }
-            }
-        ]
-    }
-})
+                    type: String,
+                },
+            },
+        ],
+    },
+});
 
 playListSchema.statics.findByServerId = async (server): Promise<IPlaylist[] | null> => {
     if(server) {
-        const foundDay = PlayList.find({ server })
+        const foundDay = PlayList.find({ server });
         return foundDay;
     }
     return null;
-}
+};
 
 
 playListSchema.statics.createNewPlayList = async(name, server) => {
@@ -49,12 +49,12 @@ playListSchema.statics.createNewPlayList = async(name, server) => {
         name,
         server,
         queue: [],
-    })
-    return playList.save()
-}
+    });
+    return playList.save();
+};
 
 
 
 
-const PlayList = mongoose.model<IPlaylist, IPlaylistModel>("playList", playListSchema)
+const PlayList = mongoose.model<IPlaylist, IPlaylistModel>("playList", playListSchema);
 export default PlayList;

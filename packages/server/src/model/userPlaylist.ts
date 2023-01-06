@@ -15,11 +15,11 @@ interface IUserPlaylistModel extends mongoose.Model<IUserPlaylist> {
 const playListSchema = new mongoose.Schema({
     name: {
         type: String,
-        require: [true, "We cant have a playlist without a name!"]
+        require: [true, "We cant have a playlist without a name!"],
     },
     userId: {
         type: String,
-        require: [true, "We need to link a userPlaylist to a user"]
+        require: [true, "We need to link a userPlaylist to a user"],
     },
     queue: {
         type: [
@@ -28,26 +28,26 @@ const playListSchema = new mongoose.Schema({
                     type: String,
                 },
                 url: {
-                    type: String
-                }
-            }
-        ]
-    }
-})
+                    type: String,
+                },
+            },
+        ],
+    },
+});
 
 playListSchema.statics.findByUserId = async (userId: string): Promise<IUserPlaylist[]> => {
-    const playlists = UserPlayList.find({ userId }, { name: 1 })
+    const playlists = UserPlayList.find({ userId }, { name: 1 });
     return playlists;
-}
+};
 
 playListSchema.statics.createNewPlayList = async(name:string, userId: string) => {
     const playList = new UserPlayList({
         name,
         userId,
         queue: [],
-    })
-    return playList.save()
-}
+    });
+    return playList.save();
+};
 
-const UserPlayList = mongoose.model<IUserPlaylist, IUserPlaylistModel>("userPlayList", playListSchema)
+const UserPlayList = mongoose.model<IUserPlaylist, IUserPlaylistModel>("userPlayList", playListSchema);
 export default UserPlayList;

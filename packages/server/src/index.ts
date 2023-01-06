@@ -8,12 +8,12 @@ import jwt from 'jsonwebtoken';
 
 import client from './bot/index';
 
-const app = express()
-dotenv.config()
+const app = express();
+dotenv.config();
 const originWhitelist = process.env.CORS_ORIGINS?.split(',');
 
 import items from './routes/item';
-import playlists from './routes/playlist'
+import playlists from './routes/playlist';
 import user from './routes/user';
 import bot from './routes/bot';
 import music from './routes/music';
@@ -21,41 +21,41 @@ import song from './routes/song';
 import { sessionDetails } from './util/sessionManager';
 import axios from 'axios';
 
-mongoose.set('useCreateIndex', true)
-mongoose.set('useUnifiedTopology', true)
-mongoose.set('useNewUrlParser', true)
-mongoose.set("useFindAndModify", false)
+mongoose.set('useCreateIndex', true);
+mongoose.set('useUnifiedTopology', true);
+mongoose.set('useNewUrlParser', true);
+mongoose.set("useFindAndModify", false);
 
 mongoose.connect(process.env.DATABASE_URL as string).then(() => {
-    console.log("Connected to database!")
-})
-const port = process.env.PORT || 5000
+    console.log("Connected to database!");
+});
+const port = process.env.PORT || 5000;
 app.use(cors({
     credentials: true,
     origin: function (ori, callback) {
         if (!ori || originWhitelist?.indexOf(ori ?? '') !== -1) {
-          callback(null, true)
+          callback(null, true);
         } else {
-          callback(new Error('Not allowed by CORS'))
+          callback(new Error('Not allowed by CORS'));
         }
-      }
+      },
 }));
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(cookieParser());
-app.use('/item', items)
-app.use('/playlists', playlists)
-app.use('/user', user)
-app.use('/bot', bot)
-app.use('/music', music)
-app.use('/songs', song)
+app.use('/item', items);
+app.use('/playlists', playlists);
+app.use('/user', user);
+app.use('/bot', bot);
+app.use('/music', music);
+app.use('/songs', song);
 
 app.get('/login', (req: Request, res: Response) => {
-    req.query.redirect 
+    req.query.redirect; 
     const loginUrl = `${process.env.LOGIN_URL}&redirect_uri=${
-        encodeURIComponent(`${req.query.redirect}`)}`
+        encodeURIComponent(`${req.query.redirect}`)}`;
     res.redirect(loginUrl);
-})
+});
 
 app.get('/getaccess', async ({ query }, res: Response) => {
     const {code, redirect_uri } = query;
@@ -68,18 +68,17 @@ app.get('/getaccess', async ({ query }, res: Response) => {
                 grant_type: 'authorization_code',
                 redirect_uri: redirect_uri as string,
                 scope: 'identify',
-                }
-            console.log(new URLSearchParams(urlSearchParams));
+                };
+
             const tokenResponseData = await axios({
                 method: 'post',
                 url: 'https://discord.com/api/oauth2/token',
                 headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                data: new URLSearchParams(urlSearchParams)
+                data: new URLSearchParams(urlSearchParams),
             });
 
-            console.log(tokenResponseData);
             if(tokenResponseData.status === 401) {
                 throw new Error('Could not authorize with discord');
             }
@@ -89,10 +88,10 @@ app.get('/getaccess', async ({ query }, res: Response) => {
                 method: 'get',
                 url: 'https://discord.com/api/users/@me',
                 headers: {
-                    authorization: `${data.token_type} ${data.access_token}`
-                }
+                    authorization: `${data.token_type} ${data.access_token}`,
+                },
             });
-            const token = jwt.sign({ ...data, userId: userData.data.id, username: userData.data.username }, process.env.TOKEN_SECRET, {expiresIn: '30d'})
+            const token = jwt.sign({ ...data, userId: userData.data.id, username: userData.data.username }, process.env.TOKEN_SECRET, {expiresIn: '30d'});
             res.cookie('access_token', token, { path: "/", httpOnly: false ,secure: true, sameSite: 'none' });
             res.sendStatus(204);
             return;
@@ -106,6 +105,6 @@ app.get('/getaccess', async ({ query }, res: Response) => {
 	}
 });
 
-app.listen(port, () => console.log("Listening on port " + port))
+app.listen(port, () => console.log("Listening on port " + port));
 
-client.login(process.env.BOT_TOKEN)
+client.login(process.env.BOT_TOKEN);

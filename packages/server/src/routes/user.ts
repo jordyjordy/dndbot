@@ -1,5 +1,5 @@
 import express, {Response} from 'express';
-const router = express.Router()
+const router = express.Router();
 import axios from 'axios';
 import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth.js';
 import client from '../bot/index.js';
@@ -11,11 +11,11 @@ const getUserGuilds = async (sessionDetails: sessionDetails): Promise<APIGuild[]
         method: 'get',
         url: 'https://discord.com/api/users/@me/guilds',
         headers: {
-            authorization: `${sessionDetails.token_type} ${sessionDetails.access_token}`
-        }
+            authorization: `${sessionDetails.token_type} ${sessionDetails.access_token}`,
+        },
     });
     return guilds;
-}
+};
 
 router.get('/', sessionAuth, async (req: ISessionAuthRequest, res: Response): Promise<void> => {
     const { sessionDetails } = req;
@@ -23,23 +23,23 @@ router.get('/', sessionAuth, async (req: ISessionAuthRequest, res: Response): Pr
         method: 'get',
         url: 'https://discord.com/api/users/@me',
         headers: {
-            authorization: `${sessionDetails.token_type} ${sessionDetails.access_token}`
-        }
+            authorization: `${sessionDetails.token_type} ${sessionDetails.access_token}`,
+        },
     });
-    res.status(200).json({ ...userData.data })
-})
+    res.status(200).json({ ...userData.data });
+});
 
 router.get('/guilds', sessionAuth, async(req: ISessionAuthRequest, res: Response): Promise<void> => {
     const { sessionDetails } = req;
     const guilds = await getUserGuilds(sessionDetails);
-    res.status(200).json({ guilds: guilds })
-})
+    res.status(200).json({ guilds: guilds });
+});
 
 router.get('/voicechannel', sessionAuth, async(req: ISessionAuthRequest, res: Response): Promise<void> => {
     const { sessionDetails } = req;
     try{
         const guildIds = (await getUserGuilds(sessionDetails)).map(({ id }) => id);
-        const filteredGuilds = client.guilds.cache.filter(({ id }) => guildIds.includes(id))
+        const filteredGuilds = client.guilds.cache.filter(({ id }) => guildIds.includes(id));
         for(let i = 0; i < filteredGuilds.size; i++) {
             const guildWithUser = filteredGuilds.at(i);
             const member = await guildWithUser?.members.fetch(sessionDetails.userId);
@@ -54,6 +54,6 @@ router.get('/voicechannel', sessionAuth, async(req: ISessionAuthRequest, res: Re
         console.error(err);
     }
     res.status(200).json({});
-})
+});
 
 export default router;

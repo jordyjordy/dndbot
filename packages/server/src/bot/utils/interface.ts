@@ -1,94 +1,94 @@
-import { AudioPlayerStatus } from "@discordjs/voice"
-import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageSelectMenu, TextBasedChannel } from "discord.js"
-import { ConnectionManager } from "../connectionManager"
-import { LoopEnum } from "./loop"
+import { AudioPlayerStatus } from "@discordjs/voice";
+import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageSelectMenu, TextBasedChannel } from "discord.js";
+import { ConnectionManager } from "../connectionManager";
+import { LoopEnum } from "./loop";
 import { reply, deleteReply } from '../utils/messageReply';
 
 export async function updateInterface(connectionContainer:ConnectionManager,msg?:CommandInteraction ,newmsg=false,removeOld=true,edit=false):Promise<void> {
     if(connectionContainer.queueMessage && removeOld) {
         if(!connectionContainer.queueMessage.deleted) {
             try{
-                await connectionContainer.queueMessage.delete()
+                await connectionContainer.queueMessage.delete();
             } catch(err) {
-                console.error(err)
+                console.error(err);
             }
         }
-        connectionContainer.queueMessage = undefined
+        connectionContainer.queueMessage = undefined;
     }
     try {
-        sendQueueMessage(connectionContainer, msg,getMessageContent(connectionContainer),newmsg,edit)
+        sendQueueMessage(connectionContainer, msg,getMessageContent(connectionContainer),newmsg,edit);
     } catch (err) {
-        console.error(err)
+        console.error(err);
     }
 }
 
 async function sendQueueMessage(connectionContainer:ConnectionManager, msg:CommandInteraction | undefined, message: messageContent, newmsg: boolean, edit: boolean) {
-    let channel: TextBasedChannel
+    let channel: TextBasedChannel;
     if(!msg || !msg.channel) {
-        if(!connectionContainer.queueMessage) return
-        channel = connectionContainer.queueMessage.channel
-        newmsg = true
+        if(!connectionContainer.queueMessage) return;
+        channel = connectionContainer.queueMessage.channel;
+        newmsg = true;
     } else {
-        channel = msg.channel
+        channel = msg.channel;
     }
     try{
         if(edit) {
             if(!newmsg && connectionContainer.queueMessage && msg) {
-                deleteReply(msg)
-                connectionContainer.queueMessage.edit(message)
+                deleteReply(msg);
+                connectionContainer.queueMessage.edit(message);
             } else if(msg) {
-                reply(msg,message)
+                reply(msg,message);
             }
-            return
+            return;
         }
         if (newmsg) {
-            connectionContainer.queueMessage = await channel.send(message)
+            connectionContainer.queueMessage = await channel.send(message);
         } else if (msg) {  
             await reply(msg, message);
-            connectionContainer.queueMessage = await msg.fetchReply() as Message
+            connectionContainer.queueMessage = await msg.fetchReply() as Message;
         }
     } catch(err) {
-        console.error(err)
+        console.error(err);
     }
 }
 
 
 
 function getLoopIcon(connectionContainer:ConnectionManager):string {
-    const queueManager = connectionContainer.queueManager
+    const queueManager = connectionContainer.queueManager;
     if(queueManager.shuffle) {
-        return ":twisted_rightwards_arrows:"
+        return ":twisted_rightwards_arrows:";
     }
     switch(queueManager.loop) {
         case LoopEnum.ALL:
-            return ':repeat:'
+            return ':repeat:';
         case LoopEnum.ONE:
-            return ':repeat_one:'
+            return ':repeat_one:';
         default:
-            return ':blue_square:'
+            return ':blue_square:';
     }
 }
 
 function generateText(connectionContainer:ConnectionManager) {
-    let response = ""
+    let response = "";
     response += "**Status: " + (connectionContainer.playing?':arrow_forward:':':pause_button:') +
-    " PlayStyle: " + getLoopIcon(connectionContainer) + "**\n" 
-    return response
+    " PlayStyle: " + getLoopIcon(connectionContainer) + "**\n"; 
+    return response;
 }
 
 function generatePlaylistSelectRow(connectionContainer: ConnectionManager):MessageActionRow | null {
     const queueManager = connectionContainer.queueManager;
     if(!queueManager.playlists || queueManager.playlists.length <= 0) {
-        return null
+        return null;
     }
-    const placeholder = queueManager.botDisplayPlaylist + ': ' + queueManager.playlists[queueManager.botDisplayPlaylist].name
+    const placeholder = queueManager.botDisplayPlaylist + ': ' + queueManager.playlists[queueManager.botDisplayPlaylist].name;
     const row = new MessageActionRow().addComponents(
         new MessageSelectMenu()
             .setCustomId('playlistSelect')
             .setPlaceholder(placeholder.substring(0, Math.min(80, placeholder.length)))
             .addOptions(queueManager.playlists.map((el, id) => {
-                const label = id + ": " + el.name.substring(0,Math.min(80,el.name.length))
-                return {label, description: '', value: id.toString()}
+                const label = id + ": " + el.name.substring(0,Math.min(80,el.name.length));
+                return {label, description: '', value: id.toString()};
             }).filter((el, id) => id < 25))
     );
     return row;
@@ -99,23 +99,23 @@ function generateSelectRow(connectionContainer:ConnectionManager):MessageActionR
     if(queueManager.getBotDisplayQueue().length === 0) {
         return null;
     }
-    let playingText = "PLAYING"
+    let playingText = "PLAYING";
     if(queueManager.currentSong > queueManager.getBotDisplayQueue().length - 1) {
         return null;
     }
     if(!connectionContainer.playing ) {
         if(!connectionContainer.audioPlayer) {
-            playingText = "SELECTED"
+            playingText = "SELECTED";
         }
         else if(connectionContainer.audioPlayer.state.status === AudioPlayerStatus.Paused
             || connectionContainer.audioPlayer.state.status === AudioPlayerStatus.AutoPaused) {
-            playingText = "PAUSED"
+            playingText = "PAUSED";
         } else {
-            playingText = "SELECTED"
+            playingText = "SELECTED";
         }
     }
     if(queueManager.currentSongPlaylist !== queueManager.botDisplayPlaylist) {
-        playingText = ""
+        playingText = "";
     }
     const row = new MessageActionRow()
         .addComponents(
@@ -123,11 +123,11 @@ function generateSelectRow(connectionContainer:ConnectionManager):MessageActionR
                 .setCustomId('play')
                 .setPlaceholder(queueManager.currentSong + ": " + queueManager.getBotDisplayQueue()[queueManager.currentSong].name)
                 .addOptions(queueManager.getBotDisplayQueue().map((el,id) => {
-                    const name = id + ": "+ el.name.substring(0,Math.min(80,el.name.length))
-                    return {label:name, description:(queueManager.currentSong === id?playingText:""),value:id.toString()}
+                    const name = id + ": "+ el.name.substring(0,Math.min(80,el.name.length));
+                    return {label:name, description:(queueManager.currentSong === id?playingText:""),value:id.toString()};
                 }).filter((el, id) => id < 25))
-        )
-    return row
+        );
+    return row;
 }
 
 function genererateButtonRow(connectionContainer:ConnectionManager):MessageActionRow {
@@ -149,8 +149,8 @@ function genererateButtonRow(connectionContainer:ConnectionManager):MessageActio
         .setCustomId("stop")
         .setLabel("Stop")
         .setStyle("DANGER")
-    )
-    return row
+    );
+    return row;
 }
 
 function generateSecondaryButtonRow(connectionContainer:ConnectionManager):MessageActionRow {
@@ -172,8 +172,8 @@ function generateSecondaryButtonRow(connectionContainer:ConnectionManager):Messa
                 .setCustomId("reload")
                 .setLabel('Reload Interface')
                 .setStyle("PRIMARY"),
-        )
-    return row
+        );
+    return row;
 }
 
 function generateTeriaryButtonRow():MessageActionRow {
@@ -183,52 +183,52 @@ function generateTeriaryButtonRow():MessageActionRow {
                 .setCustomId('clear')
                 .setLabel("Empty Playlist")
                 .setStyle("DANGER")
-        )
-    return row
+        );
+    return row;
 }
 
 function getLoopButtonStyle(connectionContainer:ConnectionManager) {
     const queueManager = connectionContainer.queueManager;
     switch(queueManager.loop) {
         case LoopEnum.ALL:
-            return "PRIMARY"
+            return "PRIMARY";
         case LoopEnum.ONE:
-            return "SUCCESS"
+            return "SUCCESS";
         default:
-            return "SECONDARY"
+            return "SECONDARY";
     }
 }
 
 function getShuffleButtonStyle(connectionContainer:ConnectionManager):"PRIMARY"|"SECONDARY" {
     const queueManager = connectionContainer.queueManager;
     if(queueManager.shuffle) {
-        return "PRIMARY"
+        return "PRIMARY";
     }
-    return "SECONDARY"
+    return "SECONDARY";
 }
 
 
 function getPlayButtonStyleAndText(connectionContainer:ConnectionManager):{text:"Pause",style:"PRIMARY"}|{text:"Play",style:"SUCCESS"} {
     if(connectionContainer.playing) {
-        return {text:"Pause",style:"PRIMARY"}
+        return {text:"Pause",style:"PRIMARY"};
     }
-    return {text:"Play",style:"SUCCESS"}
+    return {text:"Play",style:"SUCCESS"};
 }
 export function getMessageContent(connectionContainer:ConnectionManager):messageContent {
-    const response = generateText(connectionContainer)
+    const response = generateText(connectionContainer);
     const playlistRow = generatePlaylistSelectRow(connectionContainer) as MessageActionRow;
-    const selectrow = generateSelectRow(connectionContainer) as MessageActionRow
-    const components: MessageActionRow[] = []
+    const selectrow = generateSelectRow(connectionContainer) as MessageActionRow;
+    const components: MessageActionRow[] = [];
     if(playlistRow) {
-        components.push(playlistRow)
+        components.push(playlistRow);
     }
     if(selectrow !== null) {
-        components.push(selectrow)
+        components.push(selectrow);
     }
-    components.push(genererateButtonRow(connectionContainer))
-    components.push(generateSecondaryButtonRow(connectionContainer))
-    components.push(generateTeriaryButtonRow())
-    return {content:response, components:components}
+    components.push(genererateButtonRow(connectionContainer));
+    components.push(generateSecondaryButtonRow(connectionContainer));
+    components.push(generateTeriaryButtonRow());
+    return {content:response, components:components};
 }
 
 export interface messageContent {

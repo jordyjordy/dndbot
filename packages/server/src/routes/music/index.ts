@@ -15,13 +15,13 @@ type SongPlayRequest = ISessionAuthRequest & {
         song: number,
         serverId: string,
     }
-}
+};
 
 type UpdateRequest = ISessionAuthRequest & {
     query: {
         serverId: string,
     }
-}
+};
 
 type MusicAction = 'STOP' | 'PLAY' | 'PAUSE' | 'NEXTSONG' | 'PREVIOUSSONG' | 'TOGGLESHUFFLE' | 'TOGGLEREPEAT';
 
@@ -30,14 +30,14 @@ type MusicActionRequest = ISessionAuthRequest & {
         action: MusicAction,
         serverId: string,
     }
-}
+};
 
 const updateSSE = async (req, res, next) => {
-    const serverId = req.query.serverId ?? req.body.serverId
+    const serverId = req.query.serverId ?? req.body.serverId;
     const connectionInterface = new ConnectionInterface(serverId);
     SSEManager.publish(serverId, await connectionInterface.getPlayStatus());
     next();
-}
+};
 
 
 router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response, next): Promise<void> => {
@@ -52,12 +52,12 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
     await connectionManager.play(true);
     res.sendStatus(200);
     next();
-}, updateSSE)
+}, updateSSE);
 
 router.get('/status', sessionAuth, async (req: SongPlayRequest, res: Response): Promise<void> => {
     const connectionInterface = new ConnectionInterface(req.body.serverId);
-    res.status(200).send(connectionInterface.getPlayStatus())
-})
+    res.status(200).send(connectionInterface.getPlayStatus());
+});
 
 
 router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Response, next): Promise<void> => {
@@ -94,7 +94,7 @@ router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Respons
     }
     res.status(200).send(await connectionInterface.getPlayStatus());
     next();
-}, updateSSE)
+}, updateSSE);
 
 router.get('/update', sessionAuth, async (req: UpdateRequest, res: Response) => {
     res.setHeader('Cache-Control', 'no-cache');
@@ -104,7 +104,7 @@ router.get('/update', sessionAuth, async (req: UpdateRequest, res: Response) => 
 
     SSEManager.addListener(req.query.serverId, req.sessionDetails.userId, (message) => {
         res.write(`\ndata: ${JSON.stringify(message)}\n\n`);
-    })
+    });
 
     const connectionInterface = new ConnectionInterface(req.query.serverId);
     res.write(`\ndata: ${JSON.stringify(await connectionInterface.getPlayStatus())}\n\n`);

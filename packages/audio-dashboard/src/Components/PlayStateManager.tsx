@@ -1,17 +1,28 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setPlayStatus } from '../reducers/playStatus/actions';
+import { RootState } from '../utils/store';
 
-export default function PlayStateManager({ children }) {
-    const sse = useRef();
+interface PlayStateManagerProps {
+    children: JSX.Element
+}
+
+const selector = (state: RootState): { serverId: string } => ({
+    serverId: state.serverInfo.serverId,
+});
+
+export default function PlayStateManager ({ children }: PlayStateManagerProps): JSX.Element {
+    const sse = useRef<EventSource>();
     const dispatch = useDispatch();
 
-    const { serverId} = useSelector((state) =>({
-        serverId: state.serverInfo.serverId
-    }));
+    const { serverId } = useSelector(selector);
 
     useEffect(() => {
-        if(!serverId) {
+        if (process.env.REACT_APP_SERVER_ADDRESS === undefined) {
+            console.error('Server address not set');
+            return;
+        }
+        if (serverId === '' || serverId === 'undefined') {
             return;
         }
         sse.current = new EventSource(`${process.env.REACT_APP_SERVER_ADDRESS}/music/update?serverId=${serverId}`, { withCredentials: true });
@@ -24,7 +35,7 @@ export default function PlayStateManager({ children }) {
 
         return () => {
             sse.current?.close();
-        }
+        };
     }, [serverId, dispatch]);
     return children;
 }

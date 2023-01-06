@@ -17,34 +17,34 @@ interface IITemModel extends mongoose.Model<IItem> {
 const itemSchema = new mongoose.Schema<IItem>({
     name: {
         type: String,
-        require: [true, "We need a name to find this, silly!"]
+        require: [true, "We need a name to find this, silly!"],
     },
     name_lower: {
         type: String,
-        require: [true, "Needed for searching!"]
+        require: [true, "Needed for searching!"],
     },
     type: {
-        type: String
+        type: String,
     },
     details: {
-        type: String
+        type: String,
     },
     edit: {
-        type: String
+        type: String,
     },
     server: {
         type: String,
-        require: [true," need a server linked!"]
-    }
-})
+        require: [true," need a server linked!"],
+    },
+});
 itemSchema.pre("save", async function (next) {
-    this.name_lower = this.name.toLowerCase()
-    next()
-})
+    this.name_lower = this.name.toLowerCase();
+    next();
+});
 itemSchema.statics.findByName = async (name,server) => {
-    const item = await Item.find({ name_lower: { $regex: name.toLowerCase(), $options: 'i' }, server:server })
+    const item = await Item.find({ name_lower: { $regex: name.toLowerCase(), $options: 'i' }, server:server });
     return item;
-}
+};
 
-const Item = mongoose.model<IItem,IITemModel>("Item", itemSchema)
+const Item = mongoose.model<IItem,IITemModel>("Item", itemSchema);
 export default Item;

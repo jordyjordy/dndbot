@@ -27,6 +27,6 @@ export default async (req: ISessionAuthRequest , res: Response, next: NextFuncti
         }
     } catch (err) {
         res.clearCookie('access_token');
-        res.status(401).send("Authentication Failed")
+        res.status(401).send("Authentication Failed");
     }
-}
+};
