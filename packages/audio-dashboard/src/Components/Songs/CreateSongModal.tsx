@@ -1,28 +1,29 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Input, Label, Modal, ModalBody, ModalHeader } from 'reactstrap';
-import { request } from '../utils/network';
+import { request } from '../../utils/network';
 import { useDispatch, useSelector } from 'react-redux';
-import { setPlaylists } from '../reducers/playlists/actions';
-import { RootState } from '../utils/store';
+import { setPlaylists } from '../../reducers/playlists/actions';
+import { RootState } from '../../utils/store';
 
 const selector = (state: RootState): {
     serverId: RootState['serverInfo']['serverId']
+    activePlaylist: RootState['playlists']['activePlaylist']
 } => ({
     serverId: state.serverInfo.serverId,
+    activePlaylist: state.playlists.activePlaylist,
 });
 
 interface CreateSongModalProps {
     isOpen: boolean
     close: VoidFunction
-    currentPlaylist: number
 }
 
-const CreateSongModal = ({ isOpen, close, currentPlaylist }: CreateSongModalProps): JSX.Element => {
+const CreateSongModal = ({ isOpen, close }: CreateSongModalProps): JSX.Element => {
     const [name, setName] = useState('');
     const [url, setUrl] = useState('');
 
-    const { serverId } = useSelector(selector);
+    const { serverId, activePlaylist } = useSelector(selector);
     const dispatch = useDispatch();
 
     const handleClose = (): void => {
@@ -37,7 +38,7 @@ const CreateSongModal = ({ isOpen, close, currentPlaylist }: CreateSongModalProp
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ songUrl: url, songName: name, playlistIndex: currentPlaylist, serverId }),
+            body: JSON.stringify({ songUrl: url, songName: name, playlistIndex: activePlaylist, serverId }),
         }).then(async (res) => {
             const data = await res.json();
             dispatch(setPlaylists(data.playlists));

@@ -1,13 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { request } from '../utils/network';
-import Playlists from '../Components/Playlists';
 import { setServerInfo } from '../reducers/serverInfo/actions';
 import './Overview.scss';
 import Player from '../Components/Player';
 import { useNavigate } from 'react-router';
 import PlayStateManager from '../Components/PlayStateManager';
 import { RootState } from '../utils/store';
+import { setPlaylists } from '../reducers/playlists/actions';
+import { setPlayStatus } from '../reducers/playStatus/actions';
+import PlaylistList from '../Components/Playlists/PlaylistList';
+import SongList from '../Components/Songs/SongList';
 
 export default function User (): JSX.Element | null {
     const [user, setUser] = useState<string>();
@@ -40,6 +43,24 @@ export default function User (): JSX.Element | null {
         getCurrentVoiceChannel();
     }, [getCurrentVoiceChannel]);
 
+    useEffect(() => {
+        if (serverInfo.serverId !== undefined) {
+            request(`/playlists/list?server=${serverInfo.serverId}`)
+                .then(async (res) => {
+                    const data = await res.json();
+                    dispatch(setPlaylists(data ?? []));
+                }).catch(err => {
+                    console.error(err);
+                });
+            request(`/music/status?serverId=${serverInfo.serverId}`).then(async (res) => {
+                const status = await res.json();
+                dispatch(setPlayStatus(status));
+            }).catch(err => {
+                console.error(err);
+            });
+        }
+    }, [serverInfo.serverId, dispatch]);
+
     return user !== undefined
         ? (
             <PlayStateManager>
@@ -66,7 +87,10 @@ export default function User (): JSX.Element | null {
                             </button>
                         </div>
                     </div>
-                    <Playlists />
+                    <div className='music-box'>
+                        <PlaylistList />
+                        <SongList />
+                    </div>
                     <Player />
                 </div>
             </PlayStateManager>

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Input, Modal, ModalBody, ModalHeader } from 'reactstrap';
-import { request } from '../utils/network';
+import { request } from '../../utils/network';
 import { useDispatch, useSelector } from 'react-redux';
-import { setPlaylists } from '../reducers/playlists/actions';
-import { RootState } from '../utils/store';
+import { setPlaylists } from '../../reducers/playlists/actions';
+import { RootState } from '../../utils/store';
 
 const selector = (state: RootState): {
     serverId: RootState['serverInfo']['serverId']
