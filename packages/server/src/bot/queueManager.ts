@@ -186,6 +186,16 @@ export default class QueueManager {
         }
     }
 
+    async updateSong(song: Song, playlistIndex: number): Promise<void> {
+        this.playlists[playlistIndex].queue = this.playlists[playlistIndex].queue.map((oldSong) => {
+            if(oldSong._id == song._id) {
+                return song;
+            }
+            return oldSong;
+        });
+        await this.#updateQueue(playlistIndex);
+    }
+
     async clearQueue(playlistId=this.botDisplayPlaylist):Promise<boolean> {
         try {
             this.playlists[playlistId].clearQueue();

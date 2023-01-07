@@ -124,6 +124,7 @@
         align-items: center;
         font-size:25px;
         line-height: 25px;
+        cursor:grab;
     }
 }
 
@@ -137,4 +138,20 @@
     border-radius: 0.5rem;
     font-size: 25px;
     color: rgb(193, 15, 15);
+}
+
+.name-edit {
+    cursor: pointer;
+    padding: 0.2rem 0.3rem !important; 
+    display:flex;
+    align-items: center;
+    justify-content: center;
+
+    & > * {
+        pointer-events: none;
+    }
+}
+
+.card-name {
+    display:flex;
 }
