@@ -7,6 +7,7 @@ import { request } from '../../utils/network';
 import { setPlaylists } from '../../reducers/playlists/actions';
 import { IonIcon } from '@ionic/react';
 import { close, play, reorderFourOutline } from 'ionicons/icons';
+import RenameSongButton from './RenameSongButton';
 
 interface SongCardProps {
     item: Playlist['queue'][number]
@@ -65,7 +66,10 @@ const SongCard = ({ item: song, index, dragHandleProps }: SongCardProps): JSX.El
                 <button className='dndbtn play-button' onClick={() => { playSong(song._id); }}>
                     <IonIcon color='#fff' icon={play} />
                 </button>
-                {song.name}
+                <div className='card-name'>
+                    {song.name}
+                    <RenameSongButton song={song} />
+                </div>
             </div>
             <button onClick={() => { removeSong(activePlaylist, index); }} className='dndbtn remove-button'>
                 <IonIcon icon={close} />
