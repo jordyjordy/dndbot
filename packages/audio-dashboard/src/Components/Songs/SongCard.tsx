@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import { Playlist } from '../../reducers/playlists/playlistReducer';
 import { RootState } from '../../utils/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSongNumber } from '../../reducers/playStatus/actions';
+import { setSongId } from '../../reducers/playStatus/actions';
 import { request } from '../../utils/network';
 import { setPlaylists } from '../../reducers/playlists/actions';
 import { IonIcon } from '@ionic/react';
-import { close, play } from 'ionicons/icons';
+import { close, play, reorderFourOutline } from 'ionicons/icons';
 
 interface SongCardProps {
-    song: Playlist['queue'][number]
+    item: Playlist['queue'][number]
     index: number
+    dragHandleProps: { onMouseDown: MouseEventHandler<HTMLDivElement> }
 }
 
 const selector = (state: RootState): {
@@ -23,26 +24,26 @@ const selector = (state: RootState): {
     serverId: state.serverInfo.serverId,
 });
 
-const SongCard = ({ song, index }: SongCardProps): JSX.Element => {
+const SongCard = ({ item: song, index, dragHandleProps }: SongCardProps): JSX.Element => {
     const { playStatus, activePlaylist, serverId } = useSelector(selector);
     const dispatch = useDispatch();
 
-    const playSong = (index: number): void => {
-        dispatch(setSongNumber(index));
+    const playSong = (id: string): void => {
+        dispatch(setSongId(id));
         request('/music/playsong', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ playlist: activePlaylist, song: index, serverId }),
+            body: JSON.stringify({ playlist: activePlaylist, song: id, serverId }),
         }).catch(err => {
             console.error(err);
         });
     };
 
-    const removeSong = (playlist: number, song: number): void => {
+    const removeSong = (playlist: string, song: number): void => {
         if (window.confirm('Are you sure you want to remove the song?')) {
-            request(`/songs?serverId=${serverId}&songIndex=${song}&playlistIndex=${playlist}`, {
+            request(`/songs?serverId=${serverId}&songIndex=${song}&playlistId=${playlist}`, {
                 method: 'DELETE',
             })
                 .then(async (res) => {
@@ -56,11 +57,16 @@ const SongCard = ({ song, index }: SongCardProps): JSX.Element => {
     };
 
     return (
-        <div className={`song-card ${playStatus.song === index && activePlaylist === (playStatus.playlist ?? 0) ? 'active' : ''}`} key={song._id}>
-            <button className='dndbtn play-button' onClick={() => { playSong(index); }}>
-                <IonIcon color='#fff' icon={play} />
-            </button>
-            {song.name}
+        <div className={`song-card ${playStatus.song === song._id && activePlaylist === (playStatus.playlist ?? 0) ? 'active' : ''}`} key={song._id}>
+            <div className='left-block'>
+                <div className='draggable' onMouseDown={dragHandleProps.onMouseDown}>
+                    <IonIcon color="white" icon={reorderFourOutline} />
+                </div>
+                <button className='dndbtn play-button' onClick={() => { playSong(song._id); }}>
+                    <IonIcon color='#fff' icon={play} />
+                </button>
+                {song.name}
+            </div>
             <button onClick={() => { removeSong(activePlaylist, index); }} className='dndbtn remove-button'>
                 <IonIcon icon={close} />
             </button>

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Input, Label, Modal, ModalBody, ModalHeader } from 'reactstrap';
 import { request } from '../../utils/network';
 import { useDispatch, useSelector } from 'react-redux';
@@ -38,7 +37,7 @@ const CreateSongModal = ({ isOpen, close }: CreateSongModalProps): JSX.Element =
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ songUrl: url, songName: name, playlistIndex: activePlaylist, serverId }),
+            body: JSON.stringify({ songUrl: url, songName: name, playlistId: activePlaylist, serverId }),
         }).then(async (res) => {
             const data = await res.json();
             dispatch(setPlaylists(data.playlists));
@@ -64,12 +63,6 @@ const CreateSongModal = ({ isOpen, close }: CreateSongModalProps): JSX.Element =
             </ModalBody>
         </Modal>
     );
-};
-
-CreateSongModal.propTypes = {
-    isOpen: PropTypes.bool.isRequired,
-    close: PropTypes.func.isRequired,
-    currentPlaylist: PropTypes.number.isRequired,
 };
 
 export default CreateSongModal;

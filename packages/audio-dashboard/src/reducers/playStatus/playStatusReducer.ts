@@ -2,16 +2,16 @@ import { Action } from '../../utils/store';
 
 const initialState = {
     playing: false,
-    song: 0,
-    playlist: 0,
+    song: '',
+    playlist: '',
     loop: false,
     shuffle: false,
 };
 
 export interface PlayStatus {
     playing: boolean
-    song: number
-    playlist: number
+    song: string
+    playlist: string
     loop: boolean
     shuffle: boolean
 };

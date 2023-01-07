@@ -1,5 +1,6 @@
 
 export type Song = {
+    _id: string
     url:string,
     name:string
 };
@@ -31,7 +32,7 @@ export default class playlist {
         return this.queue[id];
     }
     
-    getSongUrl(id: number): string {
+    getSongUrl(id: number): string | undefined {
         return this.queue[id]?.url;
     }
 

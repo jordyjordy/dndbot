@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import CreatePlaylistModal from './CreatePlaylistModal';
 import { RootState } from '../../utils/store';
 import PlaylistCard from './PlaylistCard';
+import { DraggableList } from '../DraggableList';
 
 const selector = (state: RootState): {
     serverId: RootState['serverInfo']['serverId']
@@ -24,11 +25,11 @@ export default function PlaylistList (): JSX.Element {
         <div className='playlists'>
             <h2>Playlists</h2>
             <div className='playlist-container'>
-                {playlists.map((playlist, index) => {
-                    return (
-                        <PlaylistCard key={playlist._id} playlist={playlist} index={index} />
-                    );
-                })}
+                <DraggableList
+                    itemKey='_id'
+                    list={playlists}
+                    template={PlaylistCard}
+                />
                 {serverId !== undefined && serverId !== '' && (
                     <>
                         <button className='dndbtn' onClick={() => { setShowPlaylistModal(true); }}>Add playlist</button>

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import mongoose from 'mongoose';
 import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
@@ -8,7 +7,7 @@ interface IPlaylist {
     _id: string,
     name: string,
     server:string,
-    queue: { name: string,  url: string}[]
+    queue: { _id: string, name: string,  url: string }[]
 }
 
 interface IPlaylistModel extends mongoose.Model<IPlaylist> {
@@ -28,7 +27,7 @@ const playListSchema = new mongoose.Schema({
     },
     queue: {
         type: [
-            {             
+            {       
                 name: {
                     type: String,
                 },
@@ -65,7 +64,7 @@ playListSchema.statics.createPlaylistFromUrl = async (name: string, server: stri
     songs.forEach((song, index) => {
         if(index < 24) {
             promises.push(ytdl.getBasicInfo(song.url).then(() => {
-                return { url: song.url, name: song.name };
+                return { _id: '', url: song.url, name: song.name };
             }).catch(() => {
                return null;
             }));
@@ -76,8 +75,7 @@ playListSchema.statics.createPlaylistFromUrl = async (name: string, server: stri
         name, server,
         queue: results.filter((res) => res !== null),
     });
-    await playList.save();
-    console.log(playList.queue);
+    return playList.save();
 };
 
 

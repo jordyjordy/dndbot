@@ -7,7 +7,9 @@ interface PlayStateManagerProps {
     children: JSX.Element
 }
 
-const selector = (state: RootState): { serverId: string } => ({
+const selector = (state: RootState): {
+    serverId: RootState['serverInfo']['serverId']
+} => ({
     serverId: state.serverInfo.serverId,
 });
 
@@ -28,8 +30,7 @@ export default function PlayStateManager ({ children }: PlayStateManagerProps): 
         sse.current = new EventSource(`${process.env.REACT_APP_SERVER_ADDRESS}/music/update?serverId=${serverId}`, { withCredentials: true });
         sse.current.addEventListener('message', (event) => {
             const data = JSON.parse(event.data);
-            data.playlist = parseInt(data.playlist);
-            data.song = parseInt(data.song);
+            console.log(data);
             dispatch(setPlayStatus(data));
         });
 
