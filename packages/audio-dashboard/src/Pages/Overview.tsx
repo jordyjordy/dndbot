@@ -7,8 +7,7 @@ import Player from '../Components/Player';
 import { useNavigate } from 'react-router';
 import PlayStateManager from '../Components/PlayStateManager';
 import { RootState } from '../utils/store';
-import { setPlaylists } from '../reducers/playlists/actions';
-import { setPlayStatus } from '../reducers/playStatus/actions';
+import { setActivePlaylist, setPlaylists } from '../reducers/playlists/actions';
 import PlaylistList from '../Components/Playlists/PlaylistList';
 import SongList from '../Components/Songs/SongList';
 
@@ -16,7 +15,10 @@ export default function User (): JSX.Element | null {
     const [user, setUser] = useState<string>();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const serverInfo = useSelector((state: RootState) => state.serverInfo);
+    const { serverInfo, activePlaylist } = useSelector((state: RootState) => ({
+        serverInfo: state.serverInfo,
+        activePlaylist: state.playlists.activePlaylist,
+    }));
     useEffect(() => {
         request('/user').then(async res => {
             if (res.status === 401) {
@@ -49,15 +51,12 @@ export default function User (): JSX.Element | null {
                 .then(async (res) => {
                     const data = await res.json();
                     dispatch(setPlaylists(data ?? []));
+                    if (activePlaylist === '') {
+                        dispatch(setActivePlaylist(data[0]._id));
+                    }
                 }).catch(err => {
                     console.error(err);
                 });
-            request(`/music/status?serverId=${serverInfo.serverId}`).then(async (res) => {
-                const status = await res.json();
-                dispatch(setPlayStatus(status));
-            }).catch(err => {
-                console.error(err);
-            });
         }
     }, [serverInfo.serverId, dispatch]);
 

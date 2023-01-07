@@ -2,7 +2,14 @@ import express, { Request, Response } from 'express';
 const router = express.Router();
 import PlayList from '../model/playlist';
 import sessionAuth from '../config/sessionAuth';import ConnectionInterface from '../util/ConnectionInterface';
+import SSEManager from '../util/SSeManager';
 
+const updateSSE = async (req, res, next) => {
+    const serverId = req.query.serverId ?? req.body.serverId;
+    const connectionInterface = new ConnectionInterface(serverId);
+    SSEManager.publish(serverId, await connectionInterface.getPlayStatus());
+    next();
+};
 
 router.get('/list', sessionAuth, async (req: Request, res: Response) => {
     const result = await PlayList.findByServerId(req.query.server as string);
@@ -29,16 +36,28 @@ router.post('/',sessionAuth, async (req: Request, res: Response) => {
 });
 
 
-router.put('/', sessionAuth, async (req: Request, res: Response) => {
+router.put('/', sessionAuth, async (req: Request, res: Response, next) => {
     try {
-        await PlayList.findByIdAndUpdate(req.body.playlist._id, req.body.playlist, {new: true});
+        const connectionInterface = new ConnectionInterface(req.body.serverId);
+        const queueManager = await connectionInterface.getQueueManager();
+        const oldPlaylist = await PlayList.findByIdAndUpdate(req.body.playlist._id, req.body.playlist);
+        queueManager.updatePlaylists();
+        if (queueManager.getCurrentSongPlaylist()._id == req.body.playlist._id) {
+            const currentSong = oldPlaylist?.queue[queueManager.currentSong];
+            const newPlaylist = await PlayList.findById(req.body.playlist._id);
+            const newSongIndex = newPlaylist?.queue.findIndex(({ _id }) => {
+                return _id.toString() == currentSong?._id.toString();
+            }) ?? queueManager.currentSong;
+            queueManager.currentSong = newSongIndex;
+        }
         const playlists = await PlayList.findByServerId(req.body.serverId);
         res.status(201).json({ playlists });
+        next();
     } catch(err) {
         console.error(err);
         res.status(400).send("could not update");
     }
-});
+}, updateSSE);
 
 router.delete('/', sessionAuth, async (req: Request, res: Response) => {
     try {

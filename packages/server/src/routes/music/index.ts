@@ -48,7 +48,8 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
     if(!connectionManager.isConnected()) {
         await connectionInterface.joinVoiceChannel(req.sessionDetails.userId);
     }
-    queueManager.selectSong(req.body.song, req.body.playlist);
+
+    queueManager.selectSongFromId(req.body.song, req.body.playlist);
     await connectionManager.play(true);
     res.sendStatus(200);
     next();

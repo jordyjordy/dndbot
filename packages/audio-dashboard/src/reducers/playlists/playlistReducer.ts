@@ -2,7 +2,7 @@ import { Action } from '../../utils/store';
 
 const initialState: PlaylistReducerState = {
     playlists: [],
-    activePlaylist: 0,
+    activePlaylist: '',
 };
 
 const playlistReducer = (state = initialState, action: Action): PlaylistReducerState => {
@@ -15,7 +15,7 @@ const playlistReducer = (state = initialState, action: Action): PlaylistReducerS
         case 'playlists/setActive':
             return {
                 ...state,
-                activePlaylist: action.value as number,
+                activePlaylist: action.value as string,
             };
         default:
             return state;
@@ -24,7 +24,7 @@ const playlistReducer = (state = initialState, action: Action): PlaylistReducerS
 
 interface PlaylistReducerState {
     playlists: Playlist[]
-    activePlaylist: number
+    activePlaylist: string
 }
 
 export interface Playlist {

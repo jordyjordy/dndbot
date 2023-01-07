@@ -215,7 +215,9 @@ export class ConnectionManager {
 
             this.queueManager.selectSong(id);
             const songUrl = this.queueManager.getCurrentSongUrl();
-
+            if(! songUrl) {
+                throw new Error('song could not be found it seems');
+            }
             const audiosource = createAudioResource(ytdl(songUrl, { filter: 'audioonly', highWaterMark: 8192*4, dlChunkSize: 0 }));
             this.audioPlayer.play(audiosource);
             this.playing = true;

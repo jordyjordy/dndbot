@@ -8,7 +8,7 @@ import { close, playOutline } from 'ionicons/icons';
 import { request } from '../../utils/network';
 
 interface PlaylistCardProps {
-    playlist: Playlist
+    item: Playlist
     index: number
 }
 
@@ -24,7 +24,7 @@ const selector = (state: RootState): {
     serverId: state.serverInfo.serverId,
 });
 
-const PlaylistCard = ({ playlist, index }: PlaylistCardProps): JSX.Element => {
+const PlaylistCard = ({ item: playlist, index }: PlaylistCardProps): JSX.Element => {
     const { activePlaylist, playStatus, playlists, serverId } = useSelector(selector);
     const dispatch = useDispatch();
 
@@ -42,13 +42,13 @@ const PlaylistCard = ({ playlist, index }: PlaylistCardProps): JSX.Element => {
     };
     return (
         <div
-            className={`playlist-card ${index === activePlaylist ? 'active' : ''}`}
+            className={`playlist-card ${playlist._id === activePlaylist ? 'active' : ''}`}
             key={playlist._id}
             onClick={() => {
-                dispatch(setActivePlaylist(index));
+                dispatch(setActivePlaylist(playlist._id));
             }}
         >
-            {(playStatus.playlist ?? 0) === index && (
+            {(playStatus.playlist ?? '') === playlist._id && (
                 <div className='play-indicator'>
                     <IonIcon icon={playOutline} />
                 </div>

@@ -8,7 +8,7 @@ export const setPlaylists = (value: Playlist[]): Action => {
     };
 };
 
-export const setActivePlaylist = (value: number): Action => {
+export const setActivePlaylist = (value: string): Action => {
     return {
         type: 'playlists/setActive',
         value,
