@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
 const router = express.Router();
 import PlayList from '../model/playlist';
-import sessionAuth from '../config/sessionAuth';
+import sessionAuth from '../config/sessionAuth';import ConnectionInterface from '../util/ConnectionInterface';
+
 
 router.get('/list', sessionAuth, async (req: Request, res: Response) => {
     const result = await PlayList.findByServerId(req.query.server as string);
@@ -9,8 +10,16 @@ router.get('/list', sessionAuth, async (req: Request, res: Response) => {
 });
 
 router.post('/',sessionAuth, async (req: Request, res: Response) => {
+    const connectionInterface = new ConnectionInterface(req.body.serverId);
     try{
-        await PlayList.createNewPlayList(req.body.name, req.body.serverId);
+        if(req.body.url) {
+            await PlayList.createPlaylistFromUrl(req.body.name, req.body.serverId, req.body.url);
+            
+        } else {
+            await PlayList.createNewPlayList(req.body.name, req.body.serverId);
+
+        }
+        await (await connectionInterface.getQueueManager()).updatePlaylists();
         const playlists = await PlayList.findByServerId(req.body.serverId);
         res.status(201).json({ playlists });
     } catch(err) {
@@ -18,6 +27,7 @@ router.post('/',sessionAuth, async (req: Request, res: Response) => {
         res.status(400).send("Could not create");
     }
 });
+
 
 router.put('/', sessionAuth, async (req: Request, res: Response) => {
     try {

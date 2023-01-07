@@ -32,7 +32,7 @@ export default function PlaylistList (): JSX.Element {
                 {serverId !== undefined && serverId !== '' && (
                     <>
                         <button className='dndbtn' onClick={() => { setShowPlaylistModal(true); }}>Add playlist</button>
-                        <CreatePlaylistModal isOpen={showPlaylistModal} close={() => { setShowPlaylistModal(false); }} />
+                        <CreatePlaylistModal isOpen={showPlaylistModal} close={() => { setShowPlaylistModal(false); }} fromUrl={true} />
                     </>
                 )}
             </div>
