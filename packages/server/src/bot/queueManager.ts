@@ -110,7 +110,6 @@ export default class QueueManager {
         try {
             await PlayList.findByIdAndUpdate(this.playlists[playlistId]._id, this.playlists[playlistId], {new: true});
             await this.updatePlaylists();
-            console.log(this.playlists[playlistId]);
         } catch (err) {
             console.error(err);
             // do nothing
@@ -244,16 +243,14 @@ export default class QueueManager {
             : name;
         return ytdl.getBasicInfo(url).then(async (info) => {
             if(actualPos < this.playlists[playlistIndex]?.queue.length) {
-                this.playlists[playlistIndex].insertSong({_id: '', url, name: actualName ?? info.videoDetails.title}, actualPos);
+                this.playlists[playlistIndex].insertSong({ url, name: actualName ?? info.videoDetails.title }, actualPos);
                 if(actualPos < this.currentSong) {
                     this.currentSong++;
                 }
             } else {
-                this.playlists[playlistIndex].insertSong({_id: '', url ,name: actualName ?? info.videoDetails.title});
+                this.playlists[playlistIndex].insertSong({ url ,name: actualName ?? info.videoDetails.title });
             }
             await this.#updateQueue(playlistIndex);
-            console.log('hm');
-            console.log(this.playlists[playlistIndex]);
             return actualPos;
         }).catch(() => {
             throw new Error('Could not load song, url probably incorrect');

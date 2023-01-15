@@ -7,7 +7,7 @@ interface IPlaylist {
     _id: string,
     name: string,
     server:string,
-    queue: { _id: string, name: string,  url: string }[]
+    queue: { _id?: string, name: string,  url: string }[]
 }
 
 interface IPlaylistModel extends mongoose.Model<IPlaylist> {

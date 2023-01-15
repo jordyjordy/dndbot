@@ -1,6 +1,6 @@
 
 export type Song = {
-    _id: string
+    _id?: string
     url:string,
     name:string
 };

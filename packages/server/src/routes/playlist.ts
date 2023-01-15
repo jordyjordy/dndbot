@@ -46,7 +46,7 @@ router.put('/', sessionAuth, async (req: Request, res: Response, next) => {
             const currentSong = oldPlaylist?.queue[queueManager.currentSong];
             const newPlaylist = await PlayList.findById(req.body.playlist._id);
             const newSongIndex = newPlaylist?.queue.findIndex(({ _id }) => {
-                return _id.toString() == currentSong?._id.toString();
+                return _id?.toString() == currentSong?._id?.toString();
             }) ?? queueManager.currentSong;
             queueManager.currentSong = newSongIndex;
         }
