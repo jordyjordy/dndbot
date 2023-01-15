@@ -1,8 +1,8 @@
-import { 
+import {
     VoiceConnection,
     createAudioResource,
     AudioPlayer,
-    VoiceConnectionStatus, 
+    VoiceConnectionStatus,
     AudioPlayerStatus,
     joinVoiceChannel,
     createAudioPlayer,
@@ -13,16 +13,17 @@ import ytdl from 'ytdl-core';
 import client from ".";
 import { updateInterface } from './utils/interface';
 import QueueManager from './queueManager';
+import play, { stream } from 'play-dl';
 
-const connectionContainers:connectionMap = {};
+const connectionContainers: connectionMap = {};
 
 
 type connectionMap = {
-    [key:string]: { connectionManager: ConnectionManager, queueManager:QueueManager } 
+    [key: string]: { connectionManager: ConnectionManager, queueManager: QueueManager }
 };
 
-export async function getConnection(server:string):Promise<{ connectionManager: ConnectionManager, queueManager: QueueManager }> {
-    if(connectionContainers[server]){
+export async function getConnection(server: string): Promise<{ connectionManager: ConnectionManager, queueManager: QueueManager }> {
+    if (connectionContainers[server]) {
         return connectionContainers[server];
     }
     const queueManager = new QueueManager(server);
@@ -32,26 +33,26 @@ export async function getConnection(server:string):Promise<{ connectionManager: 
     return connectionContainers[server];
 }
 
-export async function destroyConnectionContainer(server:string):Promise<boolean> {
-    if(connectionContainers[server]) {
-        try{
+export async function destroyConnectionContainer(server: string): Promise<boolean> {
+    if (connectionContainers[server]) {
+        try {
             connectionContainers[server].connectionManager.clearConnection();
             delete connectionContainers[server];
             return true;
-        } catch(err) {
+        } catch (err) {
             return false;
         }
-    } 
+    }
     return true;
 }
 
 export class ConnectionManager {
     server: string;
-    connection:VoiceConnection | undefined;
-    audioPlayer:AudioPlayer | undefined;
-    queueMessage:Message | undefined;
+    connection: VoiceConnection | undefined;
+    audioPlayer: AudioPlayer | undefined;
+    queueMessage: Message | undefined;
     queueManager: QueueManager;
-    crashed:boolean;
+    crashed: boolean;
     playing: boolean;
 
     constructor(server: string, queueManager: QueueManager) {
@@ -61,7 +62,7 @@ export class ConnectionManager {
         this.crashed = false;
     }
 
-    isConnected():boolean {
+    isConnected(): boolean {
         return !!(this.connection && this.connection.state.status !== VoiceConnectionStatus.Disconnected);
     }
 
@@ -76,7 +77,7 @@ export class ConnectionManager {
         return true;
     }
 
-    async connect(interaction:Interaction):Promise<boolean> {
+    async connect(interaction: Interaction): Promise<boolean> {
         const user = interaction?.member?.user.id;
         const guild = client.guilds.cache.get(interaction.guildId ?? '');
         if (!user || !guild) {
@@ -84,8 +85,8 @@ export class ConnectionManager {
         }
         const member = guild.members.cache.get(user);
         const voice = member?.voice;
-        if(!voice || !voice.channel) {
-            if(interaction instanceof CommandInteraction)
+        if (!voice || !voice.channel) {
+            if (interaction instanceof CommandInteraction)
                 interaction.editReply("You must be in a voice channel!");
             else {
                 interaction.channel?.send("You must be in a voice channel!");
@@ -93,7 +94,7 @@ export class ConnectionManager {
             return false;
         }
         try {
-            if(!interaction.guildId) {
+            if (!interaction.guildId) {
                 throw new Error("Need guild id");
             }
             this.connection = joinVoiceChannel({
@@ -103,111 +104,111 @@ export class ConnectionManager {
             });
             this.#prepareAudioPlayer();
             return true;
-        } catch(err) {
+        } catch (err) {
             return false;
         }
     }
 
-    clearConnection():void {
-        if(this.connection) {
+    clearConnection(): void {
+        if (this.connection) {
             this.connection.disconnect();
             this.connection = undefined;
         }
-        if(this.audioPlayer) {
+        if (this.audioPlayer) {
             this.audioPlayer.stop();
             this.audioPlayer = undefined;
         }
     }
 
-    async playSong(id:string):Promise<boolean> {
-        if(!this.isConnected()) {
+    async playSong(id: string): Promise<boolean> {
+        if (!this.isConnected()) {
             return false;
         }
-        if(!isNaN(Number(id))) {
-            try{
+        if (!isNaN(Number(id))) {
+            try {
                 this.queueManager.currentSongPlaylist = this.queueManager.botDisplayPlaylist;
                 this.queueManager.selectSong(parseInt(id));
                 return await this.#startSong();
-            } catch(err) {
+            } catch (err) {
                 return false;
             }
         }
         try {
-            const songPos = await this.queueManager.queueSong({url: id });
-            try{
+            const songPos = await this.queueManager.queueSong({ url: id });
+            try {
                 this.queueManager.selectSong(songPos);
-                const res =  this.#startSong();
+                const res = this.#startSong();
                 return await res;
-            } catch(err) {
+            } catch (err) {
                 this.queueManager.removeSong(songPos);
                 return false;
             }
-        } catch(err) {
+        } catch (err) {
             return false;
         }
     }
 
-    async nextSong():Promise<boolean> {
-        try{
-            if(!this.isConnected()) {
+    async nextSong(): Promise<boolean> {
+        try {
+            if (!this.isConnected()) {
                 return false;
             }
             const songNumber = this.queueManager.goToNextSong();
             return await this.#startSong(songNumber);
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
         return false;
     }
 
-    async previousSong():Promise<boolean> {
-        try{
-            if(!this.isConnected()) {
+    async previousSong(): Promise<boolean> {
+        try {
+            if (!this.isConnected()) {
                 return false;
             }
             const songNumber = this.queueManager.goToPreviousSong();
             return await this.#startSong(songNumber);
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
         return false;
     }
 
-    pause():void {
+    pause(): void {
         this.playing = false;
         if (this.audioPlayer)
             this.audioPlayer.pause();
     }
-    
+
     async play(force = false): Promise<boolean> {
-        try{
+        try {
             if (!this.isConnected()) {
                 this.playing = false;
                 return false;
             }
             if (!force && this.audioPlayer !== undefined && this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
-                try{
+                try {
                     await this.audioPlayer.unpause();
                     this.playing = true;
                     return true;
-                } catch(err) {
+                } catch (err) {
                     console.error(err);
                 }
                 return false;
             }
             await this.#startSong();
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
         return false;
     }
 
 
-    async #startSong(id:number = this.queueManager.currentSong):Promise<boolean> {
+    async #startSong(id: number = this.queueManager.currentSong): Promise<boolean> {
         if (!this.audioPlayer) {
             await this.#prepareAudioPlayer();
         }
-        try{
+        try {
             if (!this.connection || !this.audioPlayer) {
                 this.playing = false;
                 return false;
@@ -215,13 +216,15 @@ export class ConnectionManager {
 
             this.queueManager.selectSong(id);
             const songUrl = this.queueManager.getCurrentSongUrl();
-            if(! songUrl) {
+            if (!songUrl) {
                 throw new Error('song could not be found it seems');
             }
-            const audiosource = createAudioResource(ytdl(songUrl, { filter: 'audioonly', highWaterMark: 8192*4, dlChunkSize: 0 }));
+
+            const song = await stream(songUrl, { discordPlayerCompatibility: true });
+            const audiosource = createAudioResource(song.stream);
             this.audioPlayer.play(audiosource);
             this.playing = true;
-        } catch(err) {
+        } catch (err) {
             console.error(err);
             this.playing = false;
             this.queueManager.removeSong(id);
@@ -229,17 +232,18 @@ export class ConnectionManager {
         }
         return true;
     }
-    async #prepareAudioPlayer():Promise<void> {
+    async #prepareAudioPlayer(): Promise<void> {
         if (!this.isConnected()) {
             return;
         }
         this.audioPlayer = createAudioPlayer();
-        this.audioPlayer.on(AudioPlayerStatus.Idle,async ()=> {
-        await this.#startSong();
-        updateInterface(this,undefined,false,false,true);
+        this.audioPlayer.on(AudioPlayerStatus.Idle, async () => {
+            await this.#startSong();
+            updateInterface(this, undefined, false, false, true);
         });
-        this.audioPlayer.on('error',async (err) => {
+        this.audioPlayer.on('error', async (err) => {
             if (this.crashed) {
+                console.log('crashed?');
                 return;
             }
             this.crashed = true;

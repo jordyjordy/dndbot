@@ -30,7 +30,6 @@ export default function PlayStateManager ({ children }: PlayStateManagerProps): 
         sse.current = new EventSource(`${process.env.REACT_APP_SERVER_ADDRESS}/music/update?serverId=${serverId}`, { withCredentials: true });
         sse.current.addEventListener('message', (event) => {
             const data = JSON.parse(event.data);
-            console.log(data);
             dispatch(setPlayStatus(data));
         });
 
