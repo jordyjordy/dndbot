@@ -14,6 +14,8 @@ import client from ".";
 import { updateInterface } from './utils/interface';
 import QueueManager from './queueManager';
 import play, { stream } from 'play-dl';
+import SSEManager from '../util/SSeManager';
+import ConnectionInterface from '../util/ConnectionInterface';
 
 const connectionContainers: connectionMap = {};
 
@@ -238,7 +240,10 @@ export class ConnectionManager {
         }
         this.audioPlayer = createAudioPlayer();
         this.audioPlayer.on(AudioPlayerStatus.Idle, async () => {
+            this.queueManager.goToNextSong();
             await this.#startSong();
+            const connectionInterface = new ConnectionInterface(this.server);
+            SSEManager.publish(this.server, await connectionInterface.getPlayStatus())
             updateInterface(this, undefined, false, false, true);
         });
         this.audioPlayer.on('error', async (err) => {
