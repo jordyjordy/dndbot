@@ -13,6 +13,9 @@ const getUserGuilds = async (sessionDetails: sessionDetails): Promise<APIGuild[]
         headers: {
             authorization: `${sessionDetails.token_type} ${sessionDetails.access_token}`,
         },
+    }).catch((err) => {
+        console.log(err);
+        return { data: [] };
     });
     return guilds;
 };

@@ -146,6 +146,7 @@ export class ConnectionManager {
                 return false;
             }
         } catch (err) {
+            console.log(err);
             return false;
         }
     }
@@ -207,9 +208,6 @@ export class ConnectionManager {
 
 
     async #startSong(id: number = this.queueManager.currentSong): Promise<boolean> {
-        if (!this.audioPlayer) {
-            await this.#prepareAudioPlayer();
-        }
         try {
             if (!this.connection || !this.audioPlayer) {
                 this.playing = false;
@@ -224,6 +222,10 @@ export class ConnectionManager {
 
             const song = await stream(songUrl, { discordPlayerCompatibility: true });
             const audiosource = createAudioResource(song.stream);
+            if(this.audioPlayer) {
+                this.audioPlayer.stop();
+            }
+            await this.#prepareAudioPlayer();
             this.audioPlayer.play(audiosource);
             this.playing = true;
         } catch (err) {
