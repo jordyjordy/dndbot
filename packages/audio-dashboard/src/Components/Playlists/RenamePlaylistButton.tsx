@@ -1,5 +1,5 @@
 import { IonIcon } from '@ionic/react';
-import { createOutline } from 'ionicons/icons';
+import { pencilSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { Modal, ModalHeader, ModalBody, Label, Input } from 'reactstrap';
 import { request } from '../../utils/network';
@@ -45,7 +45,7 @@ const RenamePlaylistButton = ({ playlist }: RenamePlaylistButtonProps): JSX.Elem
     return (
         <>
             <div className='name-edit' onClick={() => { setIsOpen(true); }} title="Edit name">
-                <IonIcon color="white" icon={createOutline} />
+                <IonIcon color="white" icon={pencilSharp} />
             </div>
             <Modal contentClassName='dark-modal' isOpen={isOpen}>
                 <ModalHeader toggle={handleClose}>

@@ -30,7 +30,7 @@ const PlaylistCard = ({ item: playlist, index }: PlaylistCardProps): JSX.Element
     const dispatch = useDispatch();
 
     const removePlaylist = (index: number): void => {
-        if (window.confirm('Are you sure you want to remove the playlist?')) {
+        if (window.confirm('Are you sure you want to remove the playlist?') && serverId !== undefined) {
             request(`/playlists?playlistId=${playlists[index]._id}&serverId=${serverId}`, {
                 method: 'DELETE',
             }).then(async (res) => {
@@ -50,7 +50,7 @@ const PlaylistCard = ({ item: playlist, index }: PlaylistCardProps): JSX.Element
             }}
         >
             {(playStatus.playlist ?? '') === playlist._id && (
-                <div className='play-indicator'>
+                <div className={`play-indicator ${(playStatus.playlist ?? '') === playlist._id ? 'active' : ''}`}>
                     <IonIcon icon={playOutline} />
                 </div>
             )}
@@ -58,14 +58,14 @@ const PlaylistCard = ({ item: playlist, index }: PlaylistCardProps): JSX.Element
                 {playlist.name}
                 <RenamePlaylistButton playlist={playlist} />
             </div>
-            <button
+            <div
                 onClick={() => {
                     removePlaylist(index);
                 }}
-                className='dndbtn remove-button'
+                className='remove-button'
             >
                 <IonIcon icon={close} />
-            </button>
+            </div>
         </div>
     );
 };

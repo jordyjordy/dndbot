@@ -10,9 +10,18 @@ import { RootState } from '../utils/store';
 import { setActivePlaylist, setPlaylists } from '../reducers/playlists/actions';
 import PlaylistList from '../Components/Playlists/PlaylistList';
 import SongList from '../Components/Songs/SongList';
+import { IonIcon } from '@ionic/react';
+import { syncOutline } from 'ionicons/icons';
+import ConnectionIndicator from '../Components/Connection/ConnectionIndicator';
+
+interface DiscordUser {
+    username: string
+    avatar: string
+    id: string
+}
 
 export default function User (): JSX.Element | null {
-    const [user, setUser] = useState<string>();
+    const [user, setUser] = useState<DiscordUser>();
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { serverInfo, activePlaylist } = useSelector((state: RootState) => ({
@@ -25,8 +34,8 @@ export default function User (): JSX.Element | null {
                 navigate('/');
                 return;
             }
-            const { username } = await res.json();
-            setUser(username);
+            const user = await res.json();
+            setUser(user);
         }).catch(() => {
             navigate('/');
         });
@@ -35,6 +44,7 @@ export default function User (): JSX.Element | null {
     const getCurrentVoiceChannel = useCallback(() => {
         request('/user/voicechannel').then(async res => {
             const json = await res.json();
+            console.log(json);
             dispatch(setServerInfo(json));
         }).catch(err => {
             console.error(err);
@@ -46,7 +56,7 @@ export default function User (): JSX.Element | null {
     }, [getCurrentVoiceChannel]);
 
     useEffect(() => {
-        if (serverInfo.serverId !== undefined) {
+        if (serverInfo.serverId !== '' && serverInfo.serverId !== undefined) {
             request(`/playlists/list?server=${serverInfo.serverId}`)
                 .then(async (res) => {
                     const data = await res.json();
@@ -65,25 +75,19 @@ export default function User (): JSX.Element | null {
             <PlayStateManager>
                 <div className="overview">
                     <div className="overview-topbar">
-                        <div>
-                            {`User: ${user}`}
-                        </div>
-                        {serverInfo?.serverName !== '' && serverInfo?.serverName !== undefined
-                            ? (
-                                <div className="server-details">
-                                    <span>{`Server Name: ${serverInfo?.serverName}`}</span>
-                                    <span>{`Voice Channel: ${serverInfo?.voiceChannelName}`}</span>
-                                </div>
-                            )
-                            : (
-                                <div>
-                                User not currently connected to a voice channel
-                                </div>
-                            )}
-                        <div>
+                        <img className='navbar-logo' src="/android-chrome-512x512.png" />
+                        <div className='d-flex navbar-connect'>
                             <button className="dndbtn" onClick={getCurrentVoiceChannel}>
-                            Refresh voice channel
+                                <IonIcon icon={syncOutline} />
+                                Auto Connect
                             </button>
+                            <ConnectionIndicator isConnected={serverInfo.serverName !== undefined} />
+                            <span className='dndbtn'>{`${serverInfo?.serverName ?? 'Not connected'}`}</span>
+                            <span className='dndbtn'>{`${serverInfo?.voiceChannelName ?? 'Not connected'}`}</span>
+                        </div>
+                        <div>
+                            {user.username}
+                            <img className='user-avatar ms-3' src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`} />
                         </div>
                     </div>
                     <div className='music-box'>

@@ -1,17 +1,13 @@
 import { Action } from '../../utils/store';
 
 const initialState = {
-    serverId: '',
-    serverName: '',
-    channelId: '',
-    voiceChannelName: '',
 };
 
 export interface ServerInfo {
-    serverId: string
-    serverName: string
-    channelId: string
-    voiceChannelName: string
+    serverId?: string
+    serverName?: string
+    channelId?: string
+    voiceChannelName?: string
 }
 
 const serverInfoReducer = (state = initialState, action: Action): ServerInfo => {
