@@ -92,7 +92,7 @@ app.get('/getaccess', async ({ query }, res: Response) => {
                 },
             });
             const token = jwt.sign({ ...data, userId: userData.data.id, username: userData.data.username }, process.env.TOKEN_SECRET, {expiresIn: '30d'});
-            res.cookie('access_token', token, { path: "/", httpOnly: false ,secure: true, sameSite: 'none' });
+            res.cookie('access_token', token, { maxAge: 86400000 * 93,  path: "/", httpOnly: false ,secure: true, sameSite: 'none' });
             res.sendStatus(204);
             return;
 		} catch (error) {

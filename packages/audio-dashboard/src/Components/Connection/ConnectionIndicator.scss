@@ -1,0 +1,11 @@
+.connection-indicator {
+    width: 25px;
+    height: 25px;
+    background-color: rgb(197, 12, 12);
+    border: 1px solid white;
+    border-radius: 50px;
+
+    &.connected {
+        background-color: green;
+    }
+}

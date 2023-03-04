@@ -43,7 +43,7 @@ const SongCard = ({ item: song, index, dragHandleProps }: SongCardProps): JSX.El
     };
 
     const removeSong = (playlist: string, song: number): void => {
-        if (window.confirm('Are you sure you want to remove the song?')) {
+        if (window.confirm('Are you sure you want to remove the song?') && serverId !== undefined) {
             request(`/songs?serverId=${serverId}&songIndex=${song}&playlistId=${playlist}`, {
                 method: 'DELETE',
             })
@@ -63,17 +63,17 @@ const SongCard = ({ item: song, index, dragHandleProps }: SongCardProps): JSX.El
                 <div className='draggable' onMouseDown={dragHandleProps.onMouseDown}>
                     <IonIcon color="white" icon={reorderFourOutline} />
                 </div>
-                <button className='dndbtn play-button' onClick={() => { playSong(song._id); }}>
-                    <IonIcon color='#fff' icon={play} />
-                </button>
+                <div onClick={() => { playSong(song._id); }} className='play-button'>
+                    <IonIcon icon={play} />
+                </div>
                 <div className='card-name'>
                     {song.name}
                     <RenameSongButton song={song} />
                 </div>
             </div>
-            <button onClick={() => { removeSong(activePlaylist, index); }} className='dndbtn remove-button'>
+            <div onClick={() => { removeSong(activePlaylist, index); }} className='remove-button'>
                 <IonIcon icon={close} />
-            </button>
+            </div>
         </div>
     );
 };

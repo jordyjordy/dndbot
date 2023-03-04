@@ -23,33 +23,33 @@ const Player = (): JSX.Element => {
     return (
         <div className='music-player'>
             <div>
-                <button onClick={() => { sendAction('STOP'); }} className='dndbtn'>
+                <button onClick={() => { sendAction('STOP'); }} className='musicbtn'>
                     <IonIcon icon={stop} />
                 </button>
-                <button onClick={() => { sendAction('PREVIOUSSONG'); }} className='dndbtn'>
+                <button onClick={() => { sendAction('PREVIOUSSONG'); }} className='musicbtn'>
                     <IonIcon icon={playSkipBack} />
                 </button>
                 {playStatus.playing
                     ? (
-                        <button onClick={() => { sendAction('PAUSE'); }} className='dndbtn'>
+                        <button onClick={() => { sendAction('PAUSE'); }} className='musicbtn'>
                             <IonIcon icon={pause} />
                         </button>
                     )
                     : (
 
-                        <button onClick={() => { sendAction('PLAY'); }} className='dndbtn'>
+                        <button onClick={() => { sendAction('PLAY'); }} className='musicbtn'>
                             <IonIcon icon={play} />
                         </button>
                     )}
-                <button onClick={() => { sendAction('NEXTSONG'); }} className='dndbtn'>
+                <button onClick={() => { sendAction('NEXTSONG'); }} className='musicbtn'>
                     <IonIcon icon={playSkipForward} />
                 </button>
             </div>
             <div>
-                <button onClick={() => { sendAction('TOGGLESHUFFLE'); }} className={`dndbtn ${playStatus.shuffle ? 'active' : ''}`}>
+                <button onClick={() => { sendAction('TOGGLESHUFFLE'); }} className={`musicbtn ${playStatus.shuffle ? 'active' : ''}`}>
                     <IonIcon icon={shuffle} />
                 </button>
-                <button onClick={() => { sendAction('TOGGLEREPEAT'); }} className={`dndbtn ${playStatus.loop ? 'active' : ''}`}>
+                <button onClick={() => { sendAction('TOGGLEREPEAT'); }} className={`musicbtn ${playStatus.loop ? 'active' : ''}`}>
                     <IonIcon icon={repeat} />
                 </button>
             </div>

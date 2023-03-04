@@ -11,9 +11,12 @@ interface DraggableListProps<T> {
     template: ({ item, dragHandleProps, index }: { item: T, dragHandleProps: DragHandleProps, index: number }) => JSX.Element
     onPositionSwap?: (oldIndex: number, newIndex: number) => void
     onDragFinish?: (newItems: T[]) => void
+    className?: string
 }
 
-export function DraggableList<T> ({ itemKey, template: Template, list, onPositionSwap, onDragFinish }: DraggableListProps<T>): JSX.Element {
+export function DraggableList<T> ({
+    itemKey, template: Template, list, onPositionSwap, onDragFinish, className,
+}: DraggableListProps<T>): JSX.Element {
     const [draggedItems, setDraggedItems] = useState(list ?? []);
     useEffect(() => {
         setDraggedItems([...list ?? []]);
@@ -94,7 +97,7 @@ export function DraggableList<T> ({ itemKey, template: Template, list, onPositio
     };
 
     return (
-        <div ref={containerRef} className='draggable-list'>
+        <div ref={containerRef} className={`draggable-list ${className ?? ''}`}>
             {draggedItems.map((item, index) => {
                 return (
                     <div onMouseOver={(e) => { handleMouseOver(e, index); }} className={`${index === dragged ? 'hidden-el' : ''}`} key={item[itemKey] as string}>

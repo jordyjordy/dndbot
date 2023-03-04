@@ -12,9 +12,13 @@ export default function Login (): JSX.Element {
 
     return (
         <header className="App-header">
+            <h1>
+                D&D Music bot <small>(tm pending)</small>
+            </h1>
+            <img className='login-logo' src="/android-chrome-512x512.png" />
             {process.env.REACT_APP_SERVER_ADDRESS !== undefined
                 ? (
-                    <button className="dndbtn" onClick={() => {
+                    <button className="dndbtn login-btn" onClick={() => {
                         window.location.href = `${process.env.REACT_APP_SERVER_ADDRESS as string}/login?redirect=${encodeURIComponent(`${window.location.origin}/redirect`)}`;
                     }}>
                         LOGIN
