@@ -11,7 +11,8 @@ jobs:
       REACT_APP_SERVER_ADDRESS: '$DNDBOT_SERVER_ADDRESS'
     steps:
       - uses: actions/checkout@v2
-      - run: npm run bootstrap && npm run build && cd packages/audio-dashboard
+      - run: npm run bootstrap && npm run build
+        working-directory: ./packages/audio-dashboard
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
