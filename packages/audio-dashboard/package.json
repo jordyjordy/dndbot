@@ -1,6 +1,6 @@
 {
   "name": "@thepineappledev/bot-audiodashboard",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "dependencies": {
     "@ionic/react": "^6.4.1",
