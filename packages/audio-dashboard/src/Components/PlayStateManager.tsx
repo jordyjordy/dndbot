@@ -24,7 +24,7 @@ export default function PlayStateManager ({ children }: PlayStateManagerProps): 
             console.error('Server address not set');
             return;
         }
-        if (serverId === '' || serverId === 'undefined') {
+        if (serverId === '' || serverId === 'undefined' || serverId === undefined) {
             return;
         }
         sse.current = new EventSource(`${process.env.REACT_APP_SERVER_ADDRESS}/music/update?serverId=${serverId}`, { withCredentials: true });
