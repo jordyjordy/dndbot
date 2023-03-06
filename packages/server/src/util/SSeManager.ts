@@ -13,6 +13,9 @@ class SSEManager {
     };
 
     static publish = (serverId: string, message: any): void => {
+        if (!SSEManager.serverList[serverId]) {
+            SSEManager.serverList[serverId] = {};
+        }
         Object.values(this.serverList[serverId]).forEach(callback => callback(message));
     };
 }
