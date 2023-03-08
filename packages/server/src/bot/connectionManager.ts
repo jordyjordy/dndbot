@@ -1,20 +1,19 @@
 import {
-    VoiceConnection,
     createAudioResource,
-    AudioPlayer,
     VoiceConnectionStatus,
     AudioPlayerStatus,
     joinVoiceChannel,
     createAudioPlayer,
     DiscordGatewayAdapterCreator,
     VoiceConnectionState,
+    VoiceConnection,
+    AudioPlayer,
 } from '@discordjs/voice';
 import { CommandInteraction, Interaction, Message } from 'discord.js';
-import ytdl from 'ytdl-core';
 import client from ".";
 import { updateInterface } from './utils/interface';
 import QueueManager from './queueManager';
-import play, { stream } from 'play-dl';
+import { stream } from 'play-dl';
 import SSEManager from '../util/SSeManager';
 import ConnectionInterface from '../util/ConnectionInterface';
 
@@ -80,6 +79,15 @@ export class ConnectionManager {
             guildId,
             adapterCreator: guild?.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
         });
+
+        const networkStateChangeHandler = (oldNetworkState: VoiceConnectionState, newNetworkState: VoiceConnectionState) => {
+            const newUdp = Reflect.get(newNetworkState, 'udp');
+            clearInterval(newUdp?.keepAliveInterval);
+        };
+        this.connection.on('stateChange', (oldState, newState) => {
+            Reflect.get(oldState, 'networking')?.off('stateChange', networkStateChangeHandler);
+            Reflect.get(newState, 'networking')?.on('stateChange', networkStateChangeHandler);
+        });
         this.#prepareAudioPlayer();
         return true;
     }
@@ -111,10 +119,6 @@ export class ConnectionManager {
                 channelId: voice.channel.id,
                 guildId: interaction.guildId,
                 adapterCreator: guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
-            });
-
-            this.connection.on('stateChange', (oldstate: VoiceConnectionState, newstate: VoiceConnectionState) => {
-                console.log(oldstate, newstate);
             });
             this.#prepareAudioPlayer();
             return true;
@@ -292,28 +296,7 @@ export class ConnectionManager {
                 this.crashed = false;
             }, 500);
         });
-        this.audioPlayer.on('stateChange', (x, y) => {
-            if(y.status === AudioPlayerStatus.AutoPaused) {
-                const guild = client.guilds.cache.get(this.lastGuild);
-                if(!guild) {
-                    console.log('could not find guild');
-                    return;
-                }
-                if(!this.audioPlayer) {
-                    console.log('could not find audioplayer');
-                    return;
-                }
-                console.log('autopaused, found guild');
-                this.connection = joinVoiceChannel({
-                    channelId: this.lastChannel,
-                    guildId: this.lastGuild,
-                    adapterCreator: guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
-                });
-                this.connection?.subscribe(this.audioPlayer);
-                this.audioPlayer.unpause();
-                console.log(this.audioPlayer.playable);
-            }
-        });
+
         this.connection?.subscribe(this.audioPlayer);
     }
 }
