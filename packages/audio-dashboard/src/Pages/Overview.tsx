@@ -44,7 +44,6 @@ export default function User (): JSX.Element | null {
     const getCurrentVoiceChannel = useCallback(() => {
         request('/user/voicechannel').then(async res => {
             const json = await res.json();
-            console.log(json);
             dispatch(setServerInfo(json));
         }).catch(err => {
             console.error(err);

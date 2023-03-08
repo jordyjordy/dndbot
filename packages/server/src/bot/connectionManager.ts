@@ -56,6 +56,8 @@ export class ConnectionManager {
     queueManager: QueueManager;
     crashed: boolean;
     playing: boolean;
+    lastChannel: string;
+    lastGuild: string;
 
     constructor(server: string, queueManager: QueueManager) {
         this.queueManager = queueManager;
@@ -70,6 +72,8 @@ export class ConnectionManager {
 
     async connectToChannel(channelId: string, guildId: string): Promise<boolean> {
         const guild = client.guilds.cache.get(guildId);
+        this.lastChannel = channelId;
+        this.lastGuild = guildId;
         this.connection = joinVoiceChannel({
             channelId,
             guildId,
@@ -80,6 +84,7 @@ export class ConnectionManager {
     }
 
     async connect(interaction: Interaction): Promise<boolean> {
+
         const user = interaction?.member?.user.id;
         const guild = client.guilds.cache.get(interaction.guildId ?? '');
         if (!user || !guild) {
@@ -99,6 +104,8 @@ export class ConnectionManager {
             if (!interaction.guildId) {
                 throw new Error("Need guild id");
             }
+            this.lastChannel = voice.channel.id;
+            this.lastGuild = interaction.guildId;
             this.connection = joinVoiceChannel({
                 channelId: voice.channel.id,
                 guildId: interaction.guildId,
@@ -107,6 +114,7 @@ export class ConnectionManager {
             this.#prepareAudioPlayer();
             return true;
         } catch (err) {
+            console.log(err);
             return false;
         }
     }
@@ -189,9 +197,17 @@ export class ConnectionManager {
                 this.playing = false;
                 return false;
             }
-            if (!force && this.audioPlayer !== undefined && this.audioPlayer.state.status === AudioPlayerStatus.Paused) {
+            if (
+                !force && this.audioPlayer !== undefined &&
+                (this.audioPlayer.state.status === AudioPlayerStatus.Paused || this.audioPlayer.state.status === AudioPlayerStatus.AutoPaused)
+            ) {
                 try {
-                    await this.audioPlayer.unpause();
+                    const unpaused = await this.audioPlayer.unpause();
+                    if(!unpaused) {
+                        this.audioPlayer.stop();
+                        this.#prepareAudioPlayer();
+                        return false;
+                    }
                     this.playing = true;
                     return true;
                 } catch (err) {
@@ -209,6 +225,10 @@ export class ConnectionManager {
 
     async #startSong(id: number = this.queueManager.currentSong): Promise<boolean> {
         try {
+            if(!this.audioPlayer || !this.audioPlayer.playable) {
+                this.audioPlayer?.stop();
+                await this.#prepareAudioPlayer();
+            }
             if (!this.connection || !this.audioPlayer) {
                 this.playing = false;
                 return false;
@@ -222,16 +242,18 @@ export class ConnectionManager {
 
             const song = await stream(songUrl, { discordPlayerCompatibility: true });
             const audiosource = createAudioResource(song.stream);
-            if(this.audioPlayer) {
-                this.audioPlayer.stop();
+            if(!this.audioPlayer) {
+                await this.connectToChannel(this.lastChannel, this.lastGuild);
+                await this.#prepareAudioPlayer();
             }
-            await this.#prepareAudioPlayer();
+            if(!this.audioPlayer) {
+                throw new Error('something went wrong, song could not be played');
+            }
             this.audioPlayer.play(audiosource);
             this.playing = true;
         } catch (err) {
             console.error(err);
             this.playing = false;
-            this.queueManager.removeSong(id);
             return false;
         }
         return true;
@@ -245,9 +267,10 @@ export class ConnectionManager {
             this.queueManager.goToNextSong();
             await this.#startSong();
             const connectionInterface = new ConnectionInterface(this.server);
-            SSEManager.publish(this.server, await connectionInterface.getPlayStatus())
+            SSEManager.publish(this.server, await connectionInterface.getPlayStatus());
             updateInterface(this, undefined, false, false, true);
         });
+
         this.audioPlayer.on('error', async (err) => {
             if (this.crashed) {
                 console.log('crashed?');
@@ -256,13 +279,16 @@ export class ConnectionManager {
             this.crashed = true;
             console.error(err);
             setTimeout(() => {
-                this.audioPlayer?.unpause();
+                this.audioPlayer?.stop();
                 this.audioPlayer = createAudioPlayer();
                 this.connection?.subscribe(this.audioPlayer);
                 this.#prepareAudioPlayer();
                 this.play();
                 this.crashed = false;
             }, 500);
+        });
+        this.audioPlayer.on('stateChange', (x, y) => {
+            console.log(x, y);
         });
         this.connection?.subscribe(this.audioPlayer);
     }
