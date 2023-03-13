@@ -1,6 +1,6 @@
 {
   "name": "@thepineappledev/bot-server",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Api for discord bot",
   "main": "index.js",
   "scripts": {
