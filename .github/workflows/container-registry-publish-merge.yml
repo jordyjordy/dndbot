@@ -44,5 +44,6 @@ jobs:
         with:
           context: ./packages/server
           push: true
-          tags: |
-            ghcr.io/jordyjordy/dndmusicbot:${{ steps.package-version.outputs.current-version }}
+          tags: ghcr.io/jordyjordy/dndmusicbot:${{ steps.package-version.outputs.current-version }}, ghcr.io/jordyjordy/dndmusicbot:latest
+
+      
