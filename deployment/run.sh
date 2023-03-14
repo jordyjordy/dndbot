@@ -20,4 +20,5 @@ done
 echo $SERVERPORT
 export SERVERPORT=$SERVERPORT
 docker-compose --project-name dndbot down
+docker-compose pull
 docker-compose --project-name dndbot up -d
