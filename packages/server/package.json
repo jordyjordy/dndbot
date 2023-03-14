@@ -1,6 +1,6 @@
 {
   "name": "@thepineappledev/bot-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Api for discord bot",
   "main": "index.js",
   "scripts": {
@@ -8,8 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix",
-    "build": "tsc",
-    "start": "tsc && node dist/index.js"
+    "build": "npx tsc --p ./",
+    "start": "tsc && node dist/index.js",
+    "deploy": "node dist/index.js"
   },
   "private": true,
   "author": "J. van der Tang",

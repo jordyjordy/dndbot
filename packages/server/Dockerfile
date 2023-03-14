@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:16 as builder
 
 WORKDIR /app/server
 
@@ -8,6 +8,10 @@ RUN yarn install
 
 COPY . .
 
-EXPOSE 5000
+RUN npm run build
 
-CMD ["npm", "run", "start"]
+FROM node:16-alpine
+
+COPY --from=builder ./app/server .
+
+CMD ["npm", "run", "deploy"]
