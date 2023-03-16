@@ -22,14 +22,20 @@ const getUserGuilds = async (sessionDetails: sessionDetails): Promise<APIGuild[]
 
 router.get('/', sessionAuth, async (req: ISessionAuthRequest, res: Response): Promise<void> => {
     const { sessionDetails } = req;
-    const userData = await axios({
-        method: 'get',
-        url: 'https://discord.com/api/users/@me',
-        headers: {
-            authorization: `${sessionDetails.token_type} ${sessionDetails.access_token}`,
-        },
-    });
-    res.status(200).json({ ...userData.data });
+    try {
+        const userData = await axios({
+            method: 'get',
+            url: 'https://discord.com/api/users/@me',
+            headers: {
+                authorization: `${sessionDetails.token_type} ${sessionDetails.access_token}`,
+            },
+        });
+        res.status(200).json({ ...userData.data });
+    } catch {
+        res.cookie('access_token', '', { maxAge: -500,  path: "/", httpOnly: false ,secure: true, sameSite: 'none' });
+        res.sendStatus(401);
+    }
+
 });
 
 router.get('/guilds', sessionAuth, async(req: ISessionAuthRequest, res: Response): Promise<void> => {
