@@ -19,7 +19,6 @@ import ConnectionInterface from '../util/ConnectionInterface';
 
 const connectionContainers: connectionMap = {};
 
-
 type connectionMap = {
     [key: string]: { connectionManager: ConnectionManager, queueManager: QueueManager }
 };

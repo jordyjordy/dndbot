@@ -8,7 +8,7 @@
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix",
-    "build": "npx tsc --p ./",
+    "build": "npx tsc --p ./tsconfig.build.json",
     "start": "tsc && node dist/index.js",
     "deploy": "node dist/index.js"
   },

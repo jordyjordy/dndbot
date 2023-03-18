@@ -34,11 +34,11 @@ app.use(cors({
     credentials: true,
     origin: function (ori, callback) {
         if (!ori || originWhitelist?.indexOf(ori ?? '') !== -1) {
-          callback(null, true);
+            callback(null, true);
         } else {
-          callback(new Error('Not allowed by CORS'));
+            callback(new Error('Not allowed by CORS'));
         }
-      },
+    },
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -60,7 +60,7 @@ app.get('/login', (req: Request, res: Response) => {
 app.get('/getaccess', async ({ query }, res: Response) => {
     const {code, redirect_uri } = query;
     if (code) {
-		try {
+        try {
             const urlSearchParams = {
                 client_id: process.env.CLIENT_ID as string,
                 client_secret: process.env.CLIENT_SECRET as string,
@@ -68,13 +68,13 @@ app.get('/getaccess', async ({ query }, res: Response) => {
                 grant_type: 'authorization_code',
                 redirect_uri: redirect_uri as string,
                 scope: 'identify',
-                };
+            };
 
             const tokenResponseData = await axios({
                 method: 'post',
                 url: 'https://discord.com/api/oauth2/token',
                 headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 data: new URLSearchParams(urlSearchParams),
             });
@@ -95,14 +95,14 @@ app.get('/getaccess', async ({ query }, res: Response) => {
             res.cookie('access_token', token, { maxAge: 86400000 * 93,  path: "/", httpOnly: false ,secure: true, sameSite: 'none' });
             res.sendStatus(204);
             return;
-		} catch (error) {
-			// NOTE: An unauthorized token will not throw an error
-			// tokenResponseData.statusCode will be 401
-			console.error('could not authenticate');
+        } catch (error) {
+            // NOTE: An unauthorized token will not throw an error
+            // tokenResponseData.statusCode will be 401
+            console.error('could not authenticate');
             console.log(error.response.data);
             res.sendStatus(400);
-		}
-	}
+        }
+    }
 });
 
 app.listen(port, () => console.log("Listening on port " + port));

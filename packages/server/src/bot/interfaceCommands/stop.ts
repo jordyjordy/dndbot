@@ -16,7 +16,7 @@ export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
         connectionManager.playing = false;
         await msg.update(getMessageContent(connectionManager));
     } catch(err) {
-      console.error(err);
+        console.error(err);
     }
 };
 

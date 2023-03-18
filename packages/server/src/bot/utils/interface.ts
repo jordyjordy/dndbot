@@ -89,7 +89,7 @@ function generatePlaylistSelectRow(connectionContainer: ConnectionManager):Messa
             .addOptions(queueManager.playlists.map((el, id) => {
                 const label = id + ": " + el.name.substring(0,Math.min(80,el.name.length));
                 return {label, description: '', value: id.toString()};
-            }).filter((el, id) => id < 25))
+            }).filter((el, id) => id < 25)),
     );
     return row;
 }
@@ -125,31 +125,31 @@ function generateSelectRow(connectionContainer:ConnectionManager):MessageActionR
                 .addOptions(queueManager.getBotDisplayQueue().map((el,id) => {
                     const name = id + ": "+ el.name.substring(0,Math.min(80,el.name.length));
                     return {label:name, description:(queueManager.currentSong === id?playingText:""),value:id.toString()};
-                }).filter((el, id) => id < 25))
+                }).filter((el, id) => id < 25)),
         );
     return row;
 }
 
 function genererateButtonRow(connectionContainer:ConnectionManager):MessageActionRow {
     const row = new MessageActionRow()
-    .addComponents(
-        new MessageButton()
-            .setCustomId("playpause")
-            .setLabel(getPlayButtonStyleAndText(connectionContainer).text)
-            .setStyle(getPlayButtonStyleAndText(connectionContainer).style),
-        new MessageButton()
-            .setCustomId("ps")
-            .setLabel("Previous Song")
-            .setStyle("SECONDARY"),
-        new MessageButton()
-        .setCustomId("ns")
-        .setLabel("Next Song")
-        .setStyle("SECONDARY"),
-        new MessageButton()
-        .setCustomId("stop")
-        .setLabel("Stop")
-        .setStyle("DANGER")
-    );
+        .addComponents(
+            new MessageButton()
+                .setCustomId("playpause")
+                .setLabel(getPlayButtonStyleAndText(connectionContainer).text)
+                .setStyle(getPlayButtonStyleAndText(connectionContainer).style),
+            new MessageButton()
+                .setCustomId("ps")
+                .setLabel("Previous Song")
+                .setStyle("SECONDARY"),
+            new MessageButton()
+                .setCustomId("ns")
+                .setLabel("Next Song")
+                .setStyle("SECONDARY"),
+            new MessageButton()
+                .setCustomId("stop")
+                .setLabel("Stop")
+                .setStyle("DANGER"),
+        );
     return row;
 }
 
@@ -157,9 +157,9 @@ function generateSecondaryButtonRow(connectionContainer:ConnectionManager):Messa
     const row = new MessageActionRow()
         .addComponents(
             new MessageButton()
-            .setCustomId("replay")
-            .setLabel('Replay')
-            .setStyle("SECONDARY"),
+                .setCustomId("replay")
+                .setLabel('Replay')
+                .setStyle("SECONDARY"),
             new MessageButton()
                 .setCustomId("loop")
                 .setLabel('Loop')
@@ -182,7 +182,7 @@ function generateTeriaryButtonRow():MessageActionRow {
             new MessageButton()
                 .setCustomId('clear')
                 .setLabel("Empty Playlist")
-                .setStyle("DANGER")
+                .setStyle("DANGER"),
         );
     return row;
 }

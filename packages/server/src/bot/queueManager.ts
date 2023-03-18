@@ -50,12 +50,12 @@ export default class QueueManager {
     #setPlaylists = async ():Promise<void> => { 
         const playlists = (await PlayList.findByServerId(this.server) ?? []).map((playlist) => new playList(playlist));
         if(isEmpty(playlists)) {
-           try {
+            try {
                 const playlist = await PlayList.createNewPlayList('default', this.server);
                 this.playlists = [new playList(playlist)];
-           } catch(err) {
+            } catch(err) {
                 console.error(err);
-           }
+            }
         } else {
             this.playlists = playlists;
             this.getBotDisplayPlaylist().queue = [...this.getBotDisplayPlaylist().queue];
