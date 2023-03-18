@@ -1,7 +1,8 @@
+import { QueueStatus } from "../bot/queueManager";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SSEMessage = string | { [k:string]: SSEMessage | number | Array<SSEMessage> | boolean | undefined };
+export type SSEMessage = string | { [k:string | number | symbol]: SSEMessage | number | Array<SSEMessage> | boolean | undefined };
 
 class SSEManager {
     static serverList: Record<string, Record<string, (message: SSEMessage) => void>> = {};
