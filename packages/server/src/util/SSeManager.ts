@@ -1,7 +1,12 @@
-class SSEManager {
-    static serverList: Record<string, Record<string, (message: any) => void>> = {};
 
-    static addListener = (serverId: string, userId: string, callback: (message: any) => void): void => {
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SSEMessage = string | { [k:string]: SSEMessage | number | Array<SSEMessage> | boolean | undefined };
+
+class SSEManager {
+    static serverList: Record<string, Record<string, (message: SSEMessage) => void>> = {};
+
+    static addListener = (serverId: string, userId: string, callback: (message: SSEMessage) => void): void => {
         if(!SSEManager.serverList[serverId]) {
             SSEManager.serverList[serverId] = {};
         }
@@ -12,7 +17,7 @@ class SSEManager {
         delete SSEManager.serverList[serverId][userId]; 
     };
 
-    static publish = (serverId: string, message: any): void => {
+    static publish = (serverId: string, message: SSEMessage): void => {
         if (!SSEManager.serverList[serverId]) {
             SSEManager.serverList[serverId] = {};
         }
