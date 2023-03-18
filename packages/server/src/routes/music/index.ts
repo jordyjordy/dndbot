@@ -35,7 +35,7 @@ type MusicActionRequest = ISessionAuthRequest & {
 const updateSSE = async (req, res, next) => {
     const serverId = req.query.serverId ?? req.body.serverId;
     const connectionInterface = new ConnectionInterface(serverId);
-    SSEManager.publish(serverId, await connectionInterface.getPlayStatus());
+    SSEManager.publish(serverId, { ...await connectionInterface.getPlayStatus() });
     next();
 };
 

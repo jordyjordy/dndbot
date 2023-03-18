@@ -23,7 +23,9 @@
     "include": [
       "packages/audio-dashboard/src",
       "packages/server/src",
-      "src"
+      "src",
+      "packages/server/index.d.ts",
+      "packages/server/tsconfig.json",
     ]
   }
   

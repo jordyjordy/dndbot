@@ -66,7 +66,7 @@ playListSchema.statics.createPlaylistFromUrl = async (name: string, server: stri
             promises.push(ytdl.getBasicInfo(song.url).then(() => {
                 return { _id: '', url: song.url, name: song.name };
             }).catch(() => {
-               return null;
+                return null;
             }));
         }
     });

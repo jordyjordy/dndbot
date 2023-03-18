@@ -17,8 +17,8 @@ router.get('/list', sessionAuth, async (req: RequestWithServer, res: Response) =
 
 router.get('/name', async (req: Request, res: Response) => {
     try {
-    const result = await Item.findByName(req.query.name as string, req.query.serverId as string);
-    res.status(200).json(result);
+        const result = await Item.findByName(req.query.name as string, req.query.serverId as string);
+        res.status(200).json(result);
     } catch(err) {
         res.status(200).json({});
     }

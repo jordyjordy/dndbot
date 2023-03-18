@@ -1,22 +1,28 @@
-class SSEManager {
-    static serverList: Record<string, Record<string, (message: any) => void>> = {};
+export type SSEMessage = string | Record<string | number | symbol, SSEMessageProperty>;
 
-    static addListener = (serverId: string, userId: string, callback: (message: any) => void): void => {
-        if(!SSEManager.serverList[serverId]) {
+type SSEMessageProperty = number | boolean | string | undefined;
+
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+class SSEManager {
+    static serverList: Record<string, Record<string, (message: SSEMessage) => void>> = {};
+
+    static addListener = (serverId: string, userId: string, callback: (message: SSEMessage) => void): void => {
+        if (SSEManager.serverList[serverId] === undefined) {
             SSEManager.serverList[serverId] = {};
         }
-            SSEManager.serverList[serverId][userId] = callback; 
+        SSEManager.serverList[serverId][userId] = callback;
     };
 
     static removeListener = (serverId: string, userId: string): void => {
-        delete SSEManager.serverList[serverId][userId]; 
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+        delete SSEManager.serverList[serverId][userId];
     };
 
-    static publish = (serverId: string, message: any): void => {
-        if (!SSEManager.serverList[serverId]) {
+    static publish = (serverId: string, message: SSEMessage): void => {
+        if (SSEManager.serverList[serverId] === undefined) {
             SSEManager.serverList[serverId] = {};
         }
-        Object.values(this.serverList[serverId]).forEach(callback => callback(message));
+        Object.values(this.serverList[serverId]).forEach(callback => { callback(message); });
     };
 }
 

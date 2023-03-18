@@ -23,7 +23,7 @@ const refreshSlashCommmands = async (server: string, rest: REST, commands) => {
     try{
         await rest.put(
             Routes.applicationGuildCommands(process.env.CLIENT_ID as string, server),
-            { body: commands }
+            { body: commands },
         );
     } catch(err) {
         console.error(err);

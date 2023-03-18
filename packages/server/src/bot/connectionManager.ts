@@ -19,7 +19,6 @@ import ConnectionInterface from '../util/ConnectionInterface';
 
 const connectionContainers: connectionMap = {};
 
-
 type connectionMap = {
     [key: string]: { connectionManager: ConnectionManager, queueManager: QueueManager }
 };
@@ -276,7 +275,7 @@ export class ConnectionManager {
             this.queueManager.goToNextSong();
             await this.#startSong();
             const connectionInterface = new ConnectionInterface(this.server);
-            SSEManager.publish(this.server, await connectionInterface.getPlayStatus());
+            SSEManager.publish(this.server, { ...(await connectionInterface.getPlayStatus()) });
             updateInterface(this, undefined, false, false, true);
         });
 
