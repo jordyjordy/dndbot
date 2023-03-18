@@ -7,7 +7,7 @@ class SSEManager {
     static serverList: Record<string, Record<string, (message: SSEMessage) => void>> = {};
 
     static addListener = (serverId: string, userId: string, callback: (message: SSEMessage) => void): void => {
-        if (SSEManager.serverList[serverId] !== undefined) {
+        if (SSEManager.serverList[serverId] === undefined) {
             SSEManager.serverList[serverId] = {};
         }
         SSEManager.serverList[serverId][userId] = callback;
@@ -19,7 +19,7 @@ class SSEManager {
     };
 
     static publish = (serverId: string, message: SSEMessage): void => {
-        if (SSEManager.serverList[serverId] !== undefined) {
+        if (SSEManager.serverList[serverId] === undefined) {
             SSEManager.serverList[serverId] = {};
         }
         Object.values(this.serverList[serverId]).forEach(callback => { callback(message); });
