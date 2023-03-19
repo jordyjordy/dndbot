@@ -1,4 +1,4 @@
-import { getConnection } from "../connectionManager";
+import client from '../';
 import { SelectMenuInteraction } from "discord.js";
 import { getMessageContent } from "../utils/interface";
 import { interfaceCommand } from ".";
@@ -11,7 +11,7 @@ export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
         return;
     }
     const args = msg.values[0];
-    const { connectionManager } = await getConnection(msg.guildId);
+    const { connectionManager } = await client.getConnection(msg.guildId);
 
     try{
         if(!connectionManager.isConnected()) {

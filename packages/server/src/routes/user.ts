@@ -3,7 +3,7 @@ const router = express.Router();
 import axios from 'axios';
 import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth.js';
 import client from '../bot/index.js';
-import { sessionDetails } from '../util/sessionManager.js';
+import { sessionDetails } from '../util/session.js';
 import { APIGuild } from 'discord-api-types';
 
 const getUserGuilds = async (sessionDetails: sessionDetails): Promise<APIGuild[]> => {

@@ -1,4 +1,4 @@
-import { sessionDetails } from "../util/sessionManager";
+import { sessionDetails } from "../util/session";
 import { Response, NextFunction, Request } from "express";
 import jwt from 'jsonwebtoken';
 

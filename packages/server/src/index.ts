@@ -18,7 +18,7 @@ import user from './routes/user';
 import bot from './routes/bot';
 import music from './routes/music';
 import song from './routes/song';
-import { sessionDetails } from './util/sessionManager';
+import { sessionDetails } from './util/session';
 import axios from 'axios';
 
 mongoose.set('useCreateIndex', true);

@@ -1,4 +1,4 @@
-import { getConnection } from "../connectionManager";
+import client from '../';
 import { MessageComponentInteraction } from "discord.js";
 import { getMessageContent } from "../utils/interface";
 import { LoopEnum } from "../utils/loop";
@@ -10,7 +10,7 @@ export const execute = async function(msg:MessageComponentInteraction):Promise<v
     if(!msg.guildId) {
         return;
     }
-    const { connectionManager, queueManager } = await getConnection(msg.guildId);
+    const { connectionManager, queueManager } = await client.getConnection(msg.guildId);
     let option = queueManager.loop;
     switch(option) {
         case LoopEnum.ONE:

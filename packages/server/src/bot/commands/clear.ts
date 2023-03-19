@@ -1,4 +1,4 @@
-import { getConnection } from "../connectionManager";
+import client from '../';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from "discord.js";
 import { updateInterface } from "../utils/interface";
@@ -16,7 +16,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
     }
     await msg.deferReply();
     const args = msg.options.getSubcommand();
-    const { connectionManager, queueManager }= await getConnection(msg.guildId);
+    const { connectionManager, queueManager }= await client.getConnection(msg.guildId);
     try{
         if(args === "all") {
             if(!await queueManager.clearQueue()) {

@@ -4,18 +4,22 @@ import { Client, Intents } from 'discord.js';
 
 import { Commands } from "./commands";
 import interfaceCommands from "./interfaceCommands";
-import { getConnection } from "./connectionManager";
+import { ConnectionManager } from "./connectionManager";
+import QueueManager from "./queueManager";
 
 dotenv.config();
 
-const client:Client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES] });
+type OptionallyExtendedClient = Client & { getConnection?: typeof getConnection };
+
+type ExtendedClient =  Client & { getConnection: typeof getConnection };
+
+const client:OptionallyExtendedClient = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES] });
 
 client.on('ready',async () => {
     if(process.env.REGISTER_COMMANDS === '1') {
         const servers = client.guilds.cache.map(guild => guild.id);
         await registerSlashCommands(servers);
     }
-    client.guilds.cache.forEach(guild => getConnection(guild.id));
 });
 
 client.on('interactionCreate', async interaction => {
@@ -48,10 +52,24 @@ client.on('error', (err) => {
     console.error(err);
 });
 
-// client.on('guildCreate', async guild => {
-//     registerSlashCommands([guild.id])
-// })
+const connectionContainers: connectionMap = {};
 
-export default client;
+type connectionMap = {
+    [key: string]: { connectionManager: ConnectionManager, queueManager: QueueManager }
+};
 
-export { getConnection }; 
+const getConnection = async (server: string): Promise<{ connectionManager: ConnectionManager, queueManager: QueueManager }> => {
+    if (connectionContainers[server]) {
+        return connectionContainers[server];
+    }
+    const queueManager = new QueueManager(server);
+    const connectionManager = new ConnectionManager(server, queueManager);
+    await queueManager.initialize();
+    connectionContainers[server] = { connectionManager, queueManager };
+    return connectionContainers[server];
+};
+
+client.getConnection = getConnection;
+
+const extendedClient: ExtendedClient = client as ExtendedClient;
+export default extendedClient;
