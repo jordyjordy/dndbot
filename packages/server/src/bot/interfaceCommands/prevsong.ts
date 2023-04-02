@@ -1,4 +1,4 @@
-import { getConnection} from "../connectionManager";
+import client from '../';
 import { MessageComponentInteraction } from "discord.js";
 import { getMessageContent } from "../utils/interface";
 import { interfaceCommand } from ".";
@@ -9,7 +9,7 @@ export const execute = async function(msg:MessageComponentInteraction):Promise<v
     if(!msg.guildId) {
         return;
     }
-    const { connectionManager } = await getConnection(msg.guildId);
+    const { connectionManager } = await client.getConnection(msg.guildId);
     try{
         await connectionManager.previousSong();
         msg.update(getMessageContent(connectionManager));

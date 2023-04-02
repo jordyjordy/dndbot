@@ -1,4 +1,4 @@
-import { getConnection } from "../connectionManager";
+import client from '../';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from "discord.js";
 import { updateInterface } from "../utils/interface";
@@ -11,7 +11,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
         return;
     }
     await msg.deferReply();
-    const { connectionManager, queueManager } = await getConnection(msg.guildId);
+    const { connectionManager, queueManager } = await client.getConnection(msg.guildId);
     try{
         await queueManager.updatePlaylists();
         updateInterface(connectionManager,msg);

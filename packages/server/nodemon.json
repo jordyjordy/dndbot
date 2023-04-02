@@ -2,6 +2,6 @@
   "watch": ["src"],
   "ext": "ts,json,js",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "tsc && node dist/index.js",
+  "exec": "tsc -p ./tsconfig.build.json && node dist/index.js",
   "ignoreRoot": [".git", "dist"]
 }

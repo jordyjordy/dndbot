@@ -1,4 +1,4 @@
-import { sessionDetails } from "./src/util/sessionManager";
+import { sessionDetails } from "./src/util/session";
 
 declare namespace Express {
     interface Request {

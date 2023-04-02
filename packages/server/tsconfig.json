@@ -11,6 +11,6 @@
     },
     "lib": ["es2016"],
     "files": ["src/index.ts", "index.d.ts"],
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "__mocks__"],
     "exclude": ["node_modules/**"]
   }

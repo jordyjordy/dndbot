@@ -1,4 +1,4 @@
-import { getConnection } from "../connectionManager";
+import client from '../';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from "discord.js";
 import { updateInterface } from "../utils/interface";
@@ -13,7 +13,7 @@ export const execute = async function(msg:CommandInteraction):Promise<void> {
     if(!msg.guildId) {
         return;
     }
-    const { connectionManager } = await getConnection(msg.guildId);
+    const { connectionManager } = await client.getConnection(msg.guildId);
     try{
         if(!connectionManager.isConnected()) {
             if(!await connectionManager.connect(msg)) {

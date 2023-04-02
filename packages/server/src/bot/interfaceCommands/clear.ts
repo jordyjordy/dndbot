@@ -1,4 +1,4 @@
-import { getConnection } from "../connectionManager";
+import client from '../';
 import { SelectMenuInteraction } from "discord.js";
 import { getMessageContent } from "../utils/interface";
 import { interfaceCommand } from ".";
@@ -11,7 +11,7 @@ export const execute = async function(msg:SelectMenuInteraction):Promise<void> {
     if(!msg.guildId) {
         return;
     }
-    const { connectionManager, queueManager } = await getConnection(msg.guildId);
+    const { connectionManager, queueManager } = await client.getConnection(msg.guildId);
     try{
         if(!await queueManager.clearQueue()) {
             msg.editReply("Something went wrong clearing the queue");

@@ -1,8 +1,8 @@
 import express, { Response } from 'express';
 const router = express.Router();
 import PlayList from '../model/playlist';
-import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth';
-import ConnectionInterface from '../util/ConnectionInterface';
+import client from '../bot';
+import DiscordAuth, { ISessionAuthRequest } from '@thepineappledev/discord-express-auth';
 
 type ISongDeleteRequest = ISessionAuthRequest & {
     query: {
@@ -12,10 +12,9 @@ type ISongDeleteRequest = ISessionAuthRequest & {
     }
 };
 
-router.post('/',sessionAuth,  async (req: ISessionAuthRequest, res: Response) => {
+router.post('/', DiscordAuth.identify, async (req: ISessionAuthRequest, res: Response) => {
     try{
-        const connectionInterface = new ConnectionInterface(req.body.serverId);
-        const queueManager = await connectionInterface.getQueueManager(); 
+        const { queueManager } = await client.getConnection(req.body.serverId);
         const playlistIndex = queueManager.getIndexOfPlaylistById(req.body.playlistId);
         await queueManager.queueSong({ url: req.body.songUrl, name: req.body.songName, pos: req.body.songIndex, playlistIndex });
         const playlists = await PlayList.findByServerId(req.body.serverId);
@@ -26,10 +25,9 @@ router.post('/',sessionAuth,  async (req: ISessionAuthRequest, res: Response) =>
     }
 });
 
-router.put('/', sessionAuth, async (req: ISessionAuthRequest, res: Response) => {
+router.put('/', DiscordAuth.identify, async (req: ISessionAuthRequest, res: Response) => {
     try {
-        const connectionInterface = new ConnectionInterface(req.body.serverId);
-        const queueManager = await connectionInterface.getQueueManager(); 
+        const { queueManager } = await client.getConnection(req.body.serverId);
         const playlistIndex = queueManager.getIndexOfPlaylistById(req.body.playlistId);
         await queueManager.updateSong(req.body.song, playlistIndex);
         const playlists = await PlayList.findByServerId(req.body.serverId);
@@ -39,10 +37,9 @@ router.put('/', sessionAuth, async (req: ISessionAuthRequest, res: Response) => 
     }
 });
 
-router.delete('/', sessionAuth, async (req: ISongDeleteRequest, res: Response) => {
+router.delete('/', DiscordAuth.identify, async (req: ISongDeleteRequest, res: Response) => {
     try {
-        const connectionInterface = new ConnectionInterface(req.query.serverId as string);
-        const queueManager = await connectionInterface.getQueueManager(); 
+        const { queueManager } = await client.getConnection(req.query.serverId as string); 
         const playlistIndex = queueManager.getIndexOfPlaylistById(req.query.playlistId);
         const removed = await queueManager.removeSong(req.query.songIndex, playlistIndex);
         queueManager.updatePlaylists();

@@ -1,8 +1,8 @@
-import { getConnection } from "../connectionManager";
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from "discord.js";
 import { updateInterface } from "../utils/interface";
 import { reply } from "../utils/messageReply";
+import client from '../';
 const data = new SlashCommandBuilder()
     .setName('addsong')
     .setDescription('Adds a song to the music queue, optional param to indicate the index')
@@ -15,7 +15,7 @@ const execute = async function(msg:CommandInteraction):Promise<void> {
     }
     await msg.deferReply();
     const args = Array.from(msg.options.data.values()).map(entry => entry.value?.toString() ?? '');
-    const { connectionManager, queueManager } = await getConnection(msg.guildId);
+    const { connectionManager, queueManager } = await client.getConnection(msg.guildId);
     try{
         if(args.length > 1) {
             await queueManager.queueSong({ url: args[0], name: args[1] }).catch(err => {

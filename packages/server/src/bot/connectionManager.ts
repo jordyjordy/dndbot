@@ -12,41 +12,9 @@ import {
 import { CommandInteraction, Interaction, Message } from 'discord.js';
 import client from ".";
 import { updateInterface } from './utils/interface';
-import QueueManager from './queueManager';
+import QueueManager, { QueueStatus } from './queueManager';
 import { stream } from 'play-dl';
 import SSEManager from '../util/SSeManager';
-import ConnectionInterface from '../util/ConnectionInterface';
-
-const connectionContainers: connectionMap = {};
-
-type connectionMap = {
-    [key: string]: { connectionManager: ConnectionManager, queueManager: QueueManager }
-};
-
-export async function getConnection(server: string): Promise<{ connectionManager: ConnectionManager, queueManager: QueueManager }> {
-    if (connectionContainers[server]) {
-        return connectionContainers[server];
-    }
-    const queueManager = new QueueManager(server);
-    const connectionManager = new ConnectionManager(server, queueManager);
-    await queueManager.initialize();
-    connectionContainers[server] = { connectionManager, queueManager };
-    return connectionContainers[server];
-}
-
-export async function destroyConnectionContainer(server: string): Promise<boolean> {
-    if (connectionContainers[server]) {
-        try {
-            connectionContainers[server].connectionManager.clearConnection();
-            delete connectionContainers[server];
-            return true;
-        } catch (err) {
-            return false;
-        }
-    }
-    return true;
-}
-
 export class ConnectionManager {
     server: string;
     connection: VoiceConnection | undefined;
@@ -69,13 +37,16 @@ export class ConnectionManager {
         return !!(this.connection && this.connection.state.status !== VoiceConnectionStatus.Disconnected);
     }
 
-    async connectToChannel(channelId: string, guildId: string): Promise<boolean> {
-        const guild = client.guilds.cache.get(guildId);
-        this.lastChannel = channelId;
-        this.lastGuild = guildId;
+    async connectToChannel({ channelId, userId }: { channelId: string, userId?: string } | { userId: string, channelId?: string }): Promise<boolean> {
+        const guild = client.guilds.cache.get(this.server);
+        const determinedChannelId = channelId ??  ((await guild?.members?.fetch(userId as string))?.voice.channelId);
+        if(!determinedChannelId) {
+            return false;
+        }
+        this.lastChannel = determinedChannelId;
         this.connection = joinVoiceChannel({
-            channelId,
-            guildId,
+            channelId: determinedChannelId,
+            guildId: this.server,
             adapterCreator: guild?.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
         });
 
@@ -251,7 +222,7 @@ export class ConnectionManager {
             const song = await stream(songUrl, { discordPlayerCompatibility: true });
             const audiosource = createAudioResource(song.stream);
             if(!this.audioPlayer) {
-                await this.connectToChannel(this.lastChannel, this.lastGuild);
+                await this.connectToChannel({ channelId: this.lastChannel });
                 await this.#prepareAudioPlayer();
             }
             if(!this.audioPlayer) {
@@ -274,8 +245,7 @@ export class ConnectionManager {
         this.audioPlayer.on(AudioPlayerStatus.Idle, async () => {
             this.queueManager.goToNextSong();
             await this.#startSong();
-            const connectionInterface = new ConnectionInterface(this.server);
-            SSEManager.publish(this.server, { ...(await connectionInterface.getPlayStatus()) });
+            SSEManager.publish(this.server, { ...(await this.getPlayStatus()) });
             updateInterface(this, undefined, false, false, true);
         });
 
@@ -297,5 +267,11 @@ export class ConnectionManager {
         });
 
         this.connection?.subscribe(this.audioPlayer);
+    }
+
+    async getPlayStatus(): Promise<QueueStatus & { playing: boolean }> {
+        const playing = this.playing;
+        const playStatus = this.queueManager.getPlayStatus();
+        return { playing, ...playStatus };
     }
 }
