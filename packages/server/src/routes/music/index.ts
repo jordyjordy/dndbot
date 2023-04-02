@@ -1,7 +1,7 @@
 import express, { Response } from 'express';
 const router = express.Router();
 import userPlaylists from './userPlaylists';
-import DiscordAuth, { ISessionAuthRequest } from '@jordyjordy/discord-express-auth';
+import DiscordAuth, { ISessionAuthRequest } from '@thepineappledev/discord-express-auth';
 import client from '../../bot';
 import { LoopEnum } from '../../bot/utils/loop';
 import SSEManager from '../../util/SSeManager';

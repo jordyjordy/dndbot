@@ -2,7 +2,7 @@ import express, { Response } from 'express';
 const router = express.Router();
 import PlayList from '../model/playlist';
 import client from '../bot';
-import DiscordAuth, { ISessionAuthRequest } from '@jordyjordy/discord-express-auth';
+import DiscordAuth, { ISessionAuthRequest } from '@thepineappledev/discord-express-auth';
 
 type ISongDeleteRequest = ISessionAuthRequest & {
     query: {

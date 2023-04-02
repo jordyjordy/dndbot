@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 const router = express.Router();
 import PlayList from '../model/playlist';
-import DiscordAuth from '@jordyjordy/discord-express-auth';
+import DiscordAuth from '@thepineappledev/discord-express-auth';
 import SSEManager from '../util/SSeManager';
 import client from '../bot';
 

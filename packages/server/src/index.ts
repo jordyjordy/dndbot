@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import DiscordAuth from '@jordyjordy/discord-express-auth';
+import DiscordAuth from '@thepineappledev/discord-express-auth';
 import client from './bot/index';
 
 const app = express();
@@ -56,7 +56,7 @@ app.use('/songs', song);
 
 app.get('/authorize', DiscordAuth.authorize);
 
-app.get('/getaccess', DiscordAuth.authCodeToJwtToken);
+app.get('/login', DiscordAuth.authCodeToJwtToken);
 
 app.get('/logout', DiscordAuth.logout);
 

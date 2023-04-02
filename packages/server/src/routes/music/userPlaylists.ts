@@ -1,6 +1,6 @@
 import express, { Response } from 'express';
 const router = express.Router();
-import DiscordAuth, { ISessionAuthRequest } from '@jordyjordy/discord-express-auth';
+import DiscordAuth, { ISessionAuthRequest } from '@thepineappledev/discord-express-auth';
 import UserPlayList from '../../model/userPlaylist';
 
 interface GetPlaylistRequest extends ISessionAuthRequest {

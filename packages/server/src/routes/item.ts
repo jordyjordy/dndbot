@@ -1,6 +1,6 @@
 import express, { Request, Response} from 'express';
 import Item from '../model/item';
-import DiscordAuth, { ISessionAuthRequest } from '@jordyjordy/discord-express-auth';
+import DiscordAuth, { ISessionAuthRequest } from '@thepineappledev/discord-express-auth';
 
 const router = express.Router();
 

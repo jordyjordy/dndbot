@@ -20,7 +20,7 @@
     "@discordjs/opus": "^0.8.0",
     "@discordjs/rest": "^0.1.0-canary.0",
     "@discordjs/voice": "^0.15.0",
-    "@jordyjordy/discord-express-auth": "^0.1.2",
+    "@thepineappledev/discord-express-auth": "^0.1.2",
     "@rollup/plugin-json": "^5.0.1",
     "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
