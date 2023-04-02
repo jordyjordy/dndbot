@@ -1,7 +1,7 @@
 import express, { Response } from 'express';
 const router = express.Router();
 import userPlaylists from './userPlaylists';
-import sessionAuth, { ISessionAuthRequest } from '../../config/sessionAuth';
+import DiscordAuth, { ISessionAuthRequest } from '@jordyjordy/discord-express-auth';
 import client from '../../bot';
 import { LoopEnum } from '../../bot/utils/loop';
 import SSEManager from '../../util/SSeManager';
@@ -39,7 +39,7 @@ const updateSSE = async (req, res, next) => {
 };
 
 
-router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response, next): Promise<void> => {
+router.post('/playsong', DiscordAuth.identify, async (req: SongPlayRequest, res: Response, next): Promise<void> => {
     const { connectionManager, queueManager } = await client.getConnection(req.body.serverId);
     if(!connectionManager.isConnected()) {
         await connectionManager.connectToChannel({ userId: req.sessionDetails.userId });
@@ -51,13 +51,13 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
     next();
 }, updateSSE);
 
-router.get('/status', sessionAuth, async (req: SongPlayRequest, res: Response): Promise<void> => {
+router.get('/status', DiscordAuth.identify, async (req: SongPlayRequest, res: Response): Promise<void> => {
     const { connectionManager } = await client.getConnection(req.body.serverId);
     res.status(200).send(connectionManager.getPlayStatus());
 });
 
 
-router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Response, next): Promise<void> => {
+router.post('/action', DiscordAuth.identify, async (req: MusicActionRequest, res: Response, next): Promise<void> => {
     const { connectionManager, queueManager } = await client.getConnection(req.body.serverId);
     switch (req.body.action as MusicAction) {
         case 'STOP':
@@ -92,7 +92,7 @@ router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Respons
     next();
 }, updateSSE);
 
-router.get('/update', sessionAuth, async (req: UpdateRequest, res: Response) => {
+router.get('/update', DiscordAuth.identify, async (req: UpdateRequest, res: Response) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Connection', 'keep-alive');

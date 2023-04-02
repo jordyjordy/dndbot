@@ -1,23 +1,23 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 const router = express.Router();
 import PlayList from '../model/playlist';
-import sessionAuth from '../config/sessionAuth';
+import DiscordAuth from '@jordyjordy/discord-express-auth';
 import SSEManager from '../util/SSeManager';
 import client from '../bot';
 
-const updateSSE = async (req, res, next) => {
+const updateSSE = async (req: Request, res: Response, next: NextFunction) => {
     const serverId = req.query.serverId ?? req.body.serverId;
     const { connectionManager } = await client.getConnection(serverId);
     SSEManager.publish(serverId, { ...await connectionManager.getPlayStatus() });
     next();
 };
 
-router.get('/list', sessionAuth, async (req: Request, res: Response) => {
+router.get('/list', DiscordAuth.identify, async (req: Request, res: Response) => {
     const result = await PlayList.findByServerId(req.query.server as string);
     res.status(200).json(result);
 });
 
-router.post('/',sessionAuth, async (req: Request, res: Response) => {
+router.post('/',DiscordAuth.identify, async (req: Request, res: Response) => {
     const { queueManager } = await client.getConnection(req.body.serverId);
     try{
         if(req.body.url) {
@@ -37,7 +37,7 @@ router.post('/',sessionAuth, async (req: Request, res: Response) => {
 });
 
 
-router.put('/', sessionAuth, async (req: Request, res: Response, next) => {
+router.put('/', DiscordAuth.identify, async (req: Request, res: Response, next) => {
     try {
         const { queueManager } = await client.getConnection(req.body.serverId);
         const oldPlaylist = await PlayList.findByIdAndUpdate(req.body.playlist._id, req.body.playlist);
@@ -59,7 +59,7 @@ router.put('/', sessionAuth, async (req: Request, res: Response, next) => {
     }
 }, updateSSE);
 
-router.delete('/', sessionAuth, async (req: Request, res: Response) => {
+router.delete('/', DiscordAuth.identify, async (req: Request, res: Response) => {
     try {
         await PlayList.findByIdAndDelete(req.query.playlistId);
         const playlists = await PlayList.findByServerId(req.query.serverId as string);

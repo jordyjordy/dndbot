@@ -19,7 +19,7 @@ export default function Login (): JSX.Element {
             {process.env.REACT_APP_SERVER_ADDRESS !== undefined
                 ? (
                     <button className="dndbtn login-btn" onClick={() => {
-                        window.location.href = `${process.env.REACT_APP_SERVER_ADDRESS as string}/login?redirect=${encodeURIComponent(`${window.location.origin}/redirect`)}`;
+                        window.location.href = `${process.env.REACT_APP_SERVER_ADDRESS as string}/authorize?redirect_uri=${encodeURIComponent(`${window.location.origin}/redirect`)}`;
                     }}>
                         LOGIN
                     </button>

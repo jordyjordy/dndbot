@@ -1,6 +1,6 @@
 import express, { Request, Response} from 'express';
 import Item from '../model/item';
-import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth';
+import DiscordAuth, { ISessionAuthRequest } from '@jordyjordy/discord-express-auth';
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ interface RequestWithServer extends ISessionAuthRequest {
     }
 }
 
-router.get('/list', sessionAuth, async (req: RequestWithServer, res: Response) => {
+router.get('/list', DiscordAuth.identify, async (req: RequestWithServer, res: Response) => {
     const result = await Item.find({server:req.query.serverId});
     res.status(200).json(result);
 });
@@ -24,12 +24,12 @@ router.get('/name', async (req: Request, res: Response) => {
     }
 });
 
-router.get('/id', sessionAuth, async (req: ISessionAuthRequest, res: Response) => {
+router.get('/id', DiscordAuth.identify, async (req: ISessionAuthRequest, res: Response) => {
     const result = await Item.findById(req.query.id);
     res.status(200).json(result);
 });
 
-router.put('/update', sessionAuth, async (req: ISessionAuthRequest, res:Response) => {
+router.put('/update', DiscordAuth.identify, async (req: ISessionAuthRequest, res:Response) => {
     try {
         req.body.item.name_lower = req.body.item.name.toLowerCase();
         req.body.item.edit = req.sessionDetails.userId;
@@ -41,7 +41,7 @@ router.put('/update', sessionAuth, async (req: ISessionAuthRequest, res:Response
 });
 
 
-router.get('/search', sessionAuth,  async (req: ISessionAuthRequest, res:Response) => {
+router.get('/search', DiscordAuth.identify,  async (req: ISessionAuthRequest, res:Response) => {
     try {
         if(!req.body.server || !req.query.string) {
             throw new Error("Missing parameters");
@@ -53,7 +53,7 @@ router.get('/search', sessionAuth,  async (req: ISessionAuthRequest, res:Respons
     }
 });
 
-router.post('/add', sessionAuth, async (req: ISessionAuthRequest, res: Response) => {
+router.post('/add', DiscordAuth.identify, async (req: ISessionAuthRequest, res: Response) => {
     try {
         const temp = req.body.item;
         const item = new Item({
@@ -71,7 +71,7 @@ router.post('/add', sessionAuth, async (req: ISessionAuthRequest, res: Response)
     }
 });
 
-router.delete("/delete", sessionAuth, async (req: ISessionAuthRequest, res: Response) => {
+router.delete("/delete", DiscordAuth.identify, async (req: ISessionAuthRequest, res: Response) => {
     try {
         await Item.findByIdAndDelete(req.query.id);
         res.status(200).send("success");

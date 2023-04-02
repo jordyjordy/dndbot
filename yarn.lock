@@ -1823,6 +1823,18 @@
     "@types/yargs" "^17.0.8"
     chalk "^4.0.0"
 
+"@jordyjordy/discord-express-auth@^0.1.2":
+  version "0.1.2"
+  resolved "https://npm.pkg.github.com/download/@jordyjordy/discord-express-auth/0.1.2/681f91fc5524c0548cd5c8d7ba4f2e7eeb34fba1#681f91fc5524c0548cd5c8d7ba4f2e7eeb34fba1"
+  integrity sha512-Ompn7s3xeGgX1xSHhi/SQZ8CzNBChN3XTBZcPnQKRfLDaZMAurW1ldideTw9KkxstOooTsQHhwI31PGK1Knuuw==
+  dependencies:
+    axios "^0.27.2"
+    discord-api-types "^0.23.1"
+    discord.js "^13.12.0"
+    discord.js-typings "github:discordjs/discord.js-typings"
+    express "^4.17.1"
+    jsonwebtoken "^9.0.0"
+
 "@jridgewell/gen-mapping@^0.1.0":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.1.1.tgz#e5d2e450306a9491e3bd77e323e38d7aff315996"

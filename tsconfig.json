@@ -26,6 +26,7 @@
       "src",
       "packages/server/index.d.ts",
       "packages/server/tsconfig.json",
-    ]
+      "packages/server/__mocks__"
+    ],
   }
   

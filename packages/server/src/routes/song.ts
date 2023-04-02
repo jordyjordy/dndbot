@@ -2,7 +2,7 @@ import express, { Response } from 'express';
 const router = express.Router();
 import PlayList from '../model/playlist';
 import client from '../bot';
-import sessionAuth, { ISessionAuthRequest } from '../config/sessionAuth';
+import DiscordAuth, { ISessionAuthRequest } from '@jordyjordy/discord-express-auth';
 
 type ISongDeleteRequest = ISessionAuthRequest & {
     query: {
@@ -12,7 +12,7 @@ type ISongDeleteRequest = ISessionAuthRequest & {
     }
 };
 
-router.post('/',sessionAuth,  async (req: ISessionAuthRequest, res: Response) => {
+router.post('/', DiscordAuth.identify, async (req: ISessionAuthRequest, res: Response) => {
     try{
         const { queueManager } = await client.getConnection(req.body.serverId);
         const playlistIndex = queueManager.getIndexOfPlaylistById(req.body.playlistId);
@@ -25,7 +25,7 @@ router.post('/',sessionAuth,  async (req: ISessionAuthRequest, res: Response) =>
     }
 });
 
-router.put('/', sessionAuth, async (req: ISessionAuthRequest, res: Response) => {
+router.put('/', DiscordAuth.identify, async (req: ISessionAuthRequest, res: Response) => {
     try {
         const { queueManager } = await client.getConnection(req.body.serverId);
         const playlistIndex = queueManager.getIndexOfPlaylistById(req.body.playlistId);
@@ -37,7 +37,7 @@ router.put('/', sessionAuth, async (req: ISessionAuthRequest, res: Response) => 
     }
 });
 
-router.delete('/', sessionAuth, async (req: ISongDeleteRequest, res: Response) => {
+router.delete('/', DiscordAuth.identify, async (req: ISongDeleteRequest, res: Response) => {
     try {
         const { queueManager } = await client.getConnection(req.query.serverId as string); 
         const playlistIndex = queueManager.getIndexOfPlaylistById(req.query.playlistId);
