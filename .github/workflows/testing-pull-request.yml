@@ -10,6 +10,7 @@ jobs:
         with:
           node-version: 16.x
           cache: 'npm'
+      - run: echo "@jordyjordy:registry=https://registry.npmjs.org/" > .npmrc
       - run: npm run bootstrap
       - run: npm run test
       - run: npm run lint

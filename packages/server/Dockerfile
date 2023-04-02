@@ -3,7 +3,7 @@ FROM node:16 as builder
 WORKDIR /app/server
 
 COPY package*.json ./
-
+RUN echo "@jordyjordy:registry=https://registry.npmjs.org/" > .npmrc
 RUN yarn install
 
 COPY . .
