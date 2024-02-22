@@ -11,7 +11,19 @@ services:
         window: 60s
         max_attempts: 10
     ports:
-      - "${SERVERPORT}:5000"      
+      - "${SERVERPORT}:5000"
+  effectsServer:
+    container_name: dndeffectsbot
+    image: ghcr.io/jordyjordy/dndmusicbot:latest
+    env_file: ".env.effects"
+    deploy: 
+      restart_policy:
+        condition: on-failure
+        delay: 10s 
+        window: 60s
+        max_attempts: 10
+    ports:
+      - "${SERVERPORT}:5000"    
   watchtower:
     image: containrrr/watchtower
     volumes:
