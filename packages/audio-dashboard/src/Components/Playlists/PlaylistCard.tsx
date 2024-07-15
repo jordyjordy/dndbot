@@ -6,7 +6,6 @@ import { setActivePlaylist, setPlaylists } from '../../reducers/playlists/action
 import { IonIcon } from '@ionic/react';
 import { close, playOutline } from 'ionicons/icons';
 import { request } from '../../utils/network';
-import RenamePlaylistButton from './RenamePlaylistButton';
 
 interface PlaylistCardProps {
     item: Playlist
@@ -56,7 +55,6 @@ const PlaylistCard = ({ item: playlist, index }: PlaylistCardProps): JSX.Element
             )}
             <div className='card-name'>
                 {playlist.name}
-                <RenamePlaylistButton playlist={playlist} />
             </div>
             <div
                 onClick={() => {

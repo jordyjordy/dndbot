@@ -13,26 +13,18 @@ dotenv.config();
 const originWhitelist = process.env.CORS_ORIGINS?.split(',');
 
 import items from './routes/item';
-import playlists from './routes/playlist';
 import user from './routes/user';
 import bot from './routes/bot';
 import music from './routes/music';
-import song from './routes/song';
 import { sessionDetails } from './util/sessionManager';
 import axios from 'axios';
 
-mongoose.set('useCreateIndex', true);
-mongoose.set('useUnifiedTopology', true);
-mongoose.set('useNewUrlParser', true);
-mongoose.set("useFindAndModify", false);
-
-mongoose.connect(process.env.DATABASE_URL as string).then(() => {
-    console.log("Connected to database!");
-});
 const port = process.env.PORT || 5000;
 app.use(cors({
     credentials: true,
     origin: function (ori, callback) {
+        callback(null, true);
+        return;
         if (!ori || originWhitelist?.indexOf(ori ?? '') !== -1) {
             callback(null, true);
         } else {
@@ -44,11 +36,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use('/item', items);
-app.use('/playlists', playlists);
 app.use('/user', user);
 app.use('/bot', bot);
 app.use('/music', music);
-app.use('/songs', song);
 
 app.get('/login', (req: Request, res: Response) => {
     req.query.redirect; 

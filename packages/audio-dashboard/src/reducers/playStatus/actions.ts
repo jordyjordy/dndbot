@@ -8,7 +8,7 @@ export const setPlayStatus = (value: PlayStatus): Action => {
     };
 };
 
-export const setSongId = (value: PlayStatus['song']): Action => {
+export const setSong = (value: PlayStatus['song']): Action => {
     return {
         type: 'playStatus/setSong',
         value,

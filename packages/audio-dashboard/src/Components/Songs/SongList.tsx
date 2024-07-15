@@ -24,9 +24,10 @@ const selector = (state: RootState): {
     };
 };
 
-const SongList = (): JSX.Element => {
+const SongList = ({ playlists, playSong }: { playlists: any[], playSong: (val: number) => void }): JSX.Element => {
     const [showSongModal, setShowSongModal] = useState(false);
-    const { serverId, playlists, activePlaylist } = useSelector(selector);
+    const { serverId, activePlaylist } = useSelector(selector);
+
     const dispatch = useDispatch();
     const handleDragFinish = (songs: any[]): void => {
         const playlist = playlists.find(({ _id }) => _id === activePlaylist) as Playlist;
@@ -65,6 +66,7 @@ const SongList = (): JSX.Element => {
                     template={SongCard}
                     onDragFinish={handleDragFinish}
                     className='song-list'
+                    action={playSong}
                 />
             </div>
         </div>

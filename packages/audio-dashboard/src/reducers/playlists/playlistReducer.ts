@@ -30,8 +30,7 @@ interface PlaylistReducerState {
 export interface Playlist {
     _id: string
     name: string
-    server: string
-    queue: Array<{ name: string, url: string, _id: string }>
+    queue: Array<{ name: string, data: unknown, _id: string }>
 };
 
 export default playlistReducer;

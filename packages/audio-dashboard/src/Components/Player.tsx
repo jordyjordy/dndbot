@@ -1,5 +1,5 @@
 import React from 'react';
-import { play, pause, playSkipBack, playSkipForward, shuffle, repeat, stop } from 'ionicons/icons';
+import { play, pause, stop } from 'ionicons/icons';
 import './Player.scss';
 import { IonIcon } from '@ionic/react';
 import { request } from '../utils/network';
@@ -26,9 +26,6 @@ const Player = (): JSX.Element => {
                 <button onClick={() => { sendAction('STOP'); }} className='musicbtn'>
                     <IonIcon icon={stop} />
                 </button>
-                <button onClick={() => { sendAction('PREVIOUSSONG'); }} className='musicbtn'>
-                    <IonIcon icon={playSkipBack} />
-                </button>
                 {playStatus.playing
                     ? (
                         <button onClick={() => { sendAction('PAUSE'); }} className='musicbtn'>
@@ -41,17 +38,7 @@ const Player = (): JSX.Element => {
                             <IonIcon icon={play} />
                         </button>
                     )}
-                <button onClick={() => { sendAction('NEXTSONG'); }} className='musicbtn'>
-                    <IonIcon icon={playSkipForward} />
-                </button>
-            </div>
-            <div>
-                <button onClick={() => { sendAction('TOGGLESHUFFLE'); }} className={`musicbtn ${playStatus.shuffle ? 'active' : ''}`}>
-                    <IonIcon icon={shuffle} />
-                </button>
-                <button onClick={() => { sendAction('TOGGLEREPEAT'); }} className={`musicbtn ${playStatus.loop ? 'active' : ''}`}>
-                    <IonIcon icon={repeat} />
-                </button>
+
             </div>
         </div>
     );

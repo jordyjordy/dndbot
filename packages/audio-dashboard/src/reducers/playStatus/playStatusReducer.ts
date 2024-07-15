@@ -2,7 +2,7 @@ import { Action } from '../../utils/store';
 
 const initialState = {
     playing: false,
-    song: '',
+    song: 0,
     playlist: '',
     loop: false,
     shuffle: false,
@@ -10,7 +10,7 @@ const initialState = {
 
 export interface PlayStatus {
     playing: boolean
-    song: string
+    song: number
     playlist: string
     loop: boolean
     shuffle: boolean
@@ -19,7 +19,7 @@ export interface PlayStatus {
 const playStatusReducer = (state = initialState, action: Action): PlayStatus => {
     switch (action.type) {
         case 'playStatus/set':
-            return { ...action.value };
+            return { ...state, ...action.value };
         case 'playStatus/setSong':
             return { ...state, song: action.value };
         case 'playStatus/setPlaylist':

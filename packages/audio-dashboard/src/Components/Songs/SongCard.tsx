@@ -1,18 +1,18 @@
-import React, { MouseEventHandler } from 'react';
+
+import React from 'react';
 import { Playlist } from '../../reducers/playlists/playlistReducer';
 import { RootState } from '../../utils/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSongId } from '../../reducers/playStatus/actions';
 import { request } from '../../utils/network';
 import { setPlaylists } from '../../reducers/playlists/actions';
 import { IonIcon } from '@ionic/react';
-import { close, play, reorderFourOutline } from 'ionicons/icons';
+import { close, play } from 'ionicons/icons';
 import RenameSongButton from './RenameSongButton';
 
 interface SongCardProps {
     item: Playlist['queue'][number]
     index: number
-    dragHandleProps: { onMouseDown: MouseEventHandler<HTMLDivElement> }
+    action: (index: number) => void
 }
 
 const selector = (state: RootState): {
@@ -25,22 +25,9 @@ const selector = (state: RootState): {
     serverId: state.serverInfo.serverId,
 });
 
-const SongCard = ({ item: song, index, dragHandleProps }: SongCardProps): JSX.Element => {
+const SongCard = ({ item: song, index, action }: SongCardProps): JSX.Element => {
     const { playStatus, activePlaylist, serverId } = useSelector(selector);
     const dispatch = useDispatch();
-
-    const playSong = (id: string): void => {
-        dispatch(setSongId(id));
-        request('/music/playsong', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ playlist: activePlaylist, song: id, serverId }),
-        }).catch(err => {
-            console.error(err);
-        });
-    };
 
     const removeSong = (playlist: string, song: number): void => {
         if (window.confirm('Are you sure you want to remove the song?') && serverId !== undefined) {
@@ -58,12 +45,9 @@ const SongCard = ({ item: song, index, dragHandleProps }: SongCardProps): JSX.El
     };
 
     return (
-        <div className={`song-card ${playStatus.song === song._id && activePlaylist === (playStatus.playlist ?? 0) ? 'active' : ''}`} key={song._id}>
+        <div className={`song-card ${playStatus.song === index && activePlaylist === (playStatus.playlist ?? 0) ? 'active' : ''}`} key={song._id}>
             <div className='left-block'>
-                <div className='draggable' onMouseDown={dragHandleProps.onMouseDown}>
-                    <IonIcon color="white" icon={reorderFourOutline} />
-                </div>
-                <div onClick={() => { playSong(song._id); }} className='play-button'>
+                <div onClick={() => { action(index); }} className='play-button'>
                     <IonIcon icon={play} />
                 </div>
                 <div className='card-name'>

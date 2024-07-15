@@ -4,16 +4,16 @@ import userPlaylists from './userPlaylists';
 import sessionAuth, { ISessionAuthRequest } from '../../config/sessionAuth';
 import { getConnection } from '../../bot';
 import ConnectionInterface from '../../util/ConnectionInterface';
-import { LoopEnum } from '../../bot/utils/loop';
 import SSEManager from '../../util/SSeManager';
+import { PassThrough } from 'stream';
 
 router.use('/playlists', userPlaylists);
 
 type SongPlayRequest = ISessionAuthRequest & {
-    body: {
-        playlist: number,
-        song: number,
+    query: {
         serverId: string,
+    }
+    body: {
     }
 };
 
@@ -23,7 +23,7 @@ type UpdateRequest = ISessionAuthRequest & {
     }
 };
 
-type MusicAction = 'STOP' | 'PLAY' | 'PAUSE' | 'NEXTSONG' | 'PREVIOUSSONG' | 'TOGGLESHUFFLE' | 'TOGGLEREPEAT';
+type MusicAction = 'STOP' | 'PLAY' | 'PAUSE';
 
 type MusicActionRequest = ISessionAuthRequest & {
     body: {
@@ -32,70 +32,47 @@ type MusicActionRequest = ISessionAuthRequest & {
     }
 };
 
-const updateSSE = async (req, res, next) => {
-    const serverId = req.query.serverId ?? req.body.serverId;
-    const connectionInterface = new ConnectionInterface(serverId);
-    SSEManager.publish(serverId, { ...await connectionInterface.getPlayStatus() });
-    next();
-};
+router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response): Promise<void> => {
 
-
-router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response, next): Promise<void> => {
-    await getConnection(req.body.serverId);
-    const connectionInterface = new ConnectionInterface(req.body.serverId);
+    await getConnection(req.query.serverId);
+    const connectionInterface = new ConnectionInterface(req.query.serverId);
     const connectionManager = await connectionInterface.getConnectionManager();
-    const queueManager = await connectionInterface.getQueueManager();
     if(!connectionManager.isConnected()) {
         await connectionInterface.joinVoiceChannel(req.sessionDetails.userId);
     }
+    const passthrough = new PassThrough();
 
-    queueManager.selectSongFromId(req.body.song, req.body.playlist);
-    await connectionManager.play(true);
-    res.sendStatus(200);
-    next();
-}, updateSSE);
+    req.on('data', (chunk) => {
+        passthrough.write(chunk);
+    });
 
-router.get('/status', sessionAuth, async (req: SongPlayRequest, res: Response): Promise<void> => {
-    const connectionInterface = new ConnectionInterface(req.body.serverId);
-    res.status(200).send(connectionInterface.getPlayStatus());
+    req.on('end', () => {
+        passthrough.end();
+        res.sendStatus(200);
+    });
+
+    connectionManager.startSong(passthrough);
 });
 
-
-router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Response, next): Promise<void> => {
+router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Response): Promise<void> => {
     const connection = await getConnection(req.body.serverId);
-    const connectionInterface = new ConnectionInterface(req.body.serverId);
+
     switch (req.body.action as MusicAction) {
         case 'STOP':
             connection.connectionManager.clearConnection();
             break;
         case 'PLAY':
-            if(!connection.connectionManager.isConnected()) {
-                await connectionInterface.joinVoiceChannel(req.sessionDetails.userId);
-            }
             await connection.connectionManager.play();
-            break;
-        case 'NEXTSONG':
-            await connection.connectionManager.nextSong();
-            break;
-        case 'PREVIOUSSONG':
-            await connection.connectionManager.previousSong();
             break;
         case 'PAUSE':
             connection.connectionManager.pause();
-            break;
-        case 'TOGGLESHUFFLE':
-            connection.queueManager.toggleShuffle(!connection.queueManager.shuffle);
-            break;
-        case 'TOGGLEREPEAT':
-            connection.queueManager.toggleLoop(connection.queueManager.loop === LoopEnum.NONE ? LoopEnum.ONE : LoopEnum.NONE);
             break;
         default:
             // do nothing;
             break;
     }
-    res.status(200).send(await connectionInterface.getPlayStatus());
-    next();
-}, updateSSE);
+    res.sendStatus(200);
+});
 
 router.get('/update', sessionAuth, async (req: UpdateRequest, res: Response) => {
     res.setHeader('Cache-Control', 'no-cache');
@@ -107,12 +84,8 @@ router.get('/update', sessionAuth, async (req: UpdateRequest, res: Response) => 
         res.write(`\ndata: ${JSON.stringify(message)}\n\n`);
     });
 
-    const connectionInterface = new ConnectionInterface(req.query.serverId);
-    res.write(`\ndata: ${JSON.stringify(await connectionInterface.getPlayStatus())}\n\n`);
-
     // If client closes connection, stop sending events
     res.on('close', () => {
-        console.log('closing');
         SSEManager.removeListener(req.query.serverId, req.sessionDetails.userId);
         res.end();
     });

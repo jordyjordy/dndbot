@@ -20,8 +20,8 @@ const selector = (state: RootState): {
     };
 };
 
-export default function PlaylistList (): JSX.Element {
-    const { serverId, playlists } = useSelector(selector);
+export default function PlaylistList ({ playlists }: { playlists: RootState['playlists']['playlists'] }): JSX.Element {
+    const { serverId } = useSelector(selector);
     const [showPlaylistModal, setShowPlaylistModal] = useState(false);
     const [width, setWidth] = useState(300);
     return (
@@ -44,6 +44,7 @@ export default function PlaylistList (): JSX.Element {
                         list={playlists}
                         template={PlaylistCard}
                         className='playlist-list'
+                        action={() => {}}
                     />
                 </div>
             </div>

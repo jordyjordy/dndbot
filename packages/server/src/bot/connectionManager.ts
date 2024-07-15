@@ -11,26 +11,21 @@ import {
 } from '@discordjs/voice';
 import { CommandInteraction, Interaction, Message } from 'discord.js';
 import client from ".";
-import { updateInterface } from './utils/interface';
-import QueueManager from './queueManager';
-import { stream } from 'play-dl';
 import SSEManager from '../util/SSeManager';
-import ConnectionInterface from '../util/ConnectionInterface';
+import { Readable } from 'stream';
 
 const connectionContainers: connectionMap = {};
 
 type connectionMap = {
-    [key: string]: { connectionManager: ConnectionManager, queueManager: QueueManager }
+    [key: string]: { connectionManager: ConnectionManager }
 };
 
-export async function getConnection(server: string): Promise<{ connectionManager: ConnectionManager, queueManager: QueueManager }> {
+export async function getConnection(server: string): Promise<{ connectionManager: ConnectionManager }> {
     if (connectionContainers[server]) {
         return connectionContainers[server];
     }
-    const queueManager = new QueueManager(server);
-    const connectionManager = new ConnectionManager(server, queueManager);
-    await queueManager.initialize();
-    connectionContainers[server] = { connectionManager, queueManager };
+    const connectionManager = new ConnectionManager(server);
+    connectionContainers[server] = { connectionManager };
     return connectionContainers[server];
 }
 
@@ -52,14 +47,12 @@ export class ConnectionManager {
     connection: VoiceConnection | undefined;
     audioPlayer: AudioPlayer | undefined;
     queueMessage: Message | undefined;
-    queueManager: QueueManager;
     crashed: boolean;
     playing: boolean;
     lastChannel: string;
     lastGuild: string;
 
-    constructor(server: string, queueManager: QueueManager) {
-        this.queueManager = queueManager;
+    constructor(server: string) {
         this.server = server;
         this.playing = false;
         this.crashed = false;
@@ -138,100 +131,7 @@ export class ConnectionManager {
         }
     }
 
-    async playSong(id: string): Promise<boolean> {
-        if (!this.isConnected()) {
-            return false;
-        }
-        if (!isNaN(Number(id))) {
-            try {
-                this.queueManager.currentSongPlaylist = this.queueManager.botDisplayPlaylist;
-                this.queueManager.selectSong(parseInt(id));
-                return await this.#startSong();
-            } catch (err) {
-                return false;
-            }
-        }
-        try {
-            const songPos = await this.queueManager.queueSong({ url: id });
-            try {
-                this.queueManager.selectSong(songPos);
-                const res = this.#startSong();
-                return await res;
-            } catch (err) {
-                this.queueManager.removeSong(songPos);
-                return false;
-            }
-        } catch (err) {
-            console.log(err);
-            return false;
-        }
-    }
-
-    async nextSong(): Promise<boolean> {
-        try {
-            if (!this.isConnected()) {
-                return false;
-            }
-            const songNumber = this.queueManager.goToNextSong();
-            return await this.#startSong(songNumber);
-        } catch (err) {
-            console.error(err);
-        }
-        return false;
-    }
-
-    async previousSong(): Promise<boolean> {
-        try {
-            if (!this.isConnected()) {
-                return false;
-            }
-            const songNumber = this.queueManager.goToPreviousSong();
-            return await this.#startSong(songNumber);
-        } catch (err) {
-            console.error(err);
-        }
-        return false;
-    }
-
-    pause(): void {
-        this.playing = false;
-        if (this.audioPlayer)
-            this.audioPlayer.pause();
-    }
-
-    async play(force = false): Promise<boolean> {
-        try {
-            if (!this.isConnected()) {
-                this.playing = false;
-                return false;
-            }
-            if (
-                !force && this.audioPlayer !== undefined &&
-                (this.audioPlayer.state.status === AudioPlayerStatus.Paused || this.audioPlayer.state.status === AudioPlayerStatus.AutoPaused)
-            ) {
-                try {
-                    const unpaused = await this.audioPlayer.unpause();
-                    if(!unpaused) {
-                        this.audioPlayer.stop();
-                        this.#prepareAudioPlayer();
-                        return false;
-                    }
-                    this.playing = true;
-                    return true;
-                } catch (err) {
-                    console.error(err);
-                }
-                return false;
-            }
-            await this.#startSong();
-        } catch (err) {
-            console.error(err);
-        }
-        return false;
-    }
-
-
-    async #startSong(id: number = this.queueManager.currentSong): Promise<boolean> {
+    async startSong(stream: Readable): Promise<boolean> {
         try {
             if(!this.audioPlayer || !this.audioPlayer.playable) {
                 this.audioPlayer?.stop();
@@ -242,14 +142,7 @@ export class ConnectionManager {
                 return false;
             }
 
-            this.queueManager.selectSong(id);
-            const songUrl = this.queueManager.getCurrentSongUrl();
-            if (!songUrl) {
-                throw new Error('song could not be found it seems');
-            }
-
-            const song = await stream(songUrl, { discordPlayerCompatibility: true });
-            const audiosource = createAudioResource(song.stream);
+            const audiosource = createAudioResource(stream);
             if(!this.audioPlayer) {
                 await this.connectToChannel(this.lastChannel, this.lastGuild);
                 await this.#prepareAudioPlayer();
@@ -258,7 +151,9 @@ export class ConnectionManager {
                 throw new Error('something went wrong, song could not be played');
             }
             this.audioPlayer.play(audiosource);
+            SSEManager.publish(this.server, { playing: true });
             this.playing = true;
+
         } catch (err) {
             console.error(err);
             this.playing = false;
@@ -266,34 +161,32 @@ export class ConnectionManager {
         }
         return true;
     }
+
+    play(): void {
+        if(this.audioPlayer) {
+            this.audioPlayer.unpause();
+            SSEManager.publish(this.server, { playing: true });
+        }
+    }
+
+    pause(): void {
+        if(this.audioPlayer) {
+            this.audioPlayer.pause();
+            SSEManager.publish(this.server, { playing: false });
+        }
+    }
+
     async #prepareAudioPlayer(): Promise<void> {
         if (!this.isConnected()) {
             return;
         }
         this.audioPlayer = createAudioPlayer();
         this.audioPlayer.on(AudioPlayerStatus.Idle, async () => {
-            this.queueManager.goToNextSong();
-            await this.#startSong();
-            const connectionInterface = new ConnectionInterface(this.server);
-            SSEManager.publish(this.server, { ...(await connectionInterface.getPlayStatus()) });
-            updateInterface(this, undefined, false, false, true);
+            SSEManager.publish(this.server, { songEnded: true });
         });
 
-        this.audioPlayer.on('error', async (err) => {
-            if (this.crashed) {
-                console.log('crashed?');
-                return;
-            }
-            this.crashed = true;
-            console.error(err);
-            setTimeout(() => {
-                this.audioPlayer?.stop();
-                this.audioPlayer = createAudioPlayer();
-                this.connection?.subscribe(this.audioPlayer);
-                this.#prepareAudioPlayer();
-                this.play();
-                this.crashed = false;
-            }, 500);
+        this.audioPlayer.on('error', async () => {
+            SSEManager.publish(this.server, { songEnded: true, playing: false });
         });
 
         this.connection?.subscribe(this.audioPlayer);
