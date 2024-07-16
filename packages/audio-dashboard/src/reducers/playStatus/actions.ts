@@ -8,7 +8,7 @@ export const setPlayStatus = (value: PlayStatus): Action => {
     };
 };
 
-export const setSongId = (value: PlayStatus['song']): Action => {
+export const setSong = (value: PlayStatus['song']): Action => {
     return {
         type: 'playStatus/setSong',
         value,
@@ -37,6 +37,7 @@ export const setLoop = (value: PlayStatus['loop']): Action => {
 };
 
 export const setShuffle = (value: PlayStatus['shuffle']): Action => {
+    console.log('every day im shuffling');
     return {
         type: 'playStatus/setShuffle',
         value,

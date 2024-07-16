@@ -23,6 +23,6 @@ const TestTemplate = ({ item }: TestTemplateProps): JSX.Element => (
 );
 
 it('renders without props', () => {
-    render(<DraggableList list={testList} itemKey="id" template={TestTemplate} />);
+    render(<DraggableList list={testList} itemKey="id" template={TestTemplate} action={() => {}} />);
     expect(screen.getByText('test')).toBeInTheDocument();
 });

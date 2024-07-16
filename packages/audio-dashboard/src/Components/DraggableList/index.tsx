@@ -1,21 +1,18 @@
-import React, { useEffect, useRef, useState, MouseEvent, MouseEventHandler } from 'react';
+import React, { useEffect, useRef, useState, MouseEvent } from 'react';
 import './DraggableList.scss';
-
-interface DragHandleProps {
-    onMouseDown: MouseEventHandler<HTMLDivElement>
-}
 
 interface DraggableListProps<T> {
     itemKey: keyof T
     list?: T[]
-    template: ({ item, dragHandleProps, index }: { item: T, dragHandleProps: DragHandleProps, index: number }) => JSX.Element
+    template: ({ item, index }: { item: T, action: (index: number) => void, index: number }) => JSX.Element
     onPositionSwap?: (oldIndex: number, newIndex: number) => void
     onDragFinish?: (newItems: T[]) => void
     className?: string
+    action: (index: number) => void
 }
 
 export function DraggableList<T> ({
-    itemKey, template: Template, list, onPositionSwap, onDragFinish, className,
+    itemKey, template: Template, list, onDragFinish, className, action,
 }: DraggableListProps<T>): JSX.Element {
     const [draggedItems, setDraggedItems] = useState(list ?? []);
     useEffect(() => {
@@ -24,20 +21,9 @@ export function DraggableList<T> ({
 
     const [dragged, setDragged] = useState<number | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const [mouseY, setMouseY] = useState(0);
-    const [offset, setOffset] = useState(0);
 
     const mouseUp = useRef<(e: any) => void>();
     const mouseMove = useRef<(e: any) => void>();
-
-    const draggedStyle = {
-        top: `${mouseY - offset - 13}px`,
-    };
-
-    const handleMouseMove = (e: any): void => {
-        const containerPos = containerRef?.current?.getBoundingClientRect();
-        setMouseY(e.pageY - (containerPos?.top ?? 0));
-    };
 
     const handleMouseOver = (e: MouseEvent, index: number): void => {
         if (index !== dragged && dragged !== null) {
@@ -75,39 +61,18 @@ export function DraggableList<T> ({
         onDragFinish?.(draggedItems);
     };
 
-    const handleMouseDown = (e: MouseEvent, index: number): void => {
-        setDragged(index);
-        const containerPos = containerRef?.current?.getBoundingClientRect();
-        setOffset(e.pageY - e.currentTarget.getBoundingClientRect()?.top);
-        setMouseY(e.pageY - (containerPos?.top ?? 0));
-        const onMouseMove = (e: any): void => {
-            handleMouseMove(e);
-        };
-
-        const onMouseUp = (e: any): void => {
-            handleMouseUp();
-        };
-
-        mouseUp.current = onMouseUp;
-        mouseMove.current = onMouseMove;
-
-        window.addEventListener('mousemove', onMouseMove);
-
-        window.addEventListener('mouseup', onMouseUp);
-    };
-
     return (
         <div ref={containerRef} className={`draggable-list ${className ?? ''}`}>
             {draggedItems.map((item, index) => {
                 return (
                     <div onMouseOver={(e) => { handleMouseOver(e, index); }} className={`${index === dragged ? 'hidden-el' : ''}`} key={item[itemKey] as string}>
-                        <Template item={item} index={index} dragHandleProps={{ onMouseDown: (e) => { handleMouseDown(e, index); } }} />
+                        <Template item={item} index={index} action={action} />
                     </div>
                 );
             })}
             {dragged !== null && (
-                <div className="dragged-el" style={draggedStyle}>
-                    <Template item={draggedItems[dragged]} index={dragged} dragHandleProps={{ onMouseDown: () => {} }} />
+                <div className="dragged-el">
+                    <Template item={draggedItems[dragged]} index={dragged} action={action} />
                 </div>
             )}
         </div>

@@ -2,18 +2,22 @@ import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setPlayStatus } from '../reducers/playStatus/actions';
 import { RootState } from '../utils/store';
+import { isEmpty } from 'lodash';
 
 interface PlayStateManagerProps {
     children: JSX.Element
+    repeat: () => void
 }
 
 const selector = (state: RootState): {
     serverId: RootState['serverInfo']['serverId']
+    playStatus: RootState['playStatus']
 } => ({
     serverId: state.serverInfo.serverId,
+    playStatus: state.playStatus,
 });
 
-export default function PlayStateManager ({ children }: PlayStateManagerProps): JSX.Element {
+export default function PlayStateManager ({ children, repeat }: PlayStateManagerProps): JSX.Element {
     const sse = useRef<EventSource>();
     const dispatch = useDispatch();
 
@@ -30,12 +34,18 @@ export default function PlayStateManager ({ children }: PlayStateManagerProps): 
         sse.current = new EventSource(`${process.env.REACT_APP_SERVER_ADDRESS}/music/update?serverId=${serverId}`, { withCredentials: true });
         sse.current.addEventListener('message', (event) => {
             const data = JSON.parse(event.data);
-            dispatch(setPlayStatus(data));
+            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+            if (data.songEnded) {
+                repeat();
+            }
+            if (!isEmpty(data)) {
+                dispatch(setPlayStatus(data));
+            }
         });
 
         return () => {
             sse.current?.close();
         };
-    }, [serverId, dispatch]);
+    }, [serverId, dispatch, repeat]);
     return children;
 }
