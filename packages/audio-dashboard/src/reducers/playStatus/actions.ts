@@ -37,6 +37,7 @@ export const setLoop = (value: PlayStatus['loop']): Action => {
 };
 
 export const setShuffle = (value: PlayStatus['shuffle']): Action => {
+    console.log('every day im shuffling');
     return {
         type: 'playStatus/setShuffle',
         value,

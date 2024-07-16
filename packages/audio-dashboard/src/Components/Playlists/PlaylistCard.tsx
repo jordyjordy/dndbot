@@ -56,14 +56,6 @@ const PlaylistCard = ({ item: playlist, index }: PlaylistCardProps): JSX.Element
             <div className='card-name'>
                 {playlist.name}
             </div>
-            <div
-                onClick={() => {
-                    removePlaylist(index);
-                }}
-                className='remove-button'
-            >
-                <IonIcon icon={close} />
-            </div>
         </div>
     );
 };

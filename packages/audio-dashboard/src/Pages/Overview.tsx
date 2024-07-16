@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { request } from '../utils/network';
 import { setServerInfo } from '../reducers/serverInfo/actions';
@@ -34,6 +34,10 @@ export default function Overview (): JSX.Element | null {
         currentPlaylist: state.playStatus.playlist,
         playStatus: state.playStatus,
     }), shallowEqual);
+
+    const playlist = useMemo(() => {
+        return playLists.find((pl) => pl._id === currentPlaylist);
+    }, [currentPlaylist, playLists]);
 
     useEffect(() => {
         request('/user').then(async res => {
@@ -84,7 +88,19 @@ export default function Overview (): JSX.Element | null {
     return user !== undefined
         ? (
             <PlayStateManager repeat={() => {
-                playSong(currentSong, currentPlaylist);
+                if (playStatus.loop) {
+                    playSong(currentSong);
+                    return;
+                }
+                let index = (currentSong + 1) % (playlist?.queue.length ?? 1);
+                if (playStatus.shuffle) {
+                    index = Math.random() * (((playlist?.queue.length ?? 0) - 1) ?? 1);
+                    if (index >= currentSong) {
+                        index += 1;
+                    }
+                    index %= (playlist?.queue.length ?? 1);
+                }
+                playSong(Math.floor(index));
             }}>
                 <div className="overview">
                     <div className="overview-topbar">
@@ -108,7 +124,13 @@ export default function Overview (): JSX.Element | null {
                                     // @ts-ignore
                                     window.showDirectoryPicker().then(async (res) => {
                                         const newPlaylists = [];
+                                        const basePlaylist = {
+                                            _id: res.name,
+                                            name: res.name,
+                                            queue: [] as any[],
+                                        };
                                         for await (const value of res.values()) {
+                                            // console.log(value);
                                             if (value.kind === 'directory') {
                                                 const playlist = {
                                                     _id: value.name,
@@ -117,15 +139,32 @@ export default function Overview (): JSX.Element | null {
                                                 };
                                                 for await (const innerValue of value.values()) {
                                                     if (innerValue.kind === 'file') {
-                                                        playlist.queue.push({
-                                                            _id: innerValue.name,
-                                                            name: innerValue.name,
-                                                            data: innerValue,
-                                                        });
+                                                        // console.log(innerValue);
+                                                        const innerFile = await innerValue.getFile();
+                                                        console.log(innerFile);
+                                                        if (innerFile.type === 'audio/mpeg') {
+                                                            playlist.queue.push({
+                                                                _id: innerValue.name,
+                                                                name: innerValue.name,
+                                                                data: innerValue,
+                                                            });
+                                                        }
                                                     }
                                                 }
                                                 newPlaylists.push(playlist);
+                                            } else {
+                                                const innerFile = await value.getFile();
+                                                if (innerFile.type === 'audio/mpeg') {
+                                                    basePlaylist.queue.push({
+                                                        _id: value.name,
+                                                        name: value.name,
+                                                        data: value,
+                                                    });
+                                                }
                                             }
+                                        }
+                                        if (basePlaylist.queue.length > 0 || newPlaylists.length === 0) {
+                                            newPlaylists.unshift(basePlaylist);
                                         }
                                         setPlaylists(newPlaylists);
                                         dispatch(setActivePlaylist(newPlaylists[0]._id));
@@ -146,7 +185,10 @@ export default function Overview (): JSX.Element | null {
                         <PlaylistList playlists={playLists} />
                         <SongList playlists={playLists} playSong={playSong} />
                     </div>
-                    <Player />
+                    <Player
+                        playlists={playLists}
+                        playSong={playSong}
+                    />
                 </div>
             </PlayStateManager>
         )

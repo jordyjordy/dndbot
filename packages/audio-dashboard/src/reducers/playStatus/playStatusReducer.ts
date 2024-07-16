@@ -28,7 +28,8 @@ const playStatusReducer = (state = initialState, action: Action): PlayStatus => 
             return { ...state, playing: action.value };
         case 'playStatus/setLoop':
             return { ...state, loop: action.value };
-        case 'playStatus/setShufle':
+        case 'playStatus/setShuffle':
+            console.log(action.value);
             return { ...state, shuffle: action.value };
         default:
             return state;
