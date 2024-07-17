@@ -54,6 +54,7 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
 
     passthrough.on('end', () => {
         console.log('passthrough ended');
+        passthrough.destroy();
     });
 
     connectionManager.startSong(passthrough);
