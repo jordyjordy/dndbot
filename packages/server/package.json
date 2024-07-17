@@ -10,7 +10,7 @@
     "lint-fix": "eslint . --ext .ts --fix",
     "build": "npx tsc --p ./tsconfig.build.json",
     "start": "tsc && node dist/index.js",
-    "deploy": "node dist/index.js"
+    "deploy": "node dist/index.js --max-old-space-size=200"
   },
   "private": true,
   "author": "J. van der Tang",
