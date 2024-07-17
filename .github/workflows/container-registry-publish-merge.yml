@@ -15,6 +15,7 @@ name: Create and publish a Docker image
       - master
     paths:
       - 'packages/server/**'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
