@@ -57,7 +57,7 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
     });
     res.sendStatus(200);
     console.log(process.memoryUsage());
-    connectionManager.startSong(req);
+    connectionManager.startSong(passthrough);
 });
 
 router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Response): Promise<void> => {
