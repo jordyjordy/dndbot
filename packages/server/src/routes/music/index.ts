@@ -40,26 +40,16 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
     if(!connectionManager.isConnected()) {
         await connectionInterface.joinVoiceChannel(req.sessionDetails.userId);
     }
-    const passthrough = new PassThrough();
 
-    req.on('data', (chunk) => {
-        passthrough.write(chunk);
-    });
-
-    req.on('end', () => {
-        passthrough.end();
-        res.sendStatus(200);
-        req.destroy();
-    });
-
-    passthrough.on('end', () => {
-        console.log('passthrough ended');
-        passthrough.destroy();
+    req.on('close', () => {
+        console.log('close');
         console.log(global.gc);
+        res.sendStatus(200);
         global.gc?.();
     });
+
     console.log(process.memoryUsage());
-    connectionManager.startSong(passthrough);
+    connectionManager.startSong(req);
 });
 
 router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Response): Promise<void> => {
