@@ -8,7 +8,8 @@
     "dev": "npx lerna run dev --parallel",
     "test": "npx lerna run test --parallel",
     "build": "npx lerna run build",
-    "bootstrap": "yarn workspaces focus --production && yarn install && lerna bootstrap",
+    "bootstrap:prod": "yarn install --production && lerna bootstrap",
+    "bootstrap": "yarn install && lerna bootstrap",
     "lint": "npx lerna run lint",
     "lint-fix": "npx lerna run lint-fix"
   },

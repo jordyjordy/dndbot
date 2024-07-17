@@ -17,7 +17,7 @@ jobs:
       REACT_APP_SERVER_ADDRESS: '${{ vars.DNDBOT_SERVER_ADDRESS }}'
     steps:
       - uses: actions/checkout@v4
-      - run: npm run bootstrap && npm run build
+      - run: npm run bootstrap:prod && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           entryPoint: ./packages/audio-dashboard
@@ -30,7 +30,7 @@ jobs:
       REACT_APP_SERVER_ADDRESS: '${{ vars.DNDBOT_EFFECTS_SERVER_ADDRESS }}'
     steps:
       - uses: actions/checkout@v4
-      - run: npm run bootstrap && npm run build
+      - run: npm run bootstrap:prod && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           entryPoint: ./packages/audio-dashboard
