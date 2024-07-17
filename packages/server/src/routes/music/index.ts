@@ -40,14 +40,22 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
     if(!connectionManager.isConnected()) {
         await connectionInterface.joinVoiceChannel(req.sessionDetails.userId);
     }
+    const passthrough = new PassThrough();
+
+    req.pipe(passthrough);
+
+    passthrough.on('close', () => {
+        req.destroy();
+    });
+
+    passthrough.on('end', () => {
+        req.destroy();
+    });
 
     req.on('close', () => {
         console.log('close');
-        console.log(global.gc);
-        res.sendStatus(200);
-        global.gc?.();
     });
-
+    res.sendStatus(200);
     console.log(process.memoryUsage());
     connectionManager.startSong(req);
 });
