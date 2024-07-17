@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "dndbot-dashboard"
+    "default": "dndbot-dashboard",
+    "effects": "dndeffects-dashboard"
   }
 }

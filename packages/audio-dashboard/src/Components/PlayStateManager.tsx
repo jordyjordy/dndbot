@@ -1,12 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setPlayStatus } from '../reducers/playStatus/actions';
+import { setPlayStatus, setSongEnded } from '../reducers/playStatus/actions';
 import { RootState } from '../utils/store';
 import { isEmpty } from 'lodash';
 
 interface PlayStateManagerProps {
     children: JSX.Element
-    repeat: () => void
 }
 
 const selector = (state: RootState): {
@@ -17,7 +16,7 @@ const selector = (state: RootState): {
     playStatus: state.playStatus,
 });
 
-export default function PlayStateManager ({ children, repeat }: PlayStateManagerProps): JSX.Element {
+export default function PlayStateManager ({ children }: PlayStateManagerProps): JSX.Element {
     const sse = useRef<EventSource>();
     const dispatch = useDispatch();
 
@@ -36,7 +35,7 @@ export default function PlayStateManager ({ children, repeat }: PlayStateManager
             const data = JSON.parse(event.data);
             // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
             if (data.songEnded) {
-                repeat();
+                dispatch(setSongEnded(true));
             }
             if (!isEmpty(data)) {
                 dispatch(setPlayStatus(data));
@@ -46,6 +45,6 @@ export default function PlayStateManager ({ children, repeat }: PlayStateManager
         return () => {
             sse.current?.close();
         };
-    }, [serverId, dispatch, repeat]);
+    }, [serverId, dispatch]);
     return children;
 }

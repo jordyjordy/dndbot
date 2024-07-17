@@ -8,6 +8,8 @@ name: Deploy to Firebase Hosting on merge
       - master
     paths:
       - 'packages/audio-dashboard/**'
+  workflow_dispatch:
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
