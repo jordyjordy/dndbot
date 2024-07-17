@@ -8,6 +8,7 @@ import {
     VoiceConnectionState,
     VoiceConnection,
     AudioPlayer,
+    AudioResource,
 } from '@discordjs/voice';
 import { CommandInteraction, Interaction, Message } from 'discord.js';
 import client from ".";
@@ -51,6 +52,8 @@ export class ConnectionManager {
     playing: boolean;
     lastChannel: string;
     lastGuild: string;
+    stream: Readable;
+    audioSource: AudioResource;
 
     constructor(server: string) {
         this.server = server;
@@ -141,8 +144,9 @@ export class ConnectionManager {
                 this.playing = false;
                 return false;
             }
-
+            this.stream?.destroy();
             const audiosource = createAudioResource(stream);
+            this.stream = stream;
             if(!this.audioPlayer) {
                 await this.connectToChannel(this.lastChannel, this.lastGuild);
                 await this.#prepareAudioPlayer();

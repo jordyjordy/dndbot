@@ -6,14 +6,14 @@ import './Overview.scss';
 import Player from '../Components/Player';
 import { useNavigate } from 'react-router';
 import PlayStateManager from '../Components/PlayStateManager';
-import { RootState } from '../utils/store';
+import store, { RootState } from '../utils/store';
 import PlaylistList from '../Components/Playlists/PlaylistList';
 import SongList from '../Components/Songs/SongList';
 import { IonIcon } from '@ionic/react';
 import { syncOutline } from 'ionicons/icons';
 import ConnectionIndicator from '../Components/Connection/ConnectionIndicator';
 import { setActivePlaylist } from '../reducers/playlists/actions';
-import { setPlaylistNumber, setSong } from '../reducers/playStatus/actions';
+import { setPlaylistNumber, setSong, setSongEnded } from '../reducers/playStatus/actions';
 
 interface DiscordUser {
     username: string
@@ -85,23 +85,34 @@ export default function Overview (): JSX.Element | null {
         });
     };
 
+    const repeat = (): void => {
+        const playState = store.getState().playStatus;
+
+        if (playState.loop) {
+            playSong(currentSong);
+            return;
+        }
+        let index = (currentSong + 1) % (playlist?.queue.length ?? 1);
+        if (playState.shuffle) {
+            index = Math.random() * (((playlist?.queue.length ?? 0) - 1) ?? 1);
+            if (index >= currentSong) {
+                index += 1;
+            }
+            index %= (playlist?.queue.length ?? 1);
+        }
+        playSong(Math.floor(index));
+    };
+
+    useEffect(() => {
+        if (playStatus.songEnded) {
+            dispatch(setSongEnded(false));
+            repeat();
+        }
+    }, [playStatus.songEnded]);
+
     return user !== undefined
         ? (
-            <PlayStateManager repeat={() => {
-                if (playStatus.loop) {
-                    playSong(currentSong);
-                    return;
-                }
-                let index = (currentSong + 1) % (playlist?.queue.length ?? 1);
-                if (playStatus.shuffle) {
-                    index = Math.random() * (((playlist?.queue.length ?? 0) - 1) ?? 1);
-                    if (index >= currentSong) {
-                        index += 1;
-                    }
-                    index %= (playlist?.queue.length ?? 1);
-                }
-                playSong(Math.floor(index));
-            }}>
+            <PlayStateManager>
                 <div className="overview">
                     <div className="overview-topbar">
                         <img className='navbar-logo' src="/android-chrome-512x512.png" />

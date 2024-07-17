@@ -36,6 +36,13 @@ export const setLoop = (value: PlayStatus['loop']): Action => {
     };
 };
 
+export const setSongEnded = (value: PlayStatus['songEnded']): Action => {
+    return {
+        type: 'playStatus/songEnded',
+        value,
+    };
+};
+
 export const setShuffle = (value: PlayStatus['shuffle']): Action => {
     console.log('every day im shuffling');
     return {

@@ -29,7 +29,6 @@
     "cors": "^2.8.5",
     "discord-api-types": "^0.23.1",
     "discord.js": "^13.12.0",
-    "discord.js-typings": "github:discordjs/discord.js-typings",
     "dotenv": "^8.6.0",
     "express": "^4.17.1",
     "express-sse": "^0.5.3",
@@ -45,9 +44,7 @@
     "play-dl": "^1.9.6",
     "rollup": "^3.4.0",
     "ts-node": "^10.9.1",
-    "uuid": "^8.3.2",
-    "ytdl-core": "^4.11.2",
-    "ytpl": "^2.3.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.2",
@@ -62,6 +59,7 @@
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
+    "discord.js-typings": "github:discordjs/discord.js-typings",
     "eslint": "^7.32.0",
     "jest": "^29.5.0",
     "nodemon": "^2.0.13",

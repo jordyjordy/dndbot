@@ -6,6 +6,7 @@ const initialState = {
     playlist: '',
     loop: false,
     shuffle: false,
+    songEnded: false,
 };
 
 export interface PlayStatus {
@@ -14,6 +15,7 @@ export interface PlayStatus {
     playlist: string
     loop: boolean
     shuffle: boolean
+    songEnded: boolean
 };
 
 const playStatusReducer = (state = initialState, action: Action): PlayStatus => {
@@ -31,6 +33,8 @@ const playStatusReducer = (state = initialState, action: Action): PlayStatus => 
         case 'playStatus/setShuffle':
             console.log(action.value);
             return { ...state, shuffle: action.value };
+        case 'playStatus/songEnded':
+            return { ...state, songEnded: action.value };
         default:
             return state;
     }
