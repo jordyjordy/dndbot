@@ -41,9 +41,11 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
         await connectionInterface.joinVoiceChannel(req.sessionDetails.userId);
     }
 
-    req.on('end', () => {
+    req.on('close', () => {
+        console.log('close');
+        console.log(global.gc);
         res.sendStatus(200);
-        req.destroy();
+        global.gc?.();
     });
 
     console.log(process.memoryUsage());
