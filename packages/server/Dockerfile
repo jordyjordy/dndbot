@@ -8,7 +8,9 @@ RUN yarn install
 
 COPY . .
 
-FROM node:18-bookworm
+RUN npm run build
+
+FROM node:18.20-bookworm-slim
 
 COPY --from=builder ./app/server .
 
