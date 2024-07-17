@@ -4,13 +4,13 @@
   "description": "Api for discord bot",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --expose-gc src/index.ts",
+    "dev": "nodemon src/index.ts",
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix",
     "build": "npx tsc --p ./tsconfig.build.json",
     "start": "tsc && node dist/index.js",
-    "deploy": "nodemon --max-old-space-size=200 --expose-gc dist/index.js "
+    "deploy": "node --max-old-space-size=200 dist/index.js "
   },
   "private": true,
   "author": "J. van der Tang",
@@ -19,7 +19,7 @@
     "@discordjs/builders": "^0.6.0",
     "@discordjs/opus": "^0.8.0",
     "@discordjs/rest": "^0.1.0-canary.0",
-    "@discordjs/voice": "^0.17.0",
+    "@discordjs/voice": "^0.15.0",
     "@rollup/plugin-json": "^5.0.1",
     "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
