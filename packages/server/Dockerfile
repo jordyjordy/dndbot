@@ -8,9 +8,7 @@ RUN yarn install
 
 COPY . .
 
-RUN npm run build
-
-FROM node:18-alpine
+FROM node:18-bookworm
 
 COPY --from=builder ./app/server .
 
