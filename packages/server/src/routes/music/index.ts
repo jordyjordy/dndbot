@@ -1,5 +1,6 @@
 import express, { Response } from 'express';
 const router = express.Router();
+import busboy from 'busboy';
 import userPlaylists from './userPlaylists';
 import sessionAuth, { ISessionAuthRequest } from '../../config/sessionAuth';
 import { getConnection } from '../../bot';
@@ -33,32 +34,30 @@ type MusicActionRequest = ISessionAuthRequest & {
 };
 
 router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response): Promise<void> => {
-
+    const bb = busboy({ headers: req.headers });
     await getConnection(req.query.serverId);
     const connectionInterface = new ConnectionInterface(req.query.serverId);
     const connectionManager = await connectionInterface.getConnectionManager();
     if(!connectionManager.isConnected()) {
         await connectionInterface.joinVoiceChannel(req.sessionDetails.userId);
     }
-    const passthrough = new PassThrough();
 
-    req.pipe(passthrough);
+    bb.on('file', (fieldname, file, filename, encoding, mimetype) => {
 
-    passthrough.on('close', () => {
-        req.destroy();
+        const passthrough = new PassThrough();
+
+        file.on('data', (data) => {
+            passthrough.write(data);
+        });
+
+        connectionManager.startSong(passthrough);
     });
 
-    passthrough.on('end', () => {
-        req.destroy();
+    bb.on('finish', () => {
+        res.sendStatus(200);
     });
 
-    req.on('close', () => {
-        console.log('close');
-    });
-    connectionManager.startSong(passthrough);
-    console.log(process.memoryUsage());
-    res.sendStatus(200);
-
+    req.pipe(bb);
 });
 
 router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Response): Promise<void> => {
