@@ -55,6 +55,7 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
 
     bb.on('finish', () => {
         res.sendStatus(200);
+        console.log(process.memoryUsage());
     });
 
     req.pipe(bb);
