@@ -50,6 +50,11 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
             passthrough.write(data);
         });
 
+        passthrough.on('close', () => {
+            file.destroy();
+            req.destroy();
+        });
+
         connectionManager.startSong(passthrough);
     });
 
