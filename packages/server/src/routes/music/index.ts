@@ -1,12 +1,13 @@
 import express, { Response } from 'express';
 const router = express.Router();
-import busboy from 'busboy';
+import { Formidable } from 'formidable';
 import userPlaylists from './userPlaylists';
 import sessionAuth, { ISessionAuthRequest } from '../../config/sessionAuth';
 import { getConnection } from '../../bot';
 import ConnectionInterface from '../../util/ConnectionInterface';
 import SSEManager from '../../util/SSeManager';
 import { PassThrough } from 'stream';
+import { createReadStream } from 'fs';
 
 router.use('/playlists', userPlaylists);
 
@@ -34,7 +35,6 @@ type MusicActionRequest = ISessionAuthRequest & {
 };
 
 router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response): Promise<void> => {
-    const bb = busboy({ headers: req.headers });
     await getConnection(req.query.serverId);
     const connectionInterface = new ConnectionInterface(req.query.serverId);
     const connectionManager = await connectionInterface.getConnectionManager();
@@ -42,28 +42,24 @@ router.post('/playsong', sessionAuth, async (req: SongPlayRequest, res: Response
         await connectionInterface.joinVoiceChannel(req.sessionDetails.userId);
     }
 
-    bb.on('file', (fieldname, file, filename, encoding, mimetype) => {
+    const form = new Formidable();
 
-        const passthrough = new PassThrough();
+    form.on('file', (name, file) => {
+        const stream = createReadStream(file.filepath);
 
-        file.on('data', (data) => {
-            passthrough.write(data);
-        });
-
-        passthrough.on('close', () => {
+        stream.on('close', () => {
             file.destroy();
             req.destroy();
         });
-
-        connectionManager.startSong(passthrough);
+        connectionManager.startSong(stream);
     });
 
-    bb.on('finish', () => {
-        res.sendStatus(200);
+    form.parse(req, () => {
         console.log(process.memoryUsage());
+        console.log('done?');
+        req.destroy();
+        res.sendStatus(200);
     });
-
-    req.pipe(bb);
 });
 
 router.post('/action', sessionAuth, async (req: MusicActionRequest, res: Response): Promise<void> => {
