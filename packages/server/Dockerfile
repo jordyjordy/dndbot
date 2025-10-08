@@ -1,4 +1,4 @@
-FROM node:18 as builder
+FROM node:22 as builder
 
 WORKDIR /app/server
 
@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm run build
 
-FROM node:18.20-bookworm-slim
+FROM node:22-bookworm-slim
 
 COPY --from=builder ./app/server .
 
