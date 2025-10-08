@@ -14,6 +14,7 @@ jobs:
       - run: npm run bootstrap && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
+          node-version: '22'
           entryPoint: ./packages/audio-dashboard
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_DNDBOT_DASHBOARD }}'
