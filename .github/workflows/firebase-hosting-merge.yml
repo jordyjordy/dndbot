@@ -16,7 +16,7 @@ jobs:
     env:
       REACT_APP_SERVER_ADDRESS: '${{ vars.DNDBOT_SERVER_ADDRESS }}'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: npm run bootstrap:prod && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -29,7 +29,7 @@ jobs:
     env:
       REACT_APP_SERVER_ADDRESS: '${{ vars.DNDBOT_EFFECTS_SERVER_ADDRESS }}'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: npm run bootstrap:prod && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
